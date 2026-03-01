@@ -3,22 +3,23 @@ import scipy
 from typing import Tuple, Dict
 from sklearn.cluster import KMeans
 
-def calcula_matriu_pesos(trajectories: np.ndarray, t_valors: np.ndarray) -> np.ndarray:
-    num_trajectories = trajectories.shape[0]
-    t_span_size = t_valors[-1] - t_valors[0]
-    matriu_pesos = np.zeros((num_trajectories, num_trajectories))
-    for i in range(num_trajectories - 1):
-        # Calcula la diferència de la trajectòria 'i' amb totes les 'j > i' alhora
-        # trajectories[i] té forma (T, 2), trajectories[i+1:] té forma (N-i-1, T, 2)
-        diff = trajectories[i] - trajectories[i+1:]
-        # Calcula la norma euclidiana per a cada punt temporal: forma (N-i-1, T)
-        norms = np.linalg.norm(diff, axis=2)
-        # Integra les distàncies usant la regla del trapezi: forma (N-i-1,)
-        distancies = scipy.integrate.trapezoid(norms, x=t_valors, axis=1) / t_span_size
-        # Calcula el pes i omple la matriu simètricament
-        pesos = 1.0 / distancies
-        matriu_pesos[i, i+1:] = pesos
-        matriu_pesos[i+1:, i] = pesos
+def calcula_matriu_pesos(trajectories: np.ndarray) -> np.ndarray:
+    num_trajectories, t_steps, dimensio = trajectories.shape
+    # t_valors és sempre uniforme (np.linspace), de manera que la regla del trapezi
+    # es redueix a:  r_ij ≈ [d_0/2 + d_1 + ... + d_{T-2} + d_{T-1}/2] / (T-1)
+    # pdist calcula totes les N*(N-1)/2 distàncies euclidianes en un instant t.
+    # Els extrems del trapezi compten la meitat: 
+    # sumem des de k=1 fins a T-2 amb pes 1, i afegim k=0 i k=T-1 amb pes 1/2
+    distancies_1d = 0.5 * scipy.spatial.distance.pdist(trajectories[:, 0, :])
+    for t in range(1, t_steps - 1):
+        distancies_1d += scipy.spatial.distance.pdist(trajectories[:, t, :])
+    distancies_1d += 0.5 * scipy.spatial.distance.pdist(trajectories[:, -1, :])
+
+    # Converteix al format de matriu simètrica amb diagonal zero.
+    # La divisió entre (T-1) sobre les distancies es converteix 
+    # en multiplicació per (T-1) sobre els pesos finals,
+    # evitant una divisió sobre l'array de distàncies
+    matriu_pesos = scipy.spatial.distance.squareform((t_steps - 1) / distancies_1d)
     return matriu_pesos
 
 def calcula_estadistics(matriu_pesos: np.ndarray) -> Dict[str, float]:
