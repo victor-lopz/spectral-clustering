@@ -58,7 +58,6 @@ def grafica_trajectories(trajectories: np.ndarray,
     # plt.legend(); 
     plt.grid()
     plt.gca().set_aspect('equal', adjustable='box')
-    # plt.gca().set_xlim(-10, 10)
     if desa_pdf: plt.savefig('edo.pdf')
     plt.show()
     
@@ -105,17 +104,19 @@ def grafica_clusters(condicions_inicials: np.ndarray,
     )
     plt.figtext(0.5, 0.01, descripcio, ha='center', fontsize=11)
     plt.subplots_adjust(bottom=0.1)
-    timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
-    filename = ( # concatenem parametres pel nom del fitxer
+    timestamp = datetime.now().strftime('%H-%M-%S')
+    filename = (
         f"{timestamp}"
         f"_clusters={num_clusters}"
-        f"_trajectories={num_trajectories}"
-        f"_tol={sparsification_tol}"
-        f"_sparsificacio={sparsification_percent*100:.0f}%"
-        f"_t_steps={t_steps}"
-        f"_t_end={t_span[-1]}"
+        f"_traj={num_trajectories}"
+        f"_tsteps={t_steps}"
+        f"_t_end={t_span[-1]:.1f}"
+        f"_tol={sparsification_tol:.1f}"
+        f"_sparse={sparsification_percent*100:.0f}%"
         ".pdf"
     )
-    os.makedirs(output_dir, exist_ok=True)
-    plt.savefig(os.path.join(output_dir, filename))
+    date = datetime.now().strftime("%Y-%m-%d")
+    output_path = os.path.join(output_dir, date)
+    os.makedirs(output_path, exist_ok=True)
+    plt.savefig(os.path.join(output_path, filename))
     plt.show()
