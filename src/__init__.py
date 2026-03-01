@@ -1,0 +1,9 @@
+# src/__init__.py
+
+from .ode import edo_duffing
+from .trajectories import generar_condicions_inicials, generar_trajectories
+from .spectral import (calcula_matriu_pesos, calcula_estadistics, 
+imprimeix_estadistics, sparcify, calcula_matriu_grau, calcula_vaps_veps, 
+calcula_num_clusters, troba_clusters)
+from .plotting import (grafica_circumferencia, grafica_regio, 
+grafica_regions_A_B, grafica_trajectories, grafica_punts, grafica_clusters)
