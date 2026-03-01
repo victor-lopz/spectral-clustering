@@ -36,10 +36,19 @@ def generar_trajectories(edo,
     """
     num_trajectories = len(condicions_inicials)
     t_steps = len(t_valors)
-    trajectories = np.zeros((num_trajectories, t_steps, dimensio))
-    valor_random = np.random.uniform(0, 2)
-    args = (valor_random, epsilon, funcio_soroll)
-    for i, ci in enumerate(condicions_inicials):
-        sol = scipy.integrate.solve_ivp(edo, t_span, ci, t_eval=t_valors, args=args)
-        trajectories[i] = sol.y.T
+    y0_flat = condicions_inicials.flatten()
+
+    def edo_vectorial(t, y_flat):
+        # Transformem vector 1D a matriu (dimensio, num_trajectories)
+        z = y_flat.reshape(num_trajectories, dimensio).T
+        # Avaluem totes alhora i tornem a aplanar
+        return np.array(edo(t, z)).T.flatten()
+        
+    sol = scipy.integrate.solve_ivp(edo_vectorial, t_span, 
+                                    y0_flat, t_eval=t_valors)
+    if sol.status != 0:
+        raise RuntimeError(f"solve_ivp error: {sol.message}")
+    # Reconstruim la matriu de trajectòries: 
+    # de (num_trajectories * dimensio, t_steps) a (num_trajectories, t_steps, dimensio)
+    trajectories = sol.y.T.reshape(t_steps, num_trajectories, dimensio).transpose(1, 0, 2)
     return trajectories
