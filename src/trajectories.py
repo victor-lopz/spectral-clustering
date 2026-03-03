@@ -1,6 +1,6 @@
 import numpy as np
 import scipy
-from typing import Tuple
+from typing import Tuple, Callable
 
 def generar_condicions_inicials(
     step_size: float,
@@ -19,36 +19,44 @@ def generar_condicions_inicials(
         print(f"Nombre de trajectòries = {len(malla)} = {num_y} files * {num_x} columnes")
     return malla
 
-def generar_trajectories(edo,
-                         condicions_inicials: np.ndarray,
-                         t_span: Tuple[float, float],
-                         t_valors: np.ndarray,
-                         dimensio=2,
-                         epsilon=0,
-                         funcio_soroll=np.sin) -> np.ndarray:
+def generar_trajectories(
+    edo: Callable,
+    condicions_inicials: np.ndarray,
+    t_span: Tuple[float, float],
+    t_valors: np.ndarray,
+    dimensio: int = 2
+) -> np.ndarray:
     """
     Paràmetres:
-        edo: funció que representa el camp vectorial d'una EDO
-        condicions_inicials: llista que conté condicions inicials [x0,y0]
-        t_valors: np.array[float], conté els instants de temps on avaluem l'EDO
+    - edo: funció que representa el camp vectorial d'una EDO
+    - condicions_inicials: llista que conté condicions inicials [x0,y0]
+    - t_span: tupla (t_inici, t_final) que indica l'interval de temps a simular
+    - t_valors: np.array[float], conté els instants de temps on avaluem l'EDO
+    - dimensio: dimensió dels punts a l'espai R^n (per defecte R^2)
     
-    Cada trajectòria és la solució de l'EDO avaluada en els instants de temps indicats.
+    Retorna: 
+        matriu 3D de mida (num_trajectories, t_steps, dimensio)
+        on cada trajectòria és la solució de l'EDO avaluada en els 
+        instants de temps indicats per t_valors.
     """
     num_trajectories = len(condicions_inicials)
     t_steps = len(t_valors)
-    y0_flat = condicions_inicials.flatten()
+    y0_flat = condicions_inicials.T.flatten()  # [x0,x1,x2,..., y0,y1,y2,...]
 
     def edo_vectorial(t, y_flat):
-        # Transformem vector 1D a matriu (dimensio, num_trajectories)
-        z = y_flat.reshape(num_trajectories, dimensio).T
-        # Avaluem totes alhora i tornem a aplanar
-        return np.array(edo(t, z)).T.flatten()
+        # Transformem vector 1D a matriu de mida (dimensio, num_trajectories)
+        z = y_flat.reshape(dimensio, num_trajectories)
+        # Avaluem totes les trajectories alhora i tornem a aplanar
+        return np.array(edo(t, z)).flatten()
         
-    sol = scipy.integrate.solve_ivp(edo_vectorial, t_span, 
-                                    y0_flat, t_eval=t_valors)
+    sol = scipy.integrate.solve_ivp(edo_vectorial, t_span, y0_flat, t_eval=t_valors)
     if sol.status != 0:
         raise RuntimeError(f"solve_ivp error: {sol.message}")
-    # Reconstruim la matriu de trajectòries: 
-    # de (num_trajectories * dimensio, t_steps) a (num_trajectories, t_steps, dimensio)
-    trajectories = sol.y.T.reshape(t_steps, num_trajectories, dimensio).transpose(1, 0, 2)
+    
+    # sol.y té mida (dimensio * num_trajectories, t_steps)
+    # reconstruïm les dimensions
+    y = sol.y.reshape(dimensio, num_trajectories, t_steps)
+    # reordenem els eixos: de (dimensio, num_trajectories, t_steps) 
+    # a (num_trajectories, t_steps, dimensio)
+    trajectories = y.transpose(1, 2, 0)
     return trajectories
