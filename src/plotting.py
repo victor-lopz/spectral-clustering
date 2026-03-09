@@ -74,6 +74,17 @@ def grafica_punts(punts: Iterable, dibuixa_regions=False, radi=radi, resolucio=r
     plt.gca().set_aspect('equal')
     plt.show()
 
+def grafica_dif_vs_radi(diffs_max: list[float], radis: np.ndarray) -> None:
+    """Grafica la diferència màxima entre VAPs consecutius 
+    en funció del radi d'esparsificació.
+    """
+    plt.plot(radis, diffs_max, marker='o')
+    plt.xlabel("Radi d'esparsificació")
+    plt.ylabel('Diferència màxima entre VAPs consecutius')
+    plt.title("Diferència màxima entre VAPs vs Radi d'esparsificació")
+    plt.grid()
+    plt.show()
+
 def grafica_clusters(condicions_inicials: np.ndarray, 
                      labels: np.ndarray, 
                      num_clusters: int, 
