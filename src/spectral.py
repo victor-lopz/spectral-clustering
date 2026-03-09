@@ -14,11 +14,7 @@ def calcula_matriu_pesos(trajectories: np.ndarray) -> np.ndarray:
     for t in range(1, t_steps - 1):
         distancies_1d += scipy.spatial.distance.pdist(trajectories[:, t, :])
     distancies_1d += 0.5 * scipy.spatial.distance.pdist(trajectories[:, -1, :])
-
     # Converteix al format de matriu simètrica amb diagonal zero.
-    # La divisió entre (T-1) sobre les distancies es converteix 
-    # en multiplicació per (T-1) sobre els pesos finals,
-    # evitant una divisió sobre l'array de distàncies
     matriu_pesos = scipy.spatial.distance.squareform((t_steps - 1) / distancies_1d)
     return matriu_pesos
 
@@ -88,7 +84,8 @@ def calcula_num_clusters(vaps: np.ndarray) -> int:
     """Retorna el nombre de clusters a partir dels VAPs, segons la regla del colze.
     Aquesta regla diu que el nombre de clusters és el valor de k on la diferència
     entre vaps[k] i vaps[k-1] és màxima."""
-    diffs = np.diff(vaps)
+    vaps_positius = vaps[1:] # eliminem el 1r VAP perquè és zero
+    diffs = np.diff(vaps_positius)
     num_clusters = np.argmax(diffs)
     # sumem 2 perquè abans hem tret el VAP zero i per 
     # inloure el cluster dels estats incoherents
