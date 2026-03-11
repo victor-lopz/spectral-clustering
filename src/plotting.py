@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Tuple, Iterable
+from typing import Sequence, Tuple, Iterable
 from datetime import datetime
 import os
 
@@ -74,15 +74,53 @@ def grafica_punts(punts: Iterable, dibuixa_regions=False, radi=radi, resolucio=r
     plt.gca().set_aspect('equal')
     plt.show()
 
-def grafica_dif_vs_radi(diffs_max: list[float], radis: np.ndarray) -> None:
+def grafica_dif_vs_radi(diffs_max: Sequence[float], 
+                        nums_clusters: Sequence[int], 
+                        radis: np.ndarray,
+                        estadistics: dict[str, float],
+                        output_dir: str = "../output/"
+                        ) -> None:
     """Grafica la diferència màxima entre VAPs consecutius 
-    en funció del radi d'esparsificació.
+    en funció del radi d'esparsificació, amb el nombre de clusters
+    en un eix secundari a la dreta.
     """
-    plt.plot(radis, diffs_max, marker='o')
-    plt.xlabel("Radi d'esparsificació")
-    plt.ylabel('Diferència màxima entre VAPs consecutius')
-    plt.title("Diferència màxima entre VAPs vs Radi d'esparsificació")
-    plt.grid()
+    fig, ax1 = plt.subplots()
+
+    color_dif = 'tab:blue'
+    ax1.plot(radis, diffs_max, marker='o', 
+             color=color_dif, label='Eigen gap')
+    ax1.set_xlabel("Radi d'esparsificació")
+    ax1.set_ylabel('Diferència màxima entre VAPs consecutius', color=color_dif)
+    ax1.tick_params(axis='y', labelcolor=color_dif)
+
+    ax2 = ax1.twinx()
+    color_clust = 'tab:red'
+    ax2.plot(radis, nums_clusters, marker='s', 
+             color=color_clust, label='Nombre de clusters')
+    ax2.set_ylabel('Nombre de clusters', color=color_clust)
+    ax2.tick_params(axis='y', labelcolor=color_clust)
+
+    colors = iter(plt.rcParams['axes.prop_cycle'])
+    for nom, valor in estadistics.items():
+        if nom != "pes_max":
+            ax1.axvline(x=valor, linestyle='--', alpha=0.6,
+                        color=next(colors)['color'],
+                        label=f'{nom} = {valor:.2f}')
+
+    fig.suptitle("Eigen gap i nombre de clusters vs Radi d'esparsificació")
+    ax1.grid()
+    fig.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=3)
+    fig.tight_layout()
+    fig.subplots_adjust(bottom=0.05)
+    
+    timestamp = datetime.now().strftime('%H-%M-%S')
+    filename = (
+        f"{timestamp}_eigengap_vs_radi.pdf"
+    )
+    date = datetime.now().strftime("%Y-%m-%d")
+    output_path = os.path.join(output_dir, date)
+    os.makedirs(output_path, exist_ok=True)
+    plt.savefig(os.path.join(output_path, filename))
     plt.show()
 
 def grafica_clusters(condicions_inicials: np.ndarray, 
@@ -99,7 +137,7 @@ def grafica_clusters(condicions_inicials: np.ndarray,
         if len(indices[0]) > 0:
             plt.scatter(condicions_inicials[indices, 0], 
                         condicions_inicials[indices, 1], 
-                        s=30, label=cluster_id)
+                        s=40, label=cluster_id)
     plt.title('Clusters')
     plt.xlabel('x')
     plt.ylabel('y')
