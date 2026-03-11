@@ -1,5 +1,4 @@
 import numpy as np
-from typing import Tuple
 
 def edo_duffing_soroll(t, z, random, epsilon, funcio_soroll):
     """Paràmetres:
@@ -18,7 +17,39 @@ def edo_duffing(t, z):
     """Paràmetres:
         t: temps
         z: posició al pla R^2
-    Retorna el camp vectorial del sistema d'EDOs x'=y+epsilon*random*f(t); y'=x-x^3.
+    Retorna el camp vectorial del sistema d'EDOs x'=y; y'=x-x^3.
     """
     x, y = z
     return [y, x - x**3]
+
+def edo_bickley_jet(t, z):
+    """Paràmetres:
+        t: temps
+        z: posició al pla R^2
+    Retorna el camp vectorial del sistema d'EDOs de Bickley jet.
+    """
+    x, y = z
+    
+    U0 = 62.66 # m/s velocitat del jet
+    L = 1770 # m amplada del jet
+    c1 = 0.205*U0
+    c2 = 0.461*U0
+    radi_Terra = 6371000 # m
+    k1 = 2/radi_Terra # nombre d'ona
+    k2 = 2*k1
+    A1 = 0.15 # amplitud d'ona
+    A2 = 0.30
+
+    def stream0(y):
+        return - U0*L*np.tanh(y/L)
+    
+    def stream1(x, y, t):
+        sech = 1/np.cosh(y/L)
+        suma = A1*np.cos(k1*x - c1*k1*t) + A2*np.cos(k2*x - c2*k2*t)
+        return U0 * L * sech * suma
+    
+    def stream_function(x, y, t):
+        return stream0(y) + stream1(x, y, t)
+    
+    camp_vectorial = c2*y + stream_function(x, y, t)
+    return camp_vectorial
