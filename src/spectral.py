@@ -48,16 +48,21 @@ def imprimeix_estadistics(matriu_pesos: np.ndarray) -> None:
     for nom, valor in estadistics.items():
         print(f"{nom:<12} {valor:.3f}")
 
-def sparcify_with_tol(matriu: np.ndarray, tol: float) -> Tuple[np.ndarray, float]:
+def sparcify_with_tol(matriu: np.ndarray, 
+                      tol: float, 
+                      return_percentage: bool = True
+                      ) -> Tuple[np.ndarray, float]:
     """Retorna una matriu on els elements més petits que la tolerància es tornen zero.
-    Retorna també el percentatge d'esparsificació obtingut.
+    Opcionalment, retorna també el percentatge d'esparsificació obtingut.
     Requisit: la diagonal de la matriu ha de ser zero."""
     sota_tolerancia = matriu < tol
     matriu_esparsa = np.where(sota_tolerancia, 0, matriu)
-    zeros = np.sum(sota_tolerancia) - len(matriu)  # Excloem la diagonal
-    total_elements = matriu.size - len(matriu)  # Excloem la diagonal
-    percentatge_esparsificacio = float(zeros / total_elements)
-    return matriu_esparsa, percentatge_esparsificacio
+    if return_percentage:
+        zeros = np.sum(sota_tolerancia) - len(matriu)  # Excloem la diagonal
+        total_elements = matriu.size - len(matriu)  # Excloem la diagonal
+        percentatge_esparsificacio = float(zeros / total_elements)
+        return matriu_esparsa, percentatge_esparsificacio
+    return matriu_esparsa, -1
 
 def calcula_tol_esparsificacio(matriu: np.ndarray, percent: float) -> float:
     """La tolerància o radi d'esparsificació és el percentil {percent}
@@ -108,25 +113,26 @@ def calcula_num_clusters(vaps: np.ndarray) -> int:
     num_clusters = k + 2
     return num_clusters
 
-def calcula_diffs_vs_radis(matriu_pesos, constant_diagonal) -> Tuple[list[float], list[float], np.ndarray]:
+def calcula_diffs_vs_radis(matriu_pesos, constant_diagonal
+                           ) -> Tuple[list[float], list[int], np.ndarray, dict[str, float]]:
     estadistics = calcula_estadistics(matriu_pesos)
     num_radis = 20
-    radis = np.linspace(estadistics["pes_min"], estadistics["pes_max"], num_radis)
+    radis = np.linspace(estadistics["pes_min"], estadistics["percentil95"], num_radis)
     diffs = []
     nums_clusters = []
     for radi in radis:
-        matriu_similaritat_W, percent = sparcify_with_tol(matriu_pesos, radi)
+        matriu_similaritat_W, _ = sparcify_with_tol(matriu_pesos, radi, return_percentage=False)
         np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
         matriu_grau_D = calcula_matriu_grau(matriu_similaritat_W)
-        vaps, _ = calcula_vaps(matriu_grau_D, matriu_similaritat_W, 100)
+        vaps, _ = calcula_vaps(matriu_grau_D, matriu_similaritat_W, 50)
         vaps_positius = vaps[1:] # eliminem el 1r VAP perquè és zero
         diff_vaps = np.diff(vaps_positius)
         k = int(np.argmax(diff_vaps))
         n_clusters = k + 2
         nums_clusters.append(n_clusters)
-        diff_max = diffs[k]
+        diff_max = diff_vaps[k]
         diffs.append(diff_max)
-    return diffs, nums_clusters, radis
+    return diffs, nums_clusters, radis, estadistics
 
 def troba_clusters(num_clusters: int, veps: np.ndarray) -> np.ndarray:
     """Retorna un vector d'etiquetes de clusters per a cada trajectòria.
