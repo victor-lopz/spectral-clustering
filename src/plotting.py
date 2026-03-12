@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Sequence, Tuple, Iterable
+from typing import Tuple, Iterable
 from datetime import datetime
 import os
 
@@ -11,6 +11,7 @@ centre_dret = (1, 0)
 centre_nord = (0, 1)
 centre_sud = (0, -1)
 resolucio_grafica = 2000
+
 
 def grafica_circumferencia(centre: Tuple[float, float],
                            radi: float, 
@@ -24,14 +25,24 @@ def grafica_circumferencia(centre: Tuple[float, float],
     plt.plot(xx, - yy + b, 'black')
     plt.annotate(nom_regio, centre)
 
+
 def grafica_regio(nom_regio: str, radi: float, centres: list[Tuple[float, float]], resolucio: int
                   ) -> None:
     for centre in centres:
         grafica_circumferencia(centre, radi, nom_regio, resolucio)
 
+
+def make_patch_spines_invisible(ax):
+    ax.set_frame_on(True)
+    ax.patch.set_visible(False)
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+
+
 def grafica_regions_A_B(radi: float, resolucio: int) -> None:
     grafica_regio('A', radi, [centre_esquerre, centre_dret], resolucio)
     grafica_regio('B', radi, [centre_nord, centre_sud], resolucio)
+    
     
 def grafica_trajectories(trajectories: np.ndarray,
                          dibuixa_regions: bool = False,
@@ -61,6 +72,7 @@ def grafica_trajectories(trajectories: np.ndarray,
     if desa_pdf: plt.savefig('edo.pdf')
     plt.show()
     
+    
 def grafica_punts(punts: Iterable, dibuixa_regions=False, radi=radi, resolucio=resolucio_grafica) -> None:
     """punts: conjunt de punts a R^2. Exemple: [[0,1], [0.5,1], [1,1]]"""
     if dibuixa_regions:
@@ -74,54 +86,66 @@ def grafica_punts(punts: Iterable, dibuixa_regions=False, radi=radi, resolucio=r
     plt.gca().set_aspect('equal')
     plt.show()
 
-def grafica_dif_vs_radi(diffs_max: Sequence[float], 
-                        nums_clusters: Sequence[int], 
-                        radis: np.ndarray,
-                        estadistics: dict[str, float],
-                        output_dir: str = "../output/"
-                        ) -> None:
-    """Grafica la diferència màxima entre VAPs consecutius 
-    en funció del radi d'esparsificació, amb el nombre de clusters
-    en un eix secundari a la dreta.
+
+def grafica_eigengaps_vs_radi(diffs_max: list[float], 
+                              nums_clusters: list[int], 
+                              radis: np.ndarray,
+                              estadistics: dict[str, float],
+                              sparsificacions: list[float],
+                              output_dir: str = "../output/"
+                              ) -> None:
     """
-    fig, ax1 = plt.subplots()
-
-    color_dif = 'tab:blue'
-    ax1.plot(radis, diffs_max, marker='o', 
-             color=color_dif, label='Eigen gap')
-    ax1.set_xlabel("Radi d'esparsificació")
-    ax1.set_ylabel('Diferència màxima entre VAPs consecutius', color=color_dif)
-    ax1.tick_params(axis='y', labelcolor=color_dif)
-
-    ax2 = ax1.twinx()
+    Grafica el nombre de clusters, l'eigen gap i el percentatge d'esparsificació
+    en funció del radi d'esparsificació.
+    """
+    fig, host = plt.subplots(figsize=(10, 6))
+    fig.subplots_adjust(right=0.75)
+    par1 = host.twinx()
+    par2 = host.twinx()
+    par2.spines["right"].set_position(("axes", 1.1))
+    make_patch_spines_invisible(par2)
+    par2.spines["right"].set_visible(True)
+    color_gap = 'tab:blue'
     color_clust = 'tab:red'
-    ax2.plot(radis, nums_clusters, marker='s', 
-             color=color_clust, label='Nombre de clusters')
-    ax2.set_ylabel('Nombre de clusters', color=color_clust)
-    ax2.tick_params(axis='y', labelcolor=color_clust)
+    color_sparse = 'tab:green'
+    p1, = host.plot(radis, diffs_max, marker='.', color=color_gap, label='Eigen gap')
+    p2, = par1.plot(radis, nums_clusters, marker='.', color=color_clust, label='Nombre de clusters')
+    p3, = par2.plot(radis, sparsificacions, marker='.', color=color_sparse, label='Esparsificació (%)')
+    host.set_xlabel("Radi d'esparsificació")
+    host.set_ylabel('Diferència màxima entre VAPs consecutius', color=color_gap)
+    par1.set_ylabel('Nombre de clusters', color=color_clust)
+    par2.set_ylabel('Esparsificació (%)', color=color_sparse)
+    host.tick_params(axis='y', labelcolor=color_gap)
+    par1.tick_params(axis='y', labelcolor=color_clust)
+    par2.tick_params(axis='y', labelcolor=color_sparse)
+    host.yaxis.get_offset_text().set_horizontalalignment('left')
+    host.ticklabel_format(style='sci', axis='y', scilimits=(0,0), useMathText=True)
 
-    colors = iter(plt.rcParams['axes.prop_cycle'])
-    for nom, valor in estadistics.items():
-        if nom != "pes_max":
-            ax1.axvline(x=valor, linestyle='--', alpha=0.6,
-                        color=next(colors)['color'],
-                        label=f'{nom} = {valor:.2f}')
+    # colors_stats = iter(plt.rcParams['axes.prop_cycle'])
+    # for nom, valor in estadistics.items():
+    #     if nom != "pes_max":
+    #         host.axvline(x=valor, linestyle='--', alpha=0.6,
+    #                     color=next(colors_stats)['color'],
+    #                     label=f'{nom} = {valor:.2f}')
 
-    fig.suptitle("Eigen gap i nombre de clusters vs Radi d'esparsificació")
-    ax1.grid()
-    fig.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=3)
+    host.set_title("Evolució dels indicadors vs Radi d'esparsificació")
+    host.grid(True, alpha=0.3)
+    lines = [p1, p2, p3]
+    labels: list[str] = [str(l.get_label()) for l in lines]
+    for l in host.get_lines():
+        if l not in lines:
+            lines.append(l)
+            labels.append(str(l.get_label()))
+    host.legend(lines, labels, loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
     fig.tight_layout()
-    fig.subplots_adjust(bottom=0.05)
-    
-    timestamp = datetime.now().strftime('%H-%M-%S')
-    filename = (
-        f"{timestamp}_eigengap_vs_radi.pdf"
-    )
+    time = datetime.now().strftime('%H-%M-%S')
+    filename = f"{time}_eigengap_vs_radi.pdf"
     date = datetime.now().strftime("%Y-%m-%d")
     output_path = os.path.join(output_dir, date)
     os.makedirs(output_path, exist_ok=True)
-    plt.savefig(os.path.join(output_path, filename))
+    plt.savefig(os.path.join(output_path, filename), bbox_inches='tight')
     plt.show()
+
 
 def grafica_clusters(condicions_inicials: np.ndarray, 
                      labels: np.ndarray, 
@@ -131,6 +155,7 @@ def grafica_clusters(condicions_inicials: np.ndarray,
                      t_steps: int, 
                      t_span: Tuple[float, float],
                      output_dir: str = "../output/") -> None:
+    
     num_trajectories = len(condicions_inicials)
     for cluster_id in range(num_clusters):
         indices = np.where(labels == cluster_id)
@@ -153,9 +178,9 @@ def grafica_clusters(condicions_inicials: np.ndarray,
     )
     plt.figtext(0.5, 0.01, descripcio, ha='center', fontsize=11)
     plt.subplots_adjust(bottom=0.1)
-    timestamp = datetime.now().strftime('%H-%M-%S')
+    time = datetime.now().strftime('%H-%M-%S')
     filename = (
-        f"{timestamp}"
+        f"{time}"
         f"_clusters={num_clusters}"
         f"_traj={num_trajectories}"
         f"_tsteps={t_steps}"

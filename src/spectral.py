@@ -3,6 +3,7 @@ import scipy
 from typing import Tuple, Dict
 from sklearn.cluster import KMeans
 
+
 def calcula_matriu_pesos(trajectories: np.ndarray) -> np.ndarray:
     """
     Retorna la matriu de pesos on el pes entre dues trajectòries és 
@@ -28,6 +29,7 @@ def calcula_matriu_pesos(trajectories: np.ndarray) -> np.ndarray:
     matriu_pesos = scipy.spatial.distance.squareform(pesos_1d)
     return matriu_pesos
 
+
 def calcula_estadistics(matriu_pesos: np.ndarray) -> Dict[str, float]:
     triangular_upper = matriu_pesos[np.triu_indices(len(matriu_pesos), k=1)]
     percentils = np.percentile(triangular_upper, [0, 50, 90, 95, 100])
@@ -42,27 +44,25 @@ def calcula_estadistics(matriu_pesos: np.ndarray) -> Dict[str, float]:
     }
     return estadistics
 
+
 def imprimeix_estadistics(matriu_pesos: np.ndarray) -> None:
     print(f"Dimensions de la matriu de pesos: {matriu_pesos.shape}")
     estadistics = calcula_estadistics(matriu_pesos)
     for nom, valor in estadistics.items():
         print(f"{nom:<12} {valor:.3f}")
 
-def sparcify_with_tol(matriu: np.ndarray, 
-                      tol: float, 
-                      return_percentage: bool = True
-                      ) -> Tuple[np.ndarray, float]:
+
+def sparcify_with_tol(matriu: np.ndarray, tol: float) -> Tuple[np.ndarray, float]:
     """Retorna una matriu on els elements més petits que la tolerància es tornen zero.
     Opcionalment, retorna també el percentatge d'esparsificació obtingut.
     Requisit: la diagonal de la matriu ha de ser zero."""
     sota_tolerancia = matriu < tol
     matriu_esparsa = np.where(sota_tolerancia, 0, matriu)
-    if return_percentage:
-        zeros = np.sum(sota_tolerancia) - len(matriu)  # Excloem la diagonal
-        total_elements = matriu.size - len(matriu)  # Excloem la diagonal
-        percentatge_esparsificacio = float(zeros / total_elements)
-        return matriu_esparsa, percentatge_esparsificacio
-    return matriu_esparsa, -1
+    zeros = np.sum(sota_tolerancia) - len(matriu)  # Excloem la diagonal
+    total_elements = matriu.size - len(matriu)  # Excloem la diagonal
+    percentatge_esparsificacio = float(zeros / total_elements)
+    return matriu_esparsa, percentatge_esparsificacio
+
 
 def calcula_tol_esparsificacio(matriu: np.ndarray, percent: float) -> float:
     """La tolerància o radi d'esparsificació és el percentil {percent}
@@ -74,6 +74,7 @@ def calcula_tol_esparsificacio(matriu: np.ndarray, percent: float) -> float:
     radi_esparsificacio = np.percentile(triangular_upper, percent)
     return float(radi_esparsificacio)
 
+
 def sparcify(matriu: np.ndarray, percent: float) -> Tuple[np.ndarray, float, float]:
     """Retorna una matriu esparsa on el percentatge escollit dels 
     elements més petits es tornen zero.
@@ -82,23 +83,26 @@ def sparcify(matriu: np.ndarray, percent: float) -> Tuple[np.ndarray, float, flo
     matriu_esparsa, sparsification_percent = sparcify_with_tol(matriu, tol)
     return matriu_esparsa, tol, sparsification_percent
 
+
 def calcula_matriu_grau(matriu_similaritat: np.ndarray) -> np.ndarray:
     """Calcula la suma de cada fila i les col·loca en una matriu diagonal."""
     return np.diag(matriu_similaritat.sum(axis=1))
 
-def calcula_vaps(matriu_grau_D: np.ndarray, 
-                 matriu_similaritat_W: np.ndarray, 
-                 n: int
+
+def calcula_vaps(matriu_similaritat_W: np.ndarray, 
+                 max_clusters: int
                  ) -> Tuple[np.ndarray, np.ndarray]:
     """Retorna els n VAPs més petits ordenats ascendentment i
     els VEPs del problema generalitzat Lu = lambda Du.
     Requisit: les dues matrius han de ser simètriques."""
+    matriu_grau_D = calcula_matriu_grau(matriu_similaritat_W)
     matriu_laplacia_L = matriu_grau_D - matriu_similaritat_W
     vaps, veps = scipy.linalg.eigh(matriu_laplacia_L, matriu_grau_D, 
-                                   subset_by_index=[0, n])
+                                   subset_by_index=[0, max_clusters])
     return vaps, veps
 
-def calcula_num_clusters(vaps: np.ndarray) -> int:
+
+def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> Tuple[int, float]:
     """Retorna el nombre de clusters segons la regla del colze.
     Aquesta regla diu que el nombre de clusters és el valor de l'índex k 
     on la diferència entre vaps[k] i vaps[k-1] és màxima. És a dir, és 
@@ -111,31 +115,39 @@ def calcula_num_clusters(vaps: np.ndarray) -> int:
     # sumem 2 perquè abans hem tret el VAP zero i per 
     # inloure el cluster dels estats incoherents
     num_clusters = k + 2
-    return num_clusters
+    diff_max = diffs[k]
+    return num_clusters, diff_max
 
-def calcula_diffs_vs_radis(matriu_pesos, constant_diagonal
-                           ) -> Tuple[list[float], list[int], np.ndarray, dict[str, float]]:
+
+def calcula_diffs_vs_radis(matriu_pesos: np.ndarray, 
+                           constant_diagonal: float,
+                           max_clusters: int = 10,
+                           num_radis: int = 150
+                           ) -> Tuple[list[float], list[int], np.ndarray, dict[str, float], list[float]]:
+    """
+    Retorna les diferències màximes entre VAPs consecutius, el nombre de clusters 
+    i el percentatge d'esparsificació en funció del radi d'esparsificació.
+    """
+    
     estadistics = calcula_estadistics(matriu_pesos)
-    num_radis = 20
     radis = np.linspace(estadistics["pes_min"], estadistics["percentil95"], num_radis)
     diffs = []
     nums_clusters = []
+    sparsificacions = []
     for radi in radis:
-        matriu_similaritat_W, _ = sparcify_with_tol(matriu_pesos, radi, return_percentage=False)
+        matriu_similaritat_W, percent = sparcify_with_tol(matriu_pesos, radi)
         np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
-        matriu_grau_D = calcula_matriu_grau(matriu_similaritat_W)
-        vaps, _ = calcula_vaps(matriu_grau_D, matriu_similaritat_W, 50)
-        vaps_positius = vaps[1:] # eliminem el 1r VAP perquè és zero
-        diff_vaps = np.diff(vaps_positius)
-        k = int(np.argmax(diff_vaps))
-        n_clusters = k + 2
+        vaps, _ = calcula_vaps(matriu_similaritat_W, max_clusters)
+        n_clusters, diff_max = calcula_num_clusters_i_max_eigengap(vaps)
         nums_clusters.append(n_clusters)
-        diff_max = diff_vaps[k]
         diffs.append(diff_max)
-    return diffs, nums_clusters, radis, estadistics
+        sparsificacions.append(percent * 100)
+    return diffs, nums_clusters, radis, estadistics, sparsificacions
+
 
 def troba_clusters(num_clusters: int, veps: np.ndarray) -> np.ndarray:
-    """Retorna un vector d'etiquetes de clusters per a cada trajectòria.
+    """
+    Retorna un vector d'etiquetes de clusters per a cada trajectòria.
     """
     matriu_veps_U = veps[:, :num_clusters]
     kmeans = KMeans(n_clusters=num_clusters, n_init=10, random_state=7)
