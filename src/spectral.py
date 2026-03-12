@@ -149,7 +149,7 @@ def calcula_diffs_vs_radis(matriu_pesos: np.ndarray,
     diffs = []
     nums_clusters = []
     sparsificacions = []
-    plot_every_n_iterations = 20
+    plot_every_n_iterations = 15
     for i, radi in enumerate(radis):
         matriu_similaritat_W, percent = sparcify_with_tol(matriu_pesos, radi)
         sparsificacions.append(percent)
