@@ -3,6 +3,8 @@ import scipy
 from typing import Tuple, Dict
 from sklearn.cluster import KMeans
 
+from src.plotting import grafica_clusters
+
 
 def calcula_matriu_pesos(trajectories: np.ndarray) -> np.ndarray:
     """
@@ -119,10 +121,23 @@ def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> Tuple[int, float]:
     return num_clusters, diff_max
 
 
+def troba_clusters(num_clusters: int, veps: np.ndarray) -> np.ndarray:
+    """
+    Retorna un vector d'etiquetes de clusters per a cada trajectòria.
+    """
+    matriu_veps_U = veps[:, :num_clusters]
+    kmeans = KMeans(n_clusters=num_clusters, n_init=10, random_state=7)
+    labels = kmeans.fit_predict(matriu_veps_U)
+    return labels
+
+
 def calcula_diffs_vs_radis(matriu_pesos: np.ndarray, 
                            constant_diagonal: float,
-                           max_clusters: int = 10,
-                           num_radis: int = 150
+                           condicions_inicials: np.ndarray,
+                           t_steps: int, 
+                           t_span: Tuple[float, float],
+                           max_clusters: int = 20,
+                           num_radis: int = 80
                            ) -> Tuple[list[float], list[int], np.ndarray, dict[str, float], list[float]]:
     """
     Retorna les diferències màximes entre VAPs consecutius, el nombre de clusters 
@@ -134,22 +149,19 @@ def calcula_diffs_vs_radis(matriu_pesos: np.ndarray,
     diffs = []
     nums_clusters = []
     sparsificacions = []
-    for radi in radis:
+    plot_every_n_iterations = 20
+    for i, radi in enumerate(radis):
         matriu_similaritat_W, percent = sparcify_with_tol(matriu_pesos, radi)
+        sparsificacions.append(percent)
         np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
-        vaps, _ = calcula_vaps(matriu_similaritat_W, max_clusters)
+        vaps, veps = calcula_vaps(matriu_similaritat_W, max_clusters)
         n_clusters, diff_max = calcula_num_clusters_i_max_eigengap(vaps)
         nums_clusters.append(n_clusters)
         diffs.append(diff_max)
-        sparsificacions.append(percent * 100)
+        if i % plot_every_n_iterations == 0 or i == num_radis - 1:
+            print(f"Radi: {radi:.3f}, Esparsificació: {percent:.2%}, "
+                  f"Clusters: {n_clusters}, Max Eigen gap: {diff_max:.5e}, "
+                  f"Max nombre de clusters: {max_clusters}, num radis: {num_radis}")
+            labels = troba_clusters(n_clusters, veps)
+            grafica_clusters(condicions_inicials, labels, n_clusters, radi, percent, t_steps, t_span)
     return diffs, nums_clusters, radis, estadistics, sparsificacions
-
-
-def troba_clusters(num_clusters: int, veps: np.ndarray) -> np.ndarray:
-    """
-    Retorna un vector d'etiquetes de clusters per a cada trajectòria.
-    """
-    matriu_veps_U = veps[:, :num_clusters]
-    kmeans = KMeans(n_clusters=num_clusters, n_init=10, random_state=7)
-    labels = kmeans.fit_predict(matriu_veps_U)
-    return labels

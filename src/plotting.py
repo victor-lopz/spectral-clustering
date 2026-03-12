@@ -121,12 +121,12 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
     host.yaxis.get_offset_text().set_horizontalalignment('left')
     host.ticklabel_format(style='sci', axis='y', scilimits=(0,0), useMathText=True)
 
-    # colors_stats = iter(plt.rcParams['axes.prop_cycle'])
-    # for nom, valor in estadistics.items():
-    #     if nom != "pes_max":
-    #         host.axvline(x=valor, linestyle='--', alpha=0.6,
-    #                     color=next(colors_stats)['color'],
-    #                     label=f'{nom} = {valor:.2f}')
+    colors_stats = iter(plt.rcParams['axes.prop_cycle'])
+    for nom, valor in estadistics.items():
+        if nom != "pes_max":
+            host.axvline(x=valor, linestyle='--', alpha=0.6,
+                        color=next(colors_stats)['color'],
+                        label=f'{nom} = {valor:.2f}')
 
     host.set_title("Evolució dels indicadors vs Radi d'esparsificació")
     host.grid(True, alpha=0.3)
@@ -150,8 +150,8 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
 def grafica_clusters(condicions_inicials: np.ndarray, 
                      labels: np.ndarray, 
                      num_clusters: int, 
-                     sparsification_tol: float, 
-                     sparsification_percent: float, 
+                     radi_esparsificacio: float, 
+                     percent_esparsificacio: float, 
                      t_steps: int, 
                      t_span: Tuple[float, float],
                      output_dir: str = "../output/") -> None:
@@ -174,7 +174,7 @@ def grafica_clusters(condicions_inicials: np.ndarray,
     descripcio = (
         f"{num_clusters} clusters, {num_trajectories} trajectòries, "
         f"{t_steps} passes de temps," "\n"
-        f"temps final = {t_span[-1]:.1f}s, esparsificació = {sparsification_percent*100:.0f}%"
+        f"temps final = {t_span[-1]:.1f}s, esparsificació = {percent_esparsificacio*100:.0f}%"
     )
     plt.figtext(0.5, 0.01, descripcio, ha='center', fontsize=11)
     plt.subplots_adjust(bottom=0.1)
@@ -185,8 +185,8 @@ def grafica_clusters(condicions_inicials: np.ndarray,
         f"_traj={num_trajectories}"
         f"_tsteps={t_steps}"
         f"_t_end={t_span[-1]:.1f}"
-        f"_tol={sparsification_tol:.1f}"
-        f"_sparse={sparsification_percent*100:.0f}%"
+        f"_tol={radi_esparsificacio:.1f}"
+        f"_sparse={percent_esparsificacio*100:.0f}%"
         ".pdf"
     )
     date = datetime.now().strftime("%Y-%m-%d")
