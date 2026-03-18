@@ -18,7 +18,9 @@ def edo_duffing_no_autonom(t, z):
     """Paràmetres:
         t: temps
         z: posició al pla R^2
-    Retorna el camp vectorial del sistema d'EDOs x'=y; y'=x-x^3.
+    Retorna el camp vectorial del sistema d'EDOs 
+    x'=-y; y'=-f(t)(x-ax^3);
+    on f(t) = 1 - epsilon * cos(omega * t + phi)
     """
     x, y = z
     a = 0.5
@@ -29,7 +31,7 @@ def edo_duffing_no_autonom(t, z):
         phi = np.pi / 4
         return 1 - epsilon * np.cos(omega * t + phi)
     
-    return [-y, f(t) * (x - a * x**3)]
+    return [-y, - f(t) * (x - a * x**3)]
 
 
 def edo_duffing(t, z):
