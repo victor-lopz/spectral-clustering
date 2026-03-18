@@ -1,6 +1,6 @@
 # src/__init__.py
 
-from .ode import edo_duffing
+from .ode import edo_duffing, edo_duffing_no_autonom
 from .trajectories import generar_condicions_inicials, generar_trajectories
 from .spectral import (calcula_matriu_pesos, calcula_estadistics, 
 imprimeix_estadistics, sparcify, calcula_matriu_grau, calcula_vaps, 

@@ -13,6 +13,25 @@ def edo_duffing_soroll(t, z, random, epsilon, funcio_soroll):
     soroll = epsilon *  random * funcio_soroll(t)
     return [y + soroll, x - x**3]
 
+
+def edo_duffing_no_autonom(t, z):
+    """Paràmetres:
+        t: temps
+        z: posició al pla R^2
+    Retorna el camp vectorial del sistema d'EDOs x'=y; y'=x-x^3.
+    """
+    x, y = z
+    a = 0.5
+    
+    def f(t):
+        epsilon = 0.1
+        omega = 3 * np.pi / 2
+        phi = np.pi / 4
+        return 1 - epsilon * np.cos(omega * t + phi)
+    
+    return [-y, f(t) * (x - a * x**3)]
+
+
 def edo_duffing(t, z):
     """Paràmetres:
         t: temps
@@ -21,6 +40,7 @@ def edo_duffing(t, z):
     """
     x, y = z
     return [y, x - x**3]
+
 
 def edo_bickley_jet(t, z):
     """Paràmetres:
