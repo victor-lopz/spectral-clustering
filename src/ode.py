@@ -25,13 +25,15 @@ def edo_duffing_no_autonom(t, z):
     x, y = z
     a = 0.5
     
-    def f(t):
-        epsilon = 0.1
+    def epsilon(x):
+        return 0.1 * (x + 4.5) / 2
+    
+    def f(t, x):
         omega = 3 * np.pi / 2
         phi = np.pi / 4
-        return 1 - epsilon * np.cos(omega * t + phi)
+        return 1 - epsilon(x) * np.cos(omega * t + phi)
     
-    return [-y, - f(t) * (x - a * x**3)]
+    return [-y, - f(t, x) * (x - a * x**3)]
 
 
 def edo_duffing(t, z):
