@@ -138,7 +138,7 @@ def calcula_diffs_vs_radis(matriu_pesos: np.ndarray,
                            t_span: Tuple[float, float],
                            max_clusters: int = 20,
                            num_radis: int = 80
-                           ) -> Tuple[list[float], list[int], np.ndarray, dict[str, float], list[float]]:
+                           ) -> Tuple[list[float], list[int], np.ndarray, dict[str, float], list[float], list[np.ndarray]]:
     """
     Retorna les diferències màximes entre VAPs consecutius, el nombre de clusters 
     i el percentatge d'esparsificació en funció del radi d'esparsificació.
@@ -146,22 +146,56 @@ def calcula_diffs_vs_radis(matriu_pesos: np.ndarray,
     
     estadistics = calcula_estadistics(matriu_pesos)
     radis = np.linspace(estadistics["pes_min"], estadistics["percentil95"], num_radis)
-    diffs = []
+    diffs_vaps = []
     nums_clusters = []
     sparsificacions = []
-    plot_every_n_iterations = 15
-    for i, radi in enumerate(radis):
+    veps_list = []
+    for radi in radis:
         matriu_similaritat_W, percent = sparcify_with_tol(matriu_pesos, radi)
         sparsificacions.append(percent)
         np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
         vaps, veps = calcula_vaps(matriu_similaritat_W, max_clusters)
         n_clusters, diff_max = calcula_num_clusters_i_max_eigengap(vaps)
         nums_clusters.append(n_clusters)
-        diffs.append(diff_max)
-        if i % plot_every_n_iterations == 0 or i == num_radis - 1:
-            print(f"Radi: {radi:.3f}, Esparsificació: {percent:.2%}, "
-                  f"Clusters: {n_clusters}, Max Eigen gap: {diff_max:.5e}, "
-                  f"Max nombre de clusters: {max_clusters}, num radis: {num_radis}")
-            labels = troba_clusters(n_clusters, veps)
-            grafica_clusters(condicions_inicials, labels, n_clusters, radi, percent, t_steps, t_span)
-    return diffs, nums_clusters, radis, estadistics, sparsificacions
+        diffs_vaps.append(diff_max)
+        veps_list.append(veps)
+    return diffs_vaps, nums_clusters, radis, estadistics, sparsificacions, veps_list
+
+
+def troba_indexs_max_rel(diffs: list[float]) -> list[int]:
+    """Troba els màxims relatius d'un vector i retorna els seus índexs.
+    S'utilitza per trobar els màxims relatius de les diferències 
+    entre VAPs consecutius en funció del radi d'esparsificació."""
+    maxs_rels = []
+    i = 1
+    while i < len(diffs) - 1:
+        if diffs[i-1] < diffs[i] > diffs[i+1]:
+            maxs_rels.append(i)
+            i += 2
+        else: i += 1
+    return maxs_rels
+
+
+def grafica_clusters_maxs_rel(indexs_max_rel: list[int],
+                              radis: np.ndarray,
+                              sparsificacions: list[float],
+                              nums_clusters: list[int],
+                              diffs_vaps: list[float],
+                              veps_list: list[np.ndarray],
+                              condicions_inicials: np.ndarray,
+                              t_steps: int,
+                              t_span: Tuple[float, float]
+                              ) -> None:
+    """Dibuixa els clsuters trobats per cada radi d'esparsificació 
+    que generi un màxim relatiu de les diferències entre VAPs consecutius."""
+    for num, index in enumerate(indexs_max_rel):
+        radi = radis[index]
+        percent = sparsificacions[index]
+        n_clusters = nums_clusters[index]
+        diff_max = diffs_vaps[index]
+        veps_index = veps_list[index]
+        print(f"Maxim_relatiu_num {num}\n"
+            f"Radi: {radi:.3f}, Esparsificació: {percent:.2%}, "
+            f"Clusters: {n_clusters}, Max Eigen gap: {diff_max:.5e}")
+        labels = troba_clusters(n_clusters, veps_index)
+        grafica_clusters(condicions_inicials, labels, n_clusters, radi, percent, t_steps, t_span)

@@ -186,7 +186,7 @@ def grafica_clusters(condicions_inicials: np.ndarray,
         f"_tsteps={t_steps}"
         f"_t_end={t_span[-1]:.1f}"
         f"_tol={radi_esparsificacio:.1f}"
-        f"_sparse={percent_esparsificacio*100:.0f}%"
+        f"_sparse={percent_esparsificacio*100:.0f}"
         ".pdf"
     )
     date = datetime.now().strftime("%Y-%m-%d")
