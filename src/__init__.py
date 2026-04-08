@@ -3,7 +3,7 @@
 from .ode import edo_duffing, edo_duffing_no_autonom
 from .trajectories import generar_condicions_inicials, generar_trajectories
 from .spectral import (calcula_matriu_pesos, calcula_estadistics, 
-imprimeix_estadistics, sparcify, calcula_matriu_grau, calcula_vaps, 
+imprimeix_estadistics, sparcify, calcula_matriu_grau, calcula_vaps, sparcify_with_tol,
 calcula_num_clusters_i_max_eigengap, calcula_diffs_vs_radis, troba_indexs_max_rel,
 troba_clusters, grafica_clusters_maxs_rel)
 from .plotting import (grafica_circumferencia, grafica_regio, 
