@@ -29,10 +29,10 @@ def generar_trajectories(
     """
     Paràmetres:
     - edo: funció que representa el camp vectorial d'una EDO
-    - condicions_inicials: llista que conté condicions inicials [x0,y0]
+    - condicions_inicials: llista que conté condicions inicials [[x0,y0], [x1,y1],...]
     - t_span: tupla (t_inici, t_final) que indica l'interval de temps a simular
     - t_valors: np.array[float], conté els instants de temps on avaluem l'EDO
-    - dimensio: dimensió dels punts a l'espai R^n (per defecte R^2)
+    - dimensio: dimensió dels punts a l'espai R^n (per defecte es 2 a R^2)
     
     Retorna: 
         matriu 3D de mida (num_trajectories, t_steps, dimensio)

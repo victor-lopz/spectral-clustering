@@ -4,53 +4,10 @@ from typing import Tuple, Iterable
 from datetime import datetime
 import os
 
-# Paràmetres
-radi = 0.3
-centre_esquerre = (-1, 0)
-centre_dret = (1, 0)
-centre_nord = (0, 1)
-centre_sud = (0, -1)
-resolucio_grafica = 2000
-
-
-def grafica_circumferencia(centre: Tuple[float, float],
-                           radi: float, 
-                           nom_regio:str,
-                           resolucio: int) -> None:
-    theta = np.linspace(0, 2*np.pi, resolucio)
-    a, b = centre
-    xx = radi*np.cos(theta) + a
-    yy = radi*np.sin(theta)
-    plt.plot(xx, yy + b, 'black')
-    plt.plot(xx, - yy + b, 'black')
-    plt.annotate(nom_regio, centre)
-
-
-def grafica_regio(nom_regio: str, radi: float, centres: list[Tuple[float, float]], resolucio: int
-                  ) -> None:
-    for centre in centres:
-        grafica_circumferencia(centre, radi, nom_regio, resolucio)
-
-
-def make_patch_spines_invisible(ax):
-    ax.set_frame_on(True)
-    ax.patch.set_visible(False)
-    for sp in ax.spines.values():
-        sp.set_visible(False)
-
-
-def grafica_regions_A_B(radi: float, resolucio: int) -> None:
-    grafica_regio('A', radi, [centre_esquerre, centre_dret], resolucio)
-    grafica_regio('B', radi, [centre_nord, centre_sud], resolucio)
-    
     
 def grafica_trajectories(trajectories: np.ndarray,
-                         dibuixa_regions: bool = False,
-                         desa_pdf: bool = False, 
-                         radi: float = radi, 
-                         resolucio: int = resolucio_grafica
+                         desa_pdf: bool = False
                          ) -> None:
-    if dibuixa_regions: grafica_regions_A_B(radi, resolucio)
     for trajectoria in trajectories:
         coordenades_x = trajectoria[:,0]
         coordenades_y = trajectoria[:,1]
@@ -65,18 +22,15 @@ def grafica_trajectories(trajectories: np.ndarray,
         final_string = f'Final = ({pos_final[0]:.2f}, {pos_final[1]:.2f})'
         plt.plot(pos_final[0], pos_final[1], 'o', label=final_string, color='red', markersize=4)
     plt.xlabel('x')
-    plt.ylabel('y') 
-    # plt.legend(); 
+    plt.ylabel('y')
     plt.grid()
     plt.gca().set_aspect('equal', adjustable='box')
     if desa_pdf: plt.savefig('edo.pdf')
     plt.show()
     
     
-def grafica_punts(punts: Iterable, dibuixa_regions=False, radi=radi, resolucio=resolucio_grafica) -> None:
+def grafica_punts(punts: Iterable) -> None:
     """punts: conjunt de punts a R^2. Exemple: [[0,1], [0.5,1], [1,1]]"""
-    if dibuixa_regions:
-        grafica_regions_A_B(radi, resolucio)
     for punt in punts:
         plt.plot(punt[0], punt[1], 'o', markersize=5, color="grey")
     plt.xlabel('x')
@@ -103,6 +57,13 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
     par1 = host.twinx()
     par2 = host.twinx()
     par2.spines["right"].set_position(("axes", 1.1))
+    
+    def make_patch_spines_invisible(ax):
+        ax.set_frame_on(True)
+        ax.patch.set_visible(False)
+        for sp in ax.spines.values():
+            sp.set_visible(False)
+    
     make_patch_spines_invisible(par2)
     par2.spines["right"].set_visible(True)
     color_gap = 'tab:blue'
@@ -147,6 +108,107 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
     plt.show()
 
 
+def set_custom_xtick(y_vals: np.ndarray, at_index: int) -> None:
+    ax = plt.gca()
+    default_ticks = ax.get_xticks()
+    default_ticks = default_ticks[(default_ticks >= 0) & (default_ticks <= y_vals.size)]
+    all_ticks = np.unique(np.append(default_ticks, at_index))
+    ax.set_xticks(all_ticks)
+    for tick_value, tick_label in zip(ax.get_xticks(), ax.get_xticklabels()):
+        if np.isclose(tick_value, at_index):
+            tick_label.set_color('tab:red')
+
+
+def grafica_eigenvalues_vs_index(eigenvalues: np.ndarray, output_dir: str = "../output/") -> None:
+    """
+    Grafica els valors propis ordenats de menor a major versus el seu index natural.
+    També destaca el major eigengap per identificar visualment el nombre de clusters.
+    """
+    vals = np.sort(np.asarray(eigenvalues).ravel())
+    if vals.size < 2:
+        raise ValueError("Calen com a minim 2 valors propis per calcular l'eigengap.")
+
+    indexes = np.arange(1, vals.size + 1)
+    gaps = np.diff(vals)
+    max_gap_pos = int(np.argmax(gaps))
+    max_gap = float(gaps[max_gap_pos])
+    k = max_gap_pos + 1
+
+    plt.figure(figsize=(9, 5))
+    plt.plot(indexes, vals, marker='o', linestyle='-', color='tab:blue', label='Valors propis')
+    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=f'Max eigengap en k={k}')
+    plt.axvline(k + 1, color='tab:red', linestyle='--', alpha=0.5)
+    plt.plot([k, k + 1], [vals[k - 1], vals[k]], color='tab:red', linewidth=2.5)
+    set_custom_xtick(vals, at_index=k)
+    plt.annotate(
+        f'Max gap = {max_gap:.1e}',
+        xy=(k + 0.5, 0.5 * (vals[k - 1] + vals[k])),
+        xytext=(k + 4, 0.4 * (vals[k - 1] + vals[k])),
+        arrowprops=dict(arrowstyle='->', color='tab:red'),
+        fontsize=12,
+        color='tab:red'
+    )
+
+    plt.xlabel(r'Índex $k$')
+    plt.ylabel(r'Valor propi ($\lambda_{k}$)')
+    plt.title('Valors propis respecte al seu índex')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.legend()
+    time = datetime.now().strftime('%H-%M-%S')
+    filename = f"{time}_eigenvalues_vs_index.pdf"
+    date = datetime.now().strftime("%Y-%m-%d")
+    output_path = os.path.join(output_dir, date)
+    os.makedirs(output_path, exist_ok=True)
+    plt.savefig(os.path.join(output_path, filename), bbox_inches='tight')
+    plt.show()
+
+
+def grafica_eigengaps_vs_index(eigenvalues: np.ndarray, output_dir: str = "../output/") -> None:
+    """
+    Grafica els eigengaps (diferències consecutives de valors propis ordenats)
+    respecte al seu index natural i destaca el màxim eigengap.
+    """
+    vals = np.sort(np.asarray(eigenvalues).ravel())
+    if vals.size < 2:
+        raise ValueError("Calen com a minim 2 valors propis per calcular els eigengaps.")
+
+    gaps = np.diff(vals)
+    indexes = np.arange(1, gaps.size + 1)
+    max_gap_pos = int(np.argmax(gaps))
+    max_gap = float(gaps[max_gap_pos])
+    k = max_gap_pos + 1
+
+    plt.figure(figsize=(9, 5))
+    plt.plot(indexes, gaps, marker='o', linestyle='-', color='tab:blue', label='Eigengaps')
+    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=f'Max eigengap en k={k}')
+    plt.scatter([k], [max_gap], color='tab:red', zorder=3)
+    set_custom_xtick(gaps, at_index=k)
+    plt.annotate(
+        f'Max gap = {max_gap:.1e}',
+        xy=(k, max_gap),
+        xytext=(k + 3, 0.95 * max_gap),
+        arrowprops=dict(arrowstyle='->', color='tab:red'),
+        fontsize=12,
+        color='tab:red'
+    )
+
+    plt.xlabel(r'Índex $k$')
+    plt.ylabel(r'Eigengap ($\lambda_{k+1} - \lambda_{k}$)')
+    plt.title('Eigengaps respecte al seu índex')
+    # plt.xticks(indexes)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.legend()
+    time = datetime.now().strftime('%H-%M-%S')
+    filename = f"{time}_eigengaps_vs_index.pdf"
+    date = datetime.now().strftime("%Y-%m-%d")
+    output_path = os.path.join(output_dir, date)
+    os.makedirs(output_path, exist_ok=True)
+    plt.savefig(os.path.join(output_path, filename), bbox_inches='tight')
+    plt.show()
+
+
 def grafica_clusters(condicions_inicials: np.ndarray, 
                      labels: np.ndarray, 
                      num_clusters: int, 
@@ -166,15 +228,14 @@ def grafica_clusters(condicions_inicials: np.ndarray,
     plt.title('Clusters')
     plt.xlabel('x')
     plt.ylabel('y')
-    max_legend_entries = 10
-    if num_clusters < max_legend_entries:
-        plt.legend(title="Cluster", loc='upper left', bbox_to_anchor=(1, 1))
     plt.grid(True, alpha=0.3)
     plt.gca().set_aspect('equal')
     descripcio = (
         f"{num_clusters} clusters, {num_trajectories} trajectòries, "
         f"{t_steps} passes de temps," "\n"
-        f"temps final = {t_span[-1]:.1f}s, esparsificació = {percent_esparsificacio*100:.0f}%"
+        f"temps final = {t_span[-1]:.1f}s, "
+        f"esparsificació = {percent_esparsificacio*100:.0f}%"
+        f", radi = {radi_esparsificacio:.2f}"
     )
     plt.figtext(0.5, 0.01, descripcio, ha='center', fontsize=11)
     plt.subplots_adjust(bottom=0.1)
@@ -192,5 +253,5 @@ def grafica_clusters(condicions_inicials: np.ndarray,
     date = datetime.now().strftime("%Y-%m-%d")
     output_path = os.path.join(output_dir, date)
     os.makedirs(output_path, exist_ok=True)
-    plt.savefig(os.path.join(output_path, filename))
+    plt.savefig(os.path.join(output_path, filename), bbox_inches='tight')
     plt.show()
