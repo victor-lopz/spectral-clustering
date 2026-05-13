@@ -33,7 +33,9 @@ def grafica_trajectories(trajectories: np.ndarray,
         pos_final = (coordenades_x[-1], coordenades_y[-1])
         final_string = f'Final = ({pos_final[0]:.2f}, {pos_final[1]:.2f})'
         plt.plot(pos_final[0], pos_final[1], 'o', label=final_string, color='red', markersize=4)
-    plt.xlabel('x'); plt.ylabel('y'); plt.grid()
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.grid()
     plt.gca().set_aspect('equal', adjustable='box')
     filename = "trajectories.pdf"
     plt.savefig(get_output_path(filename, subfolder), bbox_inches='tight')
