@@ -111,13 +111,11 @@ def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> Tuple[int, float]:
     Aquesta regla diu que el nombre de clusters és el valor de l'índex k 
     on la diferència entre vaps[k] i vaps[k-1] és màxima. És a dir, és 
     l'argument del màxim de diferències consecutives de VAPs ordenats.
-    Opcionalment, també retorna el valor de la diferència màxima trobada.
+    També retorna el valor de la diferència màxima trobada.
     """
     diffs = np.diff(vaps)
     k = int(np.argmax(diffs))
-    # sumem 2 perquè abans hem tret el VAP zero i per 
-    # inloure el cluster dels estats incoherents
-    num_clusters = k + 2
+    num_clusters = k + 1 # sumem 1 per inloure el cluster dels estats incoherents
     diff_max = diffs[k]
     return num_clusters, diff_max
 
@@ -125,6 +123,7 @@ def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> Tuple[int, float]:
 def troba_clusters(num_clusters: int, veps: np.ndarray) -> np.ndarray:
     """
     Retorna un vector d'etiquetes de clusters per a cada trajectòria.
+    Exemple: labels[i] = 0 indica que la trajectòria i pertany al cluster 0.
     """
     matriu_veps_U = veps[:, :num_clusters]
     kmeans = KMeans(n_clusters=num_clusters, n_init=10, random_state=7)
@@ -134,11 +133,8 @@ def troba_clusters(num_clusters: int, veps: np.ndarray) -> np.ndarray:
 
 def calcula_diffs_vs_radis(matriu_pesos: np.ndarray, 
                            constant_diagonal: float,
-                           condicions_inicials: np.ndarray,
-                           t_steps: int, 
-                           t_span: Tuple[float, float],
-                           max_clusters: int = 20,
-                           num_radis: int = 80
+                           max_clusters: int,
+                           num_radis: int
                            ) -> Tuple[list[float], list[int], np.ndarray, dict[str, float], list[float], list[np.ndarray]]:
     """
     Retorna les diferències màximes entre VAPs consecutius, el nombre de clusters 
@@ -147,10 +143,7 @@ def calcula_diffs_vs_radis(matriu_pesos: np.ndarray,
     
     estadistics = calcula_estadistics(matriu_pesos)
     radis = np.linspace(estadistics["pes_min"], estadistics["percentil95"], num_radis)
-    diffs_vaps = []
-    nums_clusters = []
-    sparsificacions = []
-    veps_list = []
+    diffs_vaps, nums_clusters, sparsificacions, veps_list = [], [], [], []
     for radi in radis:
         matriu_similaritat_W, percent = sparcify_with_tol(matriu_pesos, radi)
         sparsificacions.append(percent)

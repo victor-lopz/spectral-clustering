@@ -128,22 +128,22 @@ def grafica_eigenvalues_vs_index(eigenvalues: np.ndarray, output_dir: str = "../
     if vals.size < 2:
         raise ValueError("Calen com a minim 2 valors propis per calcular l'eigengap.")
 
-    indexes = np.arange(1, vals.size + 1)
+    indexes = np.arange(vals.size)
     gaps = np.diff(vals)
     max_gap_pos = int(np.argmax(gaps))
     max_gap = float(gaps[max_gap_pos])
-    k = max_gap_pos + 1
+    k = max_gap_pos
 
     plt.figure(figsize=(9, 5))
     plt.plot(indexes, vals, marker='o', linestyle='-', color='tab:blue', label='Valors propis')
-    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=f'Max eigengap en k={k}')
+    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k_{opt}=$'+f'{k}')
     plt.axvline(k + 1, color='tab:red', linestyle='--', alpha=0.5)
-    plt.plot([k, k + 1], [vals[k - 1], vals[k]], color='tab:red', linewidth=2.5)
+    plt.plot([k, k + 1], [vals[k], vals[k+1]], color='tab:red', linewidth=2.5)
     set_custom_xtick(vals, at_index=k)
     plt.annotate(
         f'Max gap = {max_gap:.1e}',
-        xy=(k + 0.5, 0.5 * (vals[k - 1] + vals[k])),
-        xytext=(k + 4, 0.4 * (vals[k - 1] + vals[k])),
+        xy=(k + 0.5, 0.5 * (vals[k] + vals[k+1])),
+        xytext=(k + 4, 0.4 * (vals[k] + vals[k+1])),
         arrowprops=dict(arrowstyle='->', color='tab:red'),
         fontsize=12,
         color='tab:red'
@@ -174,14 +174,14 @@ def grafica_eigengaps_vs_index(eigenvalues: np.ndarray, output_dir: str = "../ou
         raise ValueError("Calen com a minim 2 valors propis per calcular els eigengaps.")
 
     gaps = np.diff(vals)
-    indexes = np.arange(1, gaps.size + 1)
+    indexes = np.arange(gaps.size)
     max_gap_pos = int(np.argmax(gaps))
     max_gap = float(gaps[max_gap_pos])
-    k = max_gap_pos + 1
+    k = max_gap_pos
 
     plt.figure(figsize=(9, 5))
     plt.plot(indexes, gaps, marker='o', linestyle='-', color='tab:blue', label='Eigengaps')
-    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=f'Max eigengap en k={k}')
+    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k_{opt}=$'+f'{k}')
     plt.scatter([k], [max_gap], color='tab:red', zorder=3)
     set_custom_xtick(gaps, at_index=k)
     plt.annotate(
