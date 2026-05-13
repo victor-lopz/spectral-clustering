@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
-from typing import Tuple, Iterable
+from matplotlib.lines import Line2D
+from typing import Iterable
 from datetime import datetime
 import os
 
@@ -57,11 +58,12 @@ def grafica_punts(punts: Iterable) -> None:
 def grafica_eigengaps_vs_radi(
     result: SpectralAnalysisResult,
     params: ParametresGenerals,
-    subfolder: str|None = None
+    subfolder: str|None = None,
+    indexs_max_rel: list[int]|None = None
 ) -> None:
     """
-    Grafica el nombre de clusters, l'eigen gap i el percentatge d'esparsificació
-    en funció del radi d'esparsificació.
+    Grafica el nombre de clusters, l'eigengap i el percentatge d'esparsificació
+    en funció del radi d'esparsificació. Encercla els màxims relatius de les diferències entre VAPs consecutius.
     """
     fig, host = plt.subplots(figsize=(10, 6))
     fig.subplots_adjust(right=0.75)
@@ -81,13 +83,13 @@ def grafica_eigengaps_vs_radi(
     color_clust = 'tab:red'
     color_sparse = 'tab:green'
     p1, = host.plot(result.radis, result.normalized_eigengaps, marker='.', color=color_gap, label='Eigengap normalitzat')
-    p2, = par1.plot(result.radis, result.nums_clusters, marker='.', color=color_clust, label='Nombre de clusters')
+    p2, = par1.plot(result.radis, result.nums_clusters, marker='.', color=color_clust, label='Nombre de clústers')
     p3, = par2.plot(result.radis, result.sparsificacions, marker='.', color=color_sparse, label='Esparsificació (%)')
     par2.set_ylim(0, 1.0)
     par2.yaxis.set_major_formatter(PercentFormatter(1.0))
     host.set_xlabel("Radi d'esparsificació")
     host.set_ylabel('Diferència màxima normalitzada entre VAPs consecutius', color=color_gap)
-    par1.set_ylabel('Nombre de clusters', color=color_clust)
+    par1.set_ylabel('Nombre de clústers', color=color_clust)
     par2.set_ylabel('Esparsificació (%)', color=color_sparse)
     host.tick_params(axis='y', labelcolor=color_gap)
     par1.tick_params(axis='y', labelcolor=color_clust)
@@ -103,7 +105,7 @@ def grafica_eigengaps_vs_radi(
                         color=next(colors_stats)['color'],
                         label=f'{nom} = {valor:.2f}')
 
-    host.set_title(r"Eigengap i num. de clusters vs radi d'esparsificació")
+    host.set_title(r"Eigengap i nombre de clústers vs radi d'esparsificació")
     host.grid(True, alpha=0.3)
     lines = [p1, p2, p3]
     labels: list[str] = [str(l.get_label()) for l in lines]
@@ -111,6 +113,21 @@ def grafica_eigengaps_vs_radi(
         if l not in lines:
             lines.append(l)
             labels.append(str(l.get_label()))
+    
+    def destaca_max_rels():
+        if indexs_max_rel is None:
+            return
+        for index in indexs_max_rel:
+            host.plot(result.radis[index], result.normalized_eigengaps[index], marker='o', 
+                      markersize=12, markerfacecolor='none', markeredgecolor='tab:orange', 
+                      markeredgewidth=2.1)
+        if len(indexs_max_rel) > 0:
+            proxy_circle = Line2D([0], [0], linestyle='none', marker='o', markersize=12, 
+                    markerfacecolor='none', markeredgecolor='tab:orange', markeredgewidth=2.1)
+            lines.append(proxy_circle)
+            labels.append("Màxim relatiu")
+
+    destaca_max_rels()
     host.legend(lines, labels, loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
     fig.tight_layout()
     filename = (f"eigengap_vs_radi-max_clusters={params.max_clusters}_radis={len(result.radis)}"
