@@ -103,7 +103,7 @@ def grafica_eigengaps_vs_radi(
                         color=next(colors_stats)['color'],
                         label=f'{nom} = {valor:.2f}')
 
-    host.set_title(r"Eigengap, # clusters i % esparsificacio vs Radi d'esparsificació")
+    host.set_title(r"Eigengap i num. de clusters vs radi d'esparsificació")
     host.grid(True, alpha=0.3)
     lines = [p1, p2, p3]
     labels: list[str] = [str(l.get_label()) for l in lines]
