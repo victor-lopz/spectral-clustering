@@ -115,8 +115,12 @@ def calcula_diffs_vs_radis(matriu_pesos: np.ndarray,
                            num_radis: int
                            ) -> Tuple[list[float], list[int], np.ndarray, dict[str, float], list[float], list[np.ndarray]]:
     """
-    Retorna les diferències màximes entre VAPs consecutius, el nombre de clusters 
-    i el percentatge d'esparsificació en funció del radi d'esparsificació.
+    Retorna en funció del radi d'esparsificació:
+    - les diferències màximes entre VAPs consecutius
+    - el nombre de clusters trobats dins del rang [1, max_clusters]
+    - el percentatge d'esparsificació
+    - els estadístics de la matriu de pesos
+    - tots els VEPs associats a cada radi d'esparsificació
     """
     
     estadistics = calcula_estadistics(matriu_pesos)
