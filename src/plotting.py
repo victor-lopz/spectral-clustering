@@ -132,7 +132,7 @@ def set_custom_xtick(y_vals: np.ndarray, at_index: int) -> None:
 def grafica_eigenvalues_vs_index(eigenvalues: np.ndarray, subfolder: str|None = None) -> None:
     """
     Grafica els valors propis ordenats de menor a major respecte el seu index natural.
-    També destaca el major eigengap per identificar visualment k_opt.
+    També destaca el major eigengap per identificar visualment k.
     """
     vals = np.sort(np.asarray(eigenvalues).ravel())
     if vals.size < 2:
@@ -146,7 +146,7 @@ def grafica_eigenvalues_vs_index(eigenvalues: np.ndarray, subfolder: str|None = 
 
     plt.figure(figsize=(9, 5))
     plt.plot(indexes, vals, marker='o', linestyle='-', color='tab:blue', label='Valors propis')
-    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k_{opt}=$'+f'{k}')
+    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k=$'+f'{k}')
     plt.axvline(k + 1, color='tab:red', linestyle='--', alpha=0.5)
     plt.plot([k, k + 1], [vals[k], vals[k+1]], color='tab:red', linewidth=2.5)
     set_custom_xtick(vals, at_index=k)
@@ -186,7 +186,7 @@ def grafica_eigengaps_vs_index(eigenvalues: np.ndarray, subfolder: str|None = No
 
     plt.figure(figsize=(9, 5))
     plt.plot(indexes, gaps, marker='o', linestyle='-', color='tab:blue', label='Eigengaps')
-    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k_{opt}=$'+f'{k}')
+    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k=$'+f'{k}')
     plt.scatter([k], [max_gap], color='tab:red', zorder=3)
     set_custom_xtick(gaps, at_index=k)
     plt.annotate(
