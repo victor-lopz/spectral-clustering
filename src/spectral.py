@@ -113,10 +113,11 @@ def calcula_diffs_vs_radis(matriu_pesos: np.ndarray,
                            constant_diagonal: float,
                            max_clusters: int,
                            num_radis: int
-                           ) -> Tuple[list[float], list[int], np.ndarray, dict[str, float], list[float], list[np.ndarray]]:
+                           ) -> Tuple[list[float], list[float], list[int], np.ndarray, dict[str, float], list[float], list[np.ndarray]]:
     """
     Retorna en funció del radi d'esparsificació:
     - les diferències màximes entre VAPs consecutius
+    - les diferències normalitzades entre VAPs consecutius
     - el nombre de clusters trobats dins del rang [1, max_clusters]
     - el percentatge d'esparsificació
     - els estadístics de la matriu de pesos
@@ -125,17 +126,20 @@ def calcula_diffs_vs_radis(matriu_pesos: np.ndarray,
     
     estadistics = calcula_estadistics(matriu_pesos)
     radis = np.linspace(estadistics["pes_min"], estadistics["percentil95"], num_radis)
-    diffs_vaps, nums_clusters, sparsificacions, veps_list = [], [], [], []
+    diffs_vaps, diffs_normalitzades_vaps, nums_clusters, sparsificacions, veps_list = [], [], [], [], []
     for radi in radis:
         matriu_similaritat_W, percent = sparcify_with_tol(matriu_pesos, radi)
         sparsificacions.append(percent)
         np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
         vaps, veps = calcula_vaps(matriu_similaritat_W, max_clusters)
         n_clusters, diff_max = calcula_num_clusters_i_max_eigengap(vaps)
+        rang_espectral = vaps[-1] - vaps[0]
+        gap_normalitzat = diff_max / rang_espectral if rang_espectral > 0 else 0
         nums_clusters.append(n_clusters)
         diffs_vaps.append(diff_max)
+        diffs_normalitzades_vaps.append(gap_normalitzat)
         veps_list.append(veps)
-    return diffs_vaps, nums_clusters, radis, estadistics, sparsificacions, veps_list
+    return diffs_vaps, diffs_normalitzades_vaps, nums_clusters, radis, estadistics, sparsificacions, veps_list
 
 
 def troba_indexs_max_rel(diffs: list[float]) -> list[int]:
