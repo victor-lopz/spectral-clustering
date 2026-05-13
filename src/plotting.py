@@ -72,6 +72,9 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
     p1, = host.plot(radis, diffs_max, marker='.', color=color_gap, label='Eigen gap')
     p2, = par1.plot(radis, nums_clusters, marker='.', color=color_clust, label='Nombre de clusters')
     p3, = par2.plot(radis, sparsificacions, marker='.', color=color_sparse, label='Esparsificació (%)')
+    par2.set_ylim(0, 1.0)
+    from matplotlib.ticker import PercentFormatter
+    par2.yaxis.set_major_formatter(PercentFormatter(1.0))
     host.set_xlabel("Radi d'esparsificació")
     host.set_ylabel('Diferència màxima entre VAPs consecutius', color=color_gap)
     par1.set_ylabel('Nombre de clusters', color=color_clust)
@@ -83,6 +86,7 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
     host.ticklabel_format(style='sci', axis='y', scilimits=(0,0), useMathText=True)
 
     colors_stats = iter(plt.rcParams['axes.prop_cycle'])
+    next(colors_stats)
     for nom, valor in estadistics.items():
         if nom != "pes_max":
             host.axvline(x=valor, linestyle='--', alpha=0.6,

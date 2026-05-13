@@ -183,7 +183,7 @@ def grafica_clusters_maxs_rel(indexs_max_rel: list[int],
                               ) -> None:
     """Dibuixa els clsuters trobats per cada radi d'esparsificació 
     que generi un màxim relatiu de les diferències entre VAPs consecutius."""
-    for num, index in enumerate(indexs_max_rel):
+    for num, index in enumerate(indexs_max_rel, start=1):
         radi = radis[index]
         percent = sparsificacions[index]
         n_clusters = nums_clusters[index]
