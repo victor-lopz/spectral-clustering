@@ -76,7 +76,7 @@ def calcula_vaps(matriu_similaritat_W: np.ndarray,
         raise ValueError("La matriu de similaritat ha de tenir almenys una trajectòria.")
     if max_clusters <= 0:
         raise ValueError(f"cal max_clusters > 0, rebut: {max_clusters}.")
-    max_index = min(max_clusters, n - 1)
+    max_index = min(max_clusters - 1, n - 1)
     matriu_grau_D = calcula_matriu_grau(matriu_similaritat_W)
     matriu_laplacia_L = matriu_grau_D - matriu_similaritat_W
     vaps, veps = scipy.linalg.eigh(matriu_laplacia_L, matriu_grau_D, 
