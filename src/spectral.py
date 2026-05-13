@@ -157,7 +157,7 @@ def grafica_clusters_maxs_rel(indexs_max_rel: list[int],
                               condicions_inicials: np.ndarray,
                               t_steps: int,
                               t_span: Tuple[float, float],
-                              output_dir: str = "../output/"
+                              subfolder: str|None = None
                               ) -> None:
     """Dibuixa els clusters trobats per cada radi d'esparsificació 
     que generi un màxim relatiu de les diferències entre VAPs consecutius."""
@@ -171,4 +171,4 @@ def grafica_clusters_maxs_rel(indexs_max_rel: list[int],
             f"Radi: {radi:.3f}, Esparsificació: {percent:.2%}, "
             f"Clusters: {n_clusters}, Max Eigen gap: {diff_max:.5e}")
         labels = troba_clusters(n_clusters, veps_index)
-        grafica_clusters(condicions_inicials, labels, n_clusters, radi, percent, t_steps, t_span, output_dir=output_dir)
+        grafica_clusters(condicions_inicials, labels, n_clusters, radi, percent, t_steps, t_span, subfolder)
