@@ -174,4 +174,5 @@ def grafica_clusters_maxs_rel(
               f"Radi: {radi:.3f}, Esparsificació: {percent:.2%}, "
               f"Clusters: {n_clusters}, Max Eigen gap: {diff_max:.5e}")
         labels = troba_clusters(n_clusters, veps)
-        grafica_clusters(condicions_inicials, labels, n_clusters, radi, percent, params, subfolder)
+        grafica_clusters(condicions_inicials, labels, n_clusters, radi, percent, 
+                         params, subfolder, filename_prefix=f"max_rel-{num}_")

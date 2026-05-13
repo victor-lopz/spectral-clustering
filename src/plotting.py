@@ -215,7 +215,9 @@ def grafica_clusters(condicions_inicials: np.ndarray,
                      radi_esparsificacio: float, 
                      percent_esparsificacio: float,
                      params: ParametresGenerals,
-                     subfolder: str|None = None) -> None:
+                     subfolder: str|None = None,
+                     filename_prefix: str = ""
+                     ) -> None:
     
     num_trajectories = len(condicions_inicials)
     for cluster_id in range(num_clusters):
@@ -239,6 +241,7 @@ def grafica_clusters(condicions_inicials: np.ndarray,
     plt.figtext(0.5, 0.01, descripcio, ha='center', fontsize=11)
     plt.subplots_adjust(bottom=0.1)
     filename = (
+        filename_prefix +
         f"clusters={num_clusters}"
         f"_traj={num_trajectories}"
         f"_tsteps={params.t_steps}"
