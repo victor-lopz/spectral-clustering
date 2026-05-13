@@ -1,8 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import PercentFormatter
 from typing import Tuple, Iterable
 from datetime import datetime
 import os
+
+from src.datatypes import ParametresGenerals, SpectralAnalysisResult
 
 def get_output_path(filename: str, subfolder: str|None = None) -> str:
     date = datetime.now().strftime("%Y-%m-%d")
@@ -47,19 +50,15 @@ def grafica_punts(punts: Iterable) -> None:
     plt.ylabel('y')
     plt.title('Condicions inicials')
     plt.grid()
-    plt.gca().set_aspect('equal')
+    plt.gca().set_aspect('equal', adjustable='box')
     plt.show()
 
 
-def grafica_eigengaps_vs_radi(diffs_max: list[float], 
-                              nums_clusters: list[int], 
-                              radis: np.ndarray,
-                              estadistics: dict[str, float],
-                              sparsificacions: list[float],
-                              max_clusters: int,
-                              t_span: Tuple[float, float],
-                              subfolder: str|None = None
-                              ) -> None:
+def grafica_eigengaps_vs_radi(
+    result: SpectralAnalysisResult,
+    params: ParametresGenerals,
+    subfolder: str|None = None
+) -> None:
     """
     Grafica el nombre de clusters, l'eigen gap i el percentatge d'esparsificació
     en funció del radi d'esparsificació.
@@ -81,14 +80,13 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
     color_gap = 'tab:blue'
     color_clust = 'tab:red'
     color_sparse = 'tab:green'
-    p1, = host.plot(radis, diffs_max, marker='.', color=color_gap, label='Eigen gap')
-    p2, = par1.plot(radis, nums_clusters, marker='.', color=color_clust, label='Nombre de clusters')
-    p3, = par2.plot(radis, sparsificacions, marker='.', color=color_sparse, label='Esparsificació (%)')
+    p1, = host.plot(result.radis, result.normalized_eigengaps, marker='.', color=color_gap, label='Eigengap normalitzat')
+    p2, = par1.plot(result.radis, result.nums_clusters, marker='.', color=color_clust, label='Nombre de clusters')
+    p3, = par2.plot(result.radis, result.sparsificacions, marker='.', color=color_sparse, label='Esparsificació (%)')
     par2.set_ylim(0, 1.0)
-    from matplotlib.ticker import PercentFormatter
     par2.yaxis.set_major_formatter(PercentFormatter(1.0))
     host.set_xlabel("Radi d'esparsificació")
-    host.set_ylabel('Diferència màxima entre VAPs consecutius', color=color_gap)
+    host.set_ylabel('Diferència màxima normalitzada entre VAPs consecutius', color=color_gap)
     par1.set_ylabel('Nombre de clusters', color=color_clust)
     par2.set_ylabel('Esparsificació (%)', color=color_sparse)
     host.tick_params(axis='y', labelcolor=color_gap)
@@ -99,13 +97,13 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
 
     colors_stats = iter(plt.rcParams['axes.prop_cycle'])
     next(colors_stats)
-    for nom, valor in estadistics.items():
+    for nom, valor in result.estadistics.items():
         if nom != "pes_max":
             host.axvline(x=valor, linestyle='--', alpha=0.6,
                         color=next(colors_stats)['color'],
                         label=f'{nom} = {valor:.2f}')
 
-    host.set_title("Evolució dels indicadors vs Radi d'esparsificació")
+    host.set_title(r"Eigengap, # clusters i % esparsificacio vs Radi d'esparsificació")
     host.grid(True, alpha=0.3)
     lines = [p1, p2, p3]
     labels: list[str] = [str(l.get_label()) for l in lines]
@@ -115,8 +113,8 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
             labels.append(str(l.get_label()))
     host.legend(lines, labels, loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
     fig.tight_layout()
-    filename = (f"eigengap_vs_radi-max_clusters={max_clusters}_radis={len(radis)}"
-                f"_t_end={t_span[1]:.1f}.pdf")
+    filename = (f"eigengap_vs_radi-max_clusters={params.max_clusters}_radis={len(result.radis)}"
+                f"_t_end={params.t_span[1]:.1f}.pdf")
     plt.savefig(get_output_path(filename, subfolder), bbox_inches='tight')
     plt.show()
 
@@ -215,9 +213,8 @@ def grafica_clusters(condicions_inicials: np.ndarray,
                      labels: np.ndarray, 
                      num_clusters: int, 
                      radi_esparsificacio: float, 
-                     percent_esparsificacio: float, 
-                     t_steps: int, 
-                     t_span: Tuple[float, float],
+                     percent_esparsificacio: float,
+                     params: ParametresGenerals,
                      subfolder: str|None = None) -> None:
     
     num_trajectories = len(condicions_inicials)
@@ -234,8 +231,8 @@ def grafica_clusters(condicions_inicials: np.ndarray,
     plt.gca().set_aspect('equal')
     descripcio = (
         f"{num_clusters} clusters, {num_trajectories} trajectòries, "
-        f"{t_steps} passes de temps," "\n"
-        f"temps final = {t_span[-1]:.1f}s, "
+        f"{params.t_steps} passes de temps," "\n"
+        f"temps final = {params.t_span[-1]:.1f}s, "
         f"esparsificació = {percent_esparsificacio*100:.0f}%"
         f", radi = {radi_esparsificacio:.2f}"
     )
@@ -244,8 +241,8 @@ def grafica_clusters(condicions_inicials: np.ndarray,
     filename = (
         f"clusters={num_clusters}"
         f"_traj={num_trajectories}"
-        f"_tsteps={t_steps}"
-        f"_t_end={t_span[-1]:.1f}"
+        f"_tsteps={params.t_steps}"
+        f"_t_end={params.t_span[-1]:.1f}"
         f"_tol={radi_esparsificacio:.1f}"
         f"_sparse={percent_esparsificacio*100:.0f}"
         ".pdf"

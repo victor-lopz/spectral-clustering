@@ -57,8 +57,7 @@ def troba_radi_optim(trajectories: np.ndarray):
         L_N = np.eye(num_trajectories) - W_norm
         
         # 6. Calcular valors propis
-        eigenvalues = np.linalg.eigvalsh(L_N)
-        eigenvalues = np.sort(eigenvalues)
+        eigenvalues = scipy.linalg.eigvalsh(L_N)
         
         # 7. Calcular l'eigengap normalitzat
         gaps = np.diff(eigenvalues) 
