@@ -6,7 +6,7 @@ import os
 
 def get_output_path(filename: str, subfolder: str|None = None) -> str:
     date = datetime.now().strftime("%Y-%m-%d")
-    output_folder = "../output/"
+    output_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'output')
     output_path = os.path.join(output_folder, date)
     if subfolder is not None:
         output_path = os.path.join(output_path, subfolder)
