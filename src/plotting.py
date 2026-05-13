@@ -56,6 +56,8 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
                               radis: np.ndarray,
                               estadistics: dict[str, float],
                               sparsificacions: list[float],
+                              max_clusters: int,
+                              t_span: Tuple[float, float],
                               subfolder: str|None = None
                               ) -> None:
     """
@@ -113,7 +115,8 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
             labels.append(str(l.get_label()))
     host.legend(lines, labels, loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
     fig.tight_layout()
-    filename = "eigengap_vs_radi.pdf"
+    filename = (f"eigengap_vs_radi-max_clusters={max_clusters}_radis={len(radis)}"
+                f"_t_end={t_span[1]:.1f}.pdf")
     plt.savefig(get_output_path(filename, subfolder), bbox_inches='tight')
     plt.show()
 
