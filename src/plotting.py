@@ -4,9 +4,18 @@ from typing import Tuple, Iterable
 from datetime import datetime
 import os
 
+def get_output_path(filename: str, subfolder: str|None = None) -> str:
+    date = datetime.now().strftime("%Y-%m-%d")
+    output_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'output')
+    output_path = os.path.join(output_folder, date)
+    if subfolder is not None:
+        output_path = os.path.join(output_path, subfolder)
+    os.makedirs(output_path, exist_ok=True)
+    return os.path.join(output_path, filename)
+
     
 def grafica_trajectories(trajectories: np.ndarray,
-                         desa_pdf: bool = False
+                         subfolder: str|None = None
                          ) -> None:
     for trajectoria in trajectories:
         coordenades_x = trajectoria[:,0]
@@ -25,7 +34,8 @@ def grafica_trajectories(trajectories: np.ndarray,
     plt.ylabel('y')
     plt.grid()
     plt.gca().set_aspect('equal', adjustable='box')
-    if desa_pdf: plt.savefig('edo.pdf')
+    filename = "trajectories.pdf"
+    plt.savefig(get_output_path(filename, subfolder), bbox_inches='tight')
     plt.show()
     
     
@@ -46,7 +56,9 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
                               radis: np.ndarray,
                               estadistics: dict[str, float],
                               sparsificacions: list[float],
-                              output_dir: str = "../output/"
+                              max_clusters: int,
+                              t_span: Tuple[float, float],
+                              subfolder: str|None = None
                               ) -> None:
     """
     Grafica el nombre de clusters, l'eigen gap i el percentatge d'esparsificació
@@ -103,12 +115,9 @@ def grafica_eigengaps_vs_radi(diffs_max: list[float],
             labels.append(str(l.get_label()))
     host.legend(lines, labels, loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
     fig.tight_layout()
-    time = datetime.now().strftime('%H-%M-%S')
-    filename = f"{time}_eigengap_vs_radi.pdf"
-    date = datetime.now().strftime("%Y-%m-%d")
-    output_path = os.path.join(output_dir, date)
-    os.makedirs(output_path, exist_ok=True)
-    plt.savefig(os.path.join(output_path, filename), bbox_inches='tight')
+    filename = (f"eigengap_vs_radi-max_clusters={max_clusters}_radis={len(radis)}"
+                f"_t_end={t_span[1]:.1f}.pdf")
+    plt.savefig(get_output_path(filename, subfolder), bbox_inches='tight')
     plt.show()
 
 
@@ -123,10 +132,10 @@ def set_custom_xtick(y_vals: np.ndarray, at_index: int) -> None:
             tick_label.set_color('tab:red')
 
 
-def grafica_eigenvalues_vs_index(eigenvalues: np.ndarray, output_dir: str = "../output/") -> None:
+def grafica_eigenvalues_vs_index(eigenvalues: np.ndarray, subfolder: str|None = None) -> None:
     """
-    Grafica els valors propis ordenats de menor a major versus el seu index natural.
-    També destaca el major eigengap per identificar visualment el nombre de clusters.
+    Grafica els valors propis ordenats de menor a major respecte el seu index natural.
+    També destaca el major eigengap per identificar visualment k.
     """
     vals = np.sort(np.asarray(eigenvalues).ravel())
     if vals.size < 2:
@@ -140,7 +149,7 @@ def grafica_eigenvalues_vs_index(eigenvalues: np.ndarray, output_dir: str = "../
 
     plt.figure(figsize=(9, 5))
     plt.plot(indexes, vals, marker='o', linestyle='-', color='tab:blue', label='Valors propis')
-    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k_{opt}=$'+f'{k}')
+    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k=$'+f'{k}')
     plt.axvline(k + 1, color='tab:red', linestyle='--', alpha=0.5)
     plt.plot([k, k + 1], [vals[k], vals[k+1]], color='tab:red', linewidth=2.5)
     set_custom_xtick(vals, at_index=k)
@@ -152,23 +161,18 @@ def grafica_eigenvalues_vs_index(eigenvalues: np.ndarray, output_dir: str = "../
         fontsize=12,
         color='tab:red'
     )
-
     plt.xlabel(r'Índex $k$')
     plt.ylabel(r'Valor propi ($\lambda_{k}$)')
     plt.title('Valors propis respecte al seu índex')
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.legend()
-    time = datetime.now().strftime('%H-%M-%S')
-    filename = f"{time}_eigenvalues_vs_index.pdf"
-    date = datetime.now().strftime("%Y-%m-%d")
-    output_path = os.path.join(output_dir, date)
-    os.makedirs(output_path, exist_ok=True)
-    plt.savefig(os.path.join(output_path, filename), bbox_inches='tight')
+    filename = "eigenvalues_vs_index.pdf"
+    plt.savefig(get_output_path(filename, subfolder), bbox_inches='tight')
     plt.show()
 
 
-def grafica_eigengaps_vs_index(eigenvalues: np.ndarray, output_dir: str = "../output/") -> None:
+def grafica_eigengaps_vs_index(eigenvalues: np.ndarray, subfolder: str|None = None) -> None:
     """
     Grafica els eigengaps (diferències consecutives de valors propis ordenats)
     respecte al seu index natural i destaca el màxim eigengap.
@@ -185,7 +189,7 @@ def grafica_eigengaps_vs_index(eigenvalues: np.ndarray, output_dir: str = "../ou
 
     plt.figure(figsize=(9, 5))
     plt.plot(indexes, gaps, marker='o', linestyle='-', color='tab:blue', label='Eigengaps')
-    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k_{opt}=$'+f'{k}')
+    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k=$'+f'{k}')
     plt.scatter([k], [max_gap], color='tab:red', zorder=3)
     set_custom_xtick(gaps, at_index=k)
     plt.annotate(
@@ -196,20 +200,14 @@ def grafica_eigengaps_vs_index(eigenvalues: np.ndarray, output_dir: str = "../ou
         fontsize=12,
         color='tab:red'
     )
-
     plt.xlabel(r'Índex $k$')
     plt.ylabel(r'Eigengap ($\lambda_{k+1} - \lambda_{k}$)')
     plt.title('Eigengaps respecte al seu índex')
-    # plt.xticks(indexes)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.legend()
-    time = datetime.now().strftime('%H-%M-%S')
-    filename = f"{time}_eigengaps_vs_index.pdf"
-    date = datetime.now().strftime("%Y-%m-%d")
-    output_path = os.path.join(output_dir, date)
-    os.makedirs(output_path, exist_ok=True)
-    plt.savefig(os.path.join(output_path, filename), bbox_inches='tight')
+    filename = "eigengaps_vs_index.pdf"
+    plt.savefig(get_output_path(filename, subfolder), bbox_inches='tight')
     plt.show()
 
 
@@ -220,7 +218,7 @@ def grafica_clusters(condicions_inicials: np.ndarray,
                      percent_esparsificacio: float, 
                      t_steps: int, 
                      t_span: Tuple[float, float],
-                     output_dir: str = "../output/") -> None:
+                     subfolder: str|None = None) -> None:
     
     num_trajectories = len(condicions_inicials)
     for cluster_id in range(num_clusters):
@@ -243,10 +241,8 @@ def grafica_clusters(condicions_inicials: np.ndarray,
     )
     plt.figtext(0.5, 0.01, descripcio, ha='center', fontsize=11)
     plt.subplots_adjust(bottom=0.1)
-    time = datetime.now().strftime('%H-%M-%S')
     filename = (
-        f"{time}"
-        f"_clusters={num_clusters}"
+        f"clusters={num_clusters}"
         f"_traj={num_trajectories}"
         f"_tsteps={t_steps}"
         f"_t_end={t_span[-1]:.1f}"
@@ -254,8 +250,5 @@ def grafica_clusters(condicions_inicials: np.ndarray,
         f"_sparse={percent_esparsificacio*100:.0f}"
         ".pdf"
     )
-    date = datetime.now().strftime("%Y-%m-%d")
-    output_path = os.path.join(output_dir, date)
-    os.makedirs(output_path, exist_ok=True)
-    plt.savefig(os.path.join(output_path, filename), bbox_inches='tight')
+    plt.savefig(get_output_path(filename, subfolder), bbox_inches='tight')
     plt.show()
