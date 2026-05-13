@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.linalg
 import scipy.spatial.distance
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
@@ -128,7 +129,7 @@ def aplica_spectral_clustering_optim(trajectories: np.ndarray, optimal_r: float,
     L_N = np.eye(num_trajectories) - W_norm
     
     # 5. Calcular vectors propis (usant eigh per a matrius simètriques)
-    eigenvalues, eigenvectors = np.linalg.eigh(L_N)
+    eigenvalues, eigenvectors = scipy.linalg.eigh(L_N)
     
     # # Ens assegurem que estan ordenats de menor a major
     # idx = np.argsort(eigenvalues)
