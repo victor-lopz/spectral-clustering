@@ -1,5 +1,6 @@
 import numpy as np
-import scipy
+import scipy.integrate
+import scipy.spatial.distance
 from typing import Tuple, Callable
 
 def generar_condicions_inicials(
@@ -18,6 +19,7 @@ def generar_condicions_inicials(
     if verbose:
         print(f"Nombre de trajectòries = {len(malla)} = {num_y} files * {num_x} columnes")
     return malla
+
 
 def generar_trajectories(
     edo: Callable,
@@ -60,3 +62,29 @@ def generar_trajectories(
     # a (num_trajectories, t_steps, dimensio)
     trajectories = y.transpose(1, 2, 0)
     return trajectories
+
+
+def calcula_matriu_pesos(trajectories: np.ndarray) -> np.ndarray:
+    """
+    Retorna la matriu de pesos on el pes entre dues trajectòries és 
+    la inversa de la distància mitjana al llarg del temps.
+    
+    Procediment: fixat un instant de temps t, la funció pdist calcula 
+    totes les N*(N-1)/2 distàncies euclidianes entre les N trajectòries. 
+    Després, usem la regla del trapezi per integrar al llarg del temps:
+    sumem des de k=1 fins a T-2 amb pes 1, i afegim k=0 i k=T-1 amb pes 1/2.
+    
+    Com el pas de temps de t_valors és uniforme (np.linspace), 
+    la regla del trapezi es redueix a:
+    r_ij ≈ [ d_0/2 + d_1 + ... + d_{T-2} + d_{T-1}/2 ] / (T-1)
+    Per això multipliquem per (t_steps - 1) al final.
+    """
+    num_trajectories, t_steps, dimensio = trajectories.shape
+    distancies_1d = 0.5 * scipy.spatial.distance.pdist(trajectories[:, 0, :])
+    for t in range(1, t_steps - 1):
+        distancies_1d += scipy.spatial.distance.pdist(trajectories[:, t, :])
+    distancies_1d += 0.5 * scipy.spatial.distance.pdist(trajectories[:, -1, :])
+    pesos_1d = (t_steps - 1) / distancies_1d
+    # Converteix al format de matriu simètrica amb diagonal zero.
+    matriu_pesos = scipy.spatial.distance.squareform(pesos_1d)
+    return matriu_pesos
