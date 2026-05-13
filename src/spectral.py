@@ -70,11 +70,17 @@ def calcula_vaps(matriu_similaritat_W: np.ndarray,
                  ) -> Tuple[np.ndarray, np.ndarray]:
     """Retorna els n VAPs més petits ordenats ascendentment i
     els VEPs del problema generalitzat Lu = lambda Du.
-    Requisit: les dues matrius han de ser simètriques."""
+    Requisit: les matrius L i D han de ser simètriques."""
+    n = matriu_similaritat_W.shape[0]
+    if n == 0:
+        raise ValueError("La matriu de similaritat ha de tenir almenys una trajectòria.")
+    if max_clusters <= 0:
+        raise ValueError(f"cal max_clusters > 0, rebut: {max_clusters}.")
+    max_index = min(max_clusters, n - 1)
     matriu_grau_D = calcula_matriu_grau(matriu_similaritat_W)
     matriu_laplacia_L = matriu_grau_D - matriu_similaritat_W
     vaps, veps = scipy.linalg.eigh(matriu_laplacia_L, matriu_grau_D, 
-                                   subset_by_index=[0, max_clusters])
+                                   subset_by_index=[0, max_index])
     return vaps, veps
 
 
@@ -87,7 +93,7 @@ def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> Tuple[int, float]:
     """
     diffs = np.diff(vaps)
     k = int(np.argmax(diffs))
-    num_clusters = k + 1 # sumem 1 per inloure el cluster dels estats incoherents
+    num_clusters = k + 1 # sumem 1 per incloure el cluster dels estats incoherents
     diff_max = diffs[k]
     return num_clusters, diff_max
 
@@ -153,7 +159,7 @@ def grafica_clusters_maxs_rel(indexs_max_rel: list[int],
                               t_span: Tuple[float, float],
                               output_dir: str = "../output/"
                               ) -> None:
-    """Dibuixa els clsuters trobats per cada radi d'esparsificació 
+    """Dibuixa els clusters trobats per cada radi d'esparsificació 
     que generi un màxim relatiu de les diferències entre VAPs consecutius."""
     for num, index in enumerate(indexs_max_rel, start=1):
         radi = radis[index]
