@@ -93,7 +93,7 @@ def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> Tuple[int, float]:
     També retorna el valor de la diferència màxima trobada.
     """
     diffs = np.diff(vaps)
-    k = 1 + int(np.argmax(diffs)) # sumem 1 perquè comencem a contar vaps des del 0
+    k = int(np.argmax(diffs))
     num_clusters = k + 1 # sumem 1 per incloure el cluster dels estats incoherents
     diff_max = diffs[k]
     return num_clusters, diff_max
