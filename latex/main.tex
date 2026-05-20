@@ -1,0 +1,833 @@
+\documentclass[12,twoside]{TFG-GM}
+\usepackage{anyfontsize}
+\usepackage{amsthm,amsmath,amssymb,amsfonts,amscd}
+\usepackage[catalan]{babel}
+\usepackage{booktabs}
+\usepackage{csquotes}
+\DeclareQuoteStyle{catalan}
+  {\guillemotleft}{\guillemotright}
+  {\guilsinglleft}{\guilsinglright}
+
+\usepackage{dsfont}
+\usepackage{emptypage}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{lastpage}
+\usepackage{lmodern}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta}
+\usepackage[sort]{natbib}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[all]{xy}
+
+\hypersetup{
+  colorlinks   = false,
+  urlcolor     = black,
+  citecolor = black
+}
+
+\newtheorem{theorem}{Theorem}[section]
+
+\newtheorem{proposition}[theorem]{Proposició}
+\newtheorem{lemma}[theorem]{Lema}
+\newtheorem{corollary}[theorem]{Corol·lari}
+\newtheorem{conjecture}[theorem]{Conjectura}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definició}
+\newtheorem{example}[theorem]{Exemple}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem*{remarknonumber}{Remark}
+\newtheorem{observation}[theorem]{Observació}
+\newtheorem*{notation}{Notació}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\ind}{\mathds{1}}
+\renewcommand{\P}{\mathbb{P}}
+
+\raggedbottom
+\setcounter{tocdepth}{2}
+
+\titol{Machine learning clustering techniques for lagrangian particle flow analysis}
+\titolcurt{Machine learning in dynamical systems}
+\authorStudent{Víctor López Archilla}
+\supervisors{Jezabel Curbelo Hernández}
+\monthYear{May, 2026}
+
+\paraulesclau{Machine learning, clustering, dynamical systems.}
+\agraiments{
+Huge thanks to my supervisor, Jezabel, for all the hours and support throughout the whole process. Thanks also to my family and friends for their unconditional emotional support.}
+
+
+\abstracteng{Lagrangian trajectories are widely used to study the behavior of flows, including oceanic and atmospheric systems. However, analyzing large satellite observation datasets is arduous, and identifying underlying pathways is challenging. This project aims to apply machine learning-based clustering methods, along with other tools, to identify the primary pathways within fluid dynamics. Our approach seeks to streamline analysis and improve understanding of complex flow patterns.}
+
+
+\begin{document}
+
+\maketitle
+
+\pagenumbering{roman}
+{ \hypersetup{hidelinks} \tableofcontents }
+\newpage
+
+{ \hypersetup{hidelinks} \listoffigures }
+
+\newpage
+
+\pagenumbering{arabic}
+
+\section{Introducció}
+
+\subsection{Motivació}
+
+L'estudi dels sistemes dinàmics és essencial per poder entendre el comportament de corrents oceàniques i atmosfèriques \cite{Rypina2007}. Entre els fenòmens més crítics dins l'àmbit dels sistemes climàtics ens trobem els vòrtexs de gran escala, els quals transporten calor, massa o aire al llarg de grans distàncies a alta velocitat. Un dels exemples més destacables d'aquest tipus de sistema és el vòrtex polar estratosfèric.
+
+Començant per les capes de l’atmosfera, l’estratosfera es troba per sobre de la troposfera i s’estén entre els 10 km i els 50 km d’altitud aproximadament. En aquesta regió és on es troba la capa d’ozó, essencial per protegir-nos de la radiació ultraviolada (UV) del Sol.
+Durant l’estiu, l’estratosfera s’escalfa sobre el pol Nord a causa de l’absorció de la llum solar a través de la capa d’ozó. Tanmateix, quan l’estratosfera polar s’inclina allunyant-se del Sol durant l’hivern, l’aire sobre el pol es refreda extremadament, arribant a temperatures de fins a -80 °C al desembre \cite{Baldwin2021}.
+
+Al voltant d’aquest nucli fred es forma el \textit{vòrtex polar estratosfèric}, una àrea de baixa pressió al seu centre. Aquest vòrtex apareix cada hivern a l’estratosfera sobre l’Àrtic i persisteix fins que la llum solar torna a les regions polars la primavera següent. A causa de la gran diferència de temperatura entre l’aire polar fred i l’aire més càlid de les latituds mitjanes, es forma un corrent en jet que flueix al voltant del perímetre del vòrtex, conegut com a jet de nit polar o \textit{polar night jet}. Aquest corrent ajuda a mantenir l’aire fred confinat dins del vòrtex polar estratosfèric. El jet de nit polar es mou d’oest a est.
+
+De vegades, el flux occidental (d'oest a est) habitual pot veure’s interromput. Aquestes interrupcions són causades per ones planetàries ascendents, també conegudes com ones de Rossby. Aquestes ones són grans meandres en els vents d’alta altitud i es produeixen a l’atmosfera a causa de la rotació de la Terra. Aquest tipus d’ones es generen pel flux sobre muntanyes i els contrastos entre continents i oceans. També poden ser generades per canvis interanuals en patrons climàtics a gran escala, com el fenomen d’El Niño. Amb una major massa terrestre a l’hemisferi nord en comparació amb l’hemisferi sud, això provoca més ones de Rossby, motiu pel qual els escalfaments estratosfèrics sobtats es concentren principalment a l’hemisferi nord. No obstant, es coneixen algunes excepcions. Per exemple, al setembre de 2002 es va observar un escalfament important a l’estratosfera de l’hemisferi sud.
+
+Només les ones de Rossby més contundents poden propagar-se cap amunt a l'estratosfera. Quan aquestes ones són fortes, les seves amplituds creixen amb l’altitud a l’estratosfera, on les ones es trenquen, de manera similar a com ho fan a una platja. Les ones trencades exerceixen una resistència sobre el jet de nit polar, que s’afebleix i es distorsiona. Si aquestes ones són prou fortes, poden desaccelerar el jet fins al punt que els vents occidentals es converteixen en orientals. Aquest canvi en el flux d’aire pertorba el vòrtex polar estratosfèric, desplaçant-lo de la seva ubicació normal sobre el pol o dividint-lo en dos vòrtexs més petits.
+
+Els vents dins del jet afeblit es tornen més lents i es desvien cap al centre del vòrtex. A mesura que l’aire convergeix al centre del vòrtex, ha de descendir. Aquest descens provoca que l’aire es comprimeixi i que la seva temperatura augmenti dràsticament, de vegades més de 50 °C en uns pocs dies. Aquest descens també augmenta la pressió sobre el pol Nord. Durant les setmanes següents, l’acció d’ones de Rossby addicionals permet que els vents orientals es propaguin cap avall a través de l’estratosfera. Quan arriben a la tropopausa, sovint debiliten els sistemes meteorològics atlàntics i el corrent en jet.
+
+Normalment, s'espera que el temps al Nord d'Europa arribi des de l’oest, amb un flux d’aire relativament suau provinent de l’Atlàntic. Però un corrent en jet afeblit significa menys flux d’aire atlàntic suau i augmenta la probabilitat d’onades de fred del nord o de l’est durant l’hivern. Tot i que un escalfament estratosfèric sobtat no sempre resulta en aquest escenari, sovint segueix una onada de fred, de manera que aquests esdeveniments augmenten significativament el risc de condicions hivernals extremes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/PolarVortex.jpg}
+    \caption[Understanding the polar vortex]{\textit{Understanding the polar vortex}. Imatge adaptada de \cite{Lindsey2021}.}
+    \label{fig:polar_vortex}
+\end{figure}
+
+\subsection{Plantejament del problema}
+
+Tradicionalment, els fluxos de fluids s'analitzen mitjançant un marc eulerià, que observa el camp de velocitats en punts fixos de l'espai. Tot i ser útil, la perspectiva euleriana pot resultar enganyosa quan s'analitzen fluxos altament no estacionaris, ja que les línies de corrent instantànies rarament corresponen a les trajectòries reals recorregudes per les partícules de fluid.
+
+Per descobrir els veritables mecanismes de transport dins d'un fluid, cal adoptar una perspectiva lagrangiana, la qual implica fer el seguiment de les trajectòries de regions de fluid individuals al llarg del temps. En aquest marc, els vòrtexs es poden entendre com regions definides de fluid que es mantenen coherents i resisteixen la mescla amb l'entorn circumdant durant un interval de temps finit. Aquestes regions estan governades per les estructures coherents lagrangianes (LCS, per les seves sigles en anglès), que actuen com l'esquelet ocult del flux del fluid.
+
+El problema central que s'aborda en aquest treball és com identificar de manera objectiva aquestes estructures de vòrtex coherents a partir d'un conjunt discret de dades de trajectòries. Donat un gran conjunt de trajectòries de partícules de fluid (ja provinguin de la integració de models numèrics o de mesures oceanogràfiques o atmosfèriques), busquem un mètode matemàtic robust per classificar aquestes trajectòries en grups o clústers distints \cite{Shi_Malik} i dinàmicament relacionats.
+
+\begin{definition}
+ Un clúster és un conjunt de trajectòries similars, és a dir, és un grup de trajectòries que tenen el mateix comportament. 
+\end{definition}
+
+\subsection{Objectius i estructura del treball}
+
+Per resoldre el problema de la detecció de vòrtexs, aquest treball explora l'aplicació de tècniques d'agrupament d'aprenentatge automàtic (machine learning clustering techniques), específicament l'agrupament espectral (spectral clustering) \cite{vonLuxburg2007}, a dades de trajectòries lagrangianes. En lloc de dependre de models d'aprenentatge profund (deep learning) difícils d'entendre, l'agrupament espectral ofereix un enfocament matemàticament rigorós arrelat en la teoria de grafs i l'àlgebra lineal, fet que el fa altament adequat per a l'anàlisi de sistemes dinàmics.
+
+Els objectius específics d'aquest treball són definir l'algorisme d'agrupament espectral per a dades de trajectòries i avaluar la seva eficàcia en un exemple de sistema dinàmic.
+
+El capítol \ref{section:teoria} introdueix el marc teòric de l'algorisme d'agrupament espectral, detallant la construcció de la matriu d'afinitat de trajectòries, el laplacià del graf i l'ús de l'heurística del salt espectral (eigengap) per determinar el nombre òptim d'estructures coherents.
+
+El capítol \ref{section:aplicacio} aplica l'algorisme a l'equació de Duffing, un sistema hamiltonià en dues dimensions. Primer estudiem el sistema autònom i, després, afegim una pertorbació per convertir el sistema en no autònom. Aquí s'estableix el rendiment base de l'algorisme a l'hora d'identificar patrons i separar els diferents grups de trajectòries segons el seu comportament. 
+
+Finalment, el capítol \ref{section:conclusio} resumeix les conclusions principals del treball, discutint els punts forts i les limitacions de l'enfocament d'agrupament espectral, i perfila direccions futures per aplicar aquest algorisme a conjunts de dades reals oceanogràfics i atmosfèrics.
+
+
+\section{Algorisme d'agrupament espectral}\label{section:teoria}
+
+L'objectiu de l'agrupament espectral (\textit{spectral clustering}) en el context de la dinàmica de fluids és segmentar el domini del flux en regions on les partícules mostren un comportament dinàmic similar al llarg d'un interval de temps determinat $[t_0, t_0 + T]\subset\R$, on $t_0>0$ és el temps inicial i $T>0$ és la durada de les trajectòries. Hi ha molts tipus d'algorismes per separar les trajectòries en grups. Nosaltres usarem el mètode descrit a l'article d'Alireza Hadjighasem et al. \cite{Hadjighasem2016} i el compararem amb l'article de Margaux Filipi et al. \cite{Filippi2021}.
+
+\subsection{Conceptes previs}
+
+Per poder agrupar trajectòries, en primer lloc, necessitem tenir trajectòries. Aquestes es poden obtenir de diverses maneres, com per exemple, directament de mesures físiques o bé a partir d'un camp de velocitats. En el nostre cas usarem la darrera opció per aconseguir dades de trajectòries.
+
+Considerem un sistema dinàmic definit per l'equació diferencial ordinària (EDO) següent: $$\cfrac{dx}{dt} = u(x, t),$$ on $x\in\R^d$ és la posició en un espai $d$-dimensional ($d\in\N,d>0$), $t\in\R$ és el temps, i $u(x, t)\in\R^d$ és el camp de velocitats. 
+
+\begin{definition}[Sistema autònom]
+Diem que el sistema dinàmic és autònom si $u(x,t)=u(x)$, és a dir, si el seu camp de velocitats no depèn del temps.
+\end{definition}
+
+La trajectòria $x(t)$ d'una partícula que parteix de la posició inicial $x(t_0)\in\R^d$ en l'instant $t_0$ s'obté integrant:
+\begin{equation}
+    x(t) = x(t_0) + \int_{t_0}^{t} u(x(\tau), \tau) d\tau
+\end{equation}
+
+Donades $n$ condicions inicials $x^i(t_0)\in\R^d$, amb $i\in\{0,\dots,n-1\}$, obtenim $n$ trajectòries $\{x^i(t)\}_{i=0}^{n-1}$. Notem que estem usant el superíndex per denotar la trajectòria $i$-èssima.
+
+Sigui $t_0 < t_1 < \cdots < t_{k} < \cdots < t_{m-1} = t_0 + T$ una discretització temporal de $m$ passes dins l'interval $[t_0, t_0 + T]$. Notem que usem el subíndex per a indicar l'instant de temps $k$-èssim. Aleshores, disposem d'un conjunt $\mathcal{X}$ de $n$ trajectòries en $m$ passes de temps en un espai de dimensió $d$, 
+
+\begin{equation} \label{eq:conjunt_dades}
+    \mathcal{X} = \{ x^i(t_k) \}_{i=0, \dots, n-1}^{k=0, \dots, m-1}
+\end{equation}
+
+Aquests elements els podem guardar en un vector de mida ($n\times m \times d$) on cada element el denotarem per $x^i_k=x^i(t_k)\in\R^d$.
+
+Per mesurar la similitud entre dues trajectòries utilitzarem la següent mètrica.
+
+\begin{definition}[Distància euclidiana en mitjana temporal] \label{def:dist_continua}
+    Siguin $x^i$ i $x^j$ dues trajectòries definides a l'interval de temps $[t_0, t_0 + T]\subset\R$. Aleshores, la seva distància euclidiana en mitjana temporal $r_{ij}$ es defineix com
+    \begin{equation}\label{eq:dist_continua}
+    r_{ij} = \frac{1}{T} \int_{t_0}^{t_0+T} \| x^i(t) - x^j(t) \| dt
+    \end{equation}
+    on $\|\cdot\|$ denota la norma euclidiana a $\R^d$. Aquesta mètrica captura no només la proximitat inicial, sinó com evoluciona la separació entre les partícules.
+\end{definition}
+
+Atès que les dades són discretes, implementem aquesta integral mitjançant la regla del trapezi. 
+
+\begin{proposition}[Distància discreta] \label{prop:dist_discreta_general}
+    Sigui $t_0 < t_1 < \cdots < t_{k} < \cdots < t_{m-1} = t_0 + T$ una discretització temporal de $m$ passes dins l'interval $[t_0, t_0 + T]$.
+    Denotem $f_{ij}(t) = \| x_i(t) - x_j(t) \|$. Aleshores, podem aproximar l'integral \eqref{eq:dist_continua} per obtenir que la distància entre dues trajectòries discretes és:
+    \begin{equation}\label{eq:dist_discreta_general}
+    r_{ij} \approx \frac{1}{T} \sum_{k=0}^{m-2} (t_{k+1} - t_{k}) \frac{f_{ij}(t_k) + f_{ij}(t_{k+1})}{2}
+    \end{equation}
+\end{proposition}
+
+\begin{proof}
+    $$r_{ij} = \frac{1}{T} \int_{t_0}^{t_0+T} \|x_i(t)-x_j(t)\| dt = \frac{1}{T}\int_{t_0}^{t_{m-1}}f_{ij}(t)dt=$$
+    $$= \frac{1}{T} \sum_{k=0}^{m-2} \int_{t_k}^{t_{k+1}} f_{ij}(t) dt
+    \approx \frac{1}{T} \sum_{k=0}^{m-2} (t_{k+1} - t_{k}) \frac{f_{ij}(t_k) + f_{ij}(t_{k+1})}{2},$$
+    on en la primera igualtat hem usat la definició \ref{def:dist_continua} i en la darrera aproximació hem usat la regla del trapezi.
+\end{proof}
+
+\begin{observation}[Distància discreta amb pas de temps constant]
+    Si suposem que la discretització de $m$ passes de l'interval $[t_0, t_0 + T]$ té un pas de temps constant $\Delta t$, aleshores se satisfà $T=(m-1)\Delta t$ i podem expressar la distància entre trajectòries com
+    \begin{equation}
+        r_{ij} \approx \frac{1}{m-1} \left( \frac{f_{ij}(t_0)}{2} + \left[ \sum_{k=1}^{m-2} f_{ij}(t_k) \right] + \frac{f_{ij}(t_{m-1})}{2}\right)
+    \end{equation}
+\end{observation}
+
+\begin{proof}
+Les $m$ passes de temps separen l'interval $[t_0, t_{m-1}]$ en $m-1$ subintervals. Com que la longitud $\Delta t$ de cada subinterval és constant i igual a $t_{k+1} - t_k$ per a tot $k$, tenim que la longitud total de l'interval és $T=(m-1)\Delta t$.
+
+Per a la segona part de la demostració apliquem la proposició \ref{prop:dist_discreta_general} sabent que $t_{k+1} - t_k = \Delta t$ per a tot $k$. Seguidament, usem que $\frac{\Delta t}{T} = \frac{\Delta t}{(m-1)\Delta t} = \frac{1}{(m-1)}$. Finalment, desenvolupem el sumatori:
+$$r_{ij} \approx \frac{\Delta t}{T} \sum_{k=0}^{m-2} \cfrac{f_{ij}(t_k) + f_{ij}(t_{k+1})}{2} 
+= \frac{1}{m-1} \left( \cfrac{f_{ij}(t_0)}{2} + \sum_{k=1}^{m-2} f_{ij}(t_k) + \cfrac{f_{ij}(t_{m-1})}{2} \right)$$
+\end{proof}
+
+
+\subsection{Graf del sistema i esparsificació}
+
+Donat un conjunt de trajectòries $\mathcal{X}$, definides segons \eqref{eq:conjunt_dades}, i una manera de calcular la distància entre parells de trajectòries, ja podem començar a definir l'\textbf{algorisme d'agrupament espectral}. En primer lloc, construïm un graf ponderat.
+
+\begin{definition}[Graf ponderat]
+    Siguin $V = \{v_0,\dots,v_{n-1}\}$ un conjunt de $n$ vèrtexs, $E \subseteq \{\{v_i, v_j\} : v_i, v_j \in V\}$ un conjunt d'arestes entre parells de vèrtexs, i $W\in\R^{n\times n}$ una matriu simètrica. Diem que $G = (V,E, W)$ és un graf ponderat si la matriu $W$ assigna un pes $w_{ij}>0$ a l'aresta $\{v_i, v_j\} \in E$ entre els vèrtexs $v_i$ i $v_j$. Si no existeix cap aresta entre dos vèrtexs ($\{v_i, v_j\} \notin E$), aleshores el seu pes associat és nul ($w_{ij} = 0$), on $i,j\in\{0,\dots,n-1\}$.
+\end{definition}
+
+En el nostre cas, cada vèrtex $v_i\in V$ representa una trajectòria, és a dir, $v_i=x^i$. A més, tots els vèrtexs es poden relacionar a partir de l'equació \eqref{eq:dist_discreta_general}, que calcula la distància entre dues trajectòries:
+
+\begin{definition}[Afinitat]
+    L'afinitat $w_{ij}$ entre dues trajectòries $x^i$ i $x^j$ es defineix com l'invers de la seva distància $r_{ij}$:
+\begin{equation}
+    w_{ij} =
+    \begin{cases}
+        1/r_{ij}, & \forall i \neq j \text{ tals que } r_{ij}\neq 0\\
+        \gamma%=\text{constant gran}
+        , & \text{si } i = j \text{, o bé } r_{ij}=0\\
+    \end{cases}
+    \qquad \text{amb } \ i,j\in\{0,\dots,n-1\},
+\end{equation}
+
+on $\gamma$ és una constant molt més gran que tots els $1/r_{ij}$. Més endavant, en l'observació \ref{obs:constant_diagonal} comentem en profunditat la constant $\gamma$. %\textcolor{red}{¿Quito esto de la derecha?} Recordem que $i,j\in\{0,\dots,n-1\}$. 
+\end{definition}
+
+\begin{definition}[Matriu d'afinitat]
+     Siguin $i,j\in\{0,\dots,n-1\}$. Aleshores, els $w_{ij}$ de la definició anterior generen una matriu simètrica, la qual anomenarem matriu d'afinitat i la denotarem per $W\in\R^{n \times n}$.
+\end{definition}
+
+\begin{observation}[Intuïció de l'afinitat]
+    Des de l'òptica de la teoria de grafs, estem modelitzant el sistema dinàmic com un conjunt de vèrtexs (trajectòries) units per arestes el pes de les quals és inversament proporcional a la seva distància. Les trajectòries que formen part d'un mateix clúster tindran distàncies $r_{ij}$ molt petites entre elles, generant afinitats $w_{ij}$ molt elevades i, per tant, una forta cohesió dins del clúster.
+\end{observation}
+
+Donades dues trajectòries $x^i$ i $x^j$, el següent diagrama resumeix aquesta idea clau:
+
+\begin{figure}[H]
+    \centering
+    \resizebox{\textwidth}{!}{
+    \begin{tikzpicture}[
+        node distance = -0.01cm,
+        box/.style={
+            draw=black, 
+            thick, 
+            rounded corners, 
+            align=center, 
+            text width=2.7cm,
+            minimum height=1.8cm, 
+            fill=white, 
+            inner sep=2pt
+        },
+        arrownode/.style={font=\Large, align=center, inner sep=0pt, outer sep=0pt}
+    ]
+    \node[box] (n1) {Afinitat $w_{ij}$\\gran};
+    \node[arrownode, right=of n1] (a1) {$\iff$};
+    \node[box, right=of a1] (n2) {Distància $r_{ij}$\\petita};
+    \node[arrownode, right=of n2] (a2) {$\iff$};
+    \node[box, right=of a2] (n3) {$x^i$ i $x^j$ estan\\sempre a prop};
+    \node[arrownode, right=of n3] (a3) {$\iff$};
+    \node[box, right=of a3] (n4) {$x^i$ i $x^j$ tenen\\comportament\\similar};
+    \node[arrownode, right=of n4] (a4) {$\iff$};
+    \node[box, right=of a4] (n5) {$x^i$ i $x^j$\\pertanyen al\\mateix clúster};
+    \end{tikzpicture}
+    }
+    \caption{Relació lògica entre afinitat, distància dinàmica i agrupament de trajectòries.}
+    \label{fig:diagrama_afinitat}
+\end{figure}
+
+
+\begin{observation}[Constant $\gamma$ de la diagonal]\label{obs:constant_diagonal}
+Intuïtivament, l'afinitat d'una trajectòria $x^i$ amb si mateixa és màxima, atès que cap altra trajectòria se li pot assemblar més. Si apliquéssim la fórmula general, com que la distància és nul$\cdot$la ($r_{ii} = 0$), l'afinitat divergiria, ja que $\lim_{r_{ii} \to 0^+} 1/r_{ii} = +\infty$. Per tant, el valor $w_{ii}$ no està ben definit. Atès que l'infinit no és un nombre real ni es pot representar en un ordinador, se soluciona aquest inconvenient definint els elements de la diagonal principal com una constant $\gamma \in \R^+$ molt gran. L'objectiu no és assignar un valor quantitatiu exacte, sinó preservar l'ordre qualitatiu de les afinitats. Així doncs, és suficient triar una $\gamma$ que sigui estrictament major que qualsevol afinitat ($\gamma \gg \max_{i \neq j}(w_{ij})$) i que, alhora, es mantingui per sota del límit de doble precisió de la màquina (habitualment $<10^{16}$) per evitar errors d'arrodoniment numèric. No existeix un valor concret de $\gamma$ que sigui el correcte, sinó que el rang òptim depèn de la dinàmica de cada sistema. Si es tria una $\gamma$ massa petita (per exemple, $\gamma < w_{ij}$ per algun parell $i \neq j$), l'algorisme interpretaria que la trajectòria $x^i$ s'assembla més a $x^j$ que a si mateixa, fet que no té sentit. D'altra banda, una $\gamma$ excessivament gran pot generar problemes de precisió amb l'ordinador. Per garantir un equilibri entre la jerarquia d'afinitats i l'estabilitat numèrica, en aquest treball s'ha utilitzat el valor següent:
+\begin{equation}\label{eq:constant_diagonal_valor}
+\gamma = \max_{i \neq j}(w_{ij}) \times 10^7
+\end{equation}
+\end{observation}
+
+La manera amb què es comprova si el valor de $\gamma$ triat és correcte és realitzant un senzill anàlisi de convergència. Si en augmentar l'exponent de l'equació \eqref{eq:constant_diagonal_valor} (per exemple, de 7 a 8) obtenim el mateix resultat pels clústers, aleshores el valor de $\gamma$ és estable i correcte. D'altra banda, si el nombre de clústers varia a mesura que s'incrementa l'exponent, això vol dir que el valor triat era massa petit i cal triat un valor més gran per garantir la convergència. Més endavant, en les seccions \ref{seccio:espectral} i \ref{seccio:num_clusters}, veurem com es calcula el nombre de clústers òptim.
+
+Un cop calculada la matriu d'afinitat $W$, és una pràctica habitual sotmetre-la a un procés d'esparsificació. Aquest procediment consisteix a eliminar les afinitats més febles per convertir $W$ en una matriu esparsa.
+
+\begin{definition}[Esparsificació]
+    \label{def:esparsificacio}
+    Sigui $W \in \R^{n \times n}$ la matriu d'afinitat original i sigui $\epsilon > 0$. Es defineix la matriu esparsificada, els elements de la qual denotarem com $\tilde{w}_{ij}$, aplicant el llindar següent:
+    \begin{equation}
+        \tilde{w}_{ij} = 
+        \begin{cases}
+            0, & \text{si } w_{ij} < \epsilon \\
+            w_{ij}, & \text{si } w_{ij} \geq \epsilon
+        \end{cases}
+        \quad \text{per a } i,j \in \{0, \dots, n-1\}
+    \end{equation}
+    A més, al paràmetre $\epsilon$ l'anomenarem radi d'esparsificació.
+\end{definition}
+
+Treballar amb la matriu esparsificada presenta dos avantatges. En primer lloc, des d'una perspectiva topològica, minimitza la influència de les similituds insignificants. Dues trajectòries molt distants pertanyen, amb gairebé total seguretat, a clústers diferents. En forçar que la seva afinitat sigui zero, estem tallant les arestes més febles del graf. Això neteja el soroll de fons del sistema i ens permet quedar-nos només amb l'essència estructural del sistema dinàmic. En segon lloc, des d'una perspectiva numèrica, s'aconsegueix una reducció dràstica del cost computacional i de memòria. Emmagatzemar només els elements no nuls permet representar la matriu de forma molt eficient. A més, el fet de tenir una matriu esparsa permet utilitzar algorismes especialitzats per trobar valors propis amb molta més rapidesa.
+
+Per simplificar la notació, d'ara endavant assumirem que la matriu d'afinitat ja ha estat sotmesa a aquest procés. Així doncs, $W$ denotarà directament la matriu esparsificada i contindrà els pesos definitius del graf ponderat. La manera de trobar el valor òptim del radi d'esparsificació $\epsilon$ la discutirem més endavant.
+
+
+\subsection{El laplacià del graf i l'anàlisi espectral} \label{seccio:espectral}
+
+Per poder segmentar el graf en regions coherents (els clústers), necessitem analitzar l'estructura global de les connexions. El primer pas és entendre com de connectat està cada vèrtex amb la resta del graf. Això ho aconseguim mitjançant la matriu de grau.
+
+\begin{definition}[Grau d'un vèrtex]
+    Sigui $G = (V, E, W)$ un graf ponderat amb matriu d'afinitat $W \in \R^{n \times n}$. El grau d'un vèrtex $v_i \in V$, denotat com $d_i$, es defineix com la suma de tots els pesos de les arestes connectades a ell:
+    \begin{equation}
+        d_i = \sum_{j=0}^{n-1} w_{ij}, \quad \text{per a } i = 0, \dots, n-1
+    \end{equation}
+\end{definition}
+
+\begin{definition}[Matriu de grau]
+    Sigui $W \in \R^{n \times n}$ la matriu d'afinitat d'un graf ponderat. La matriu de grau, $D \in \R^{n \times n}$, es defineix com la matriu diagonal que conté els graus $d_i$ a la diagonal principal i zeros a la resta de posicions:
+    \begin{equation}
+        D_{ij} = 
+        \begin{cases}
+            d_i = \sum_{k=0}^{n-1} w_{ik}, & \text{si } i = j \\
+            0, & \text{si } i \neq j
+        \end{cases}
+        \text{\ ,\ on } i,j\in\{0,\dots,n-1\}
+    \end{equation}
+\end{definition}
+
+Amb l'afinitat i el grau definits, podem construir l'eina principal de l'agrupament espectral: el laplacià del graf.
+
+\begin{definition}[Laplacià del graf]
+    Sigui $W \in \R^{n \times n}$ la matriu d'afinitat i $D \in \R^{n \times n}$ la matriu de grau corresponent. El laplacià del graf, denotat per $L \in \R^{n \times n}$, es defineix com:
+    \begin{equation}
+        L = D - W
+    \end{equation}
+\end{definition}
+
+L'objectiu de l'agrupament espectral és projectar les dades originals cap a un espai de menor dimensió on els clústers siguin fàcilment separables. Per fer-ho, primer plantegem el problema de valors propis generalitzat següent:
+\begin{equation}\label{eq:valors_propis_generalitzat}
+    L u = \lambda D u
+\end{equation}
+on $\lambda \in \R$ és un valor propi i $u \in \R^n$ és el seu vector propi associat. 
+
+Per transformar aquest problema generalitzat en un problema de valors propis estàndard, molt més senzill de resoldre matemàticament i computacionalment, introduïm el laplacià normalitzat.
+
+\begin{definition}[Laplacià normalitzat]
+    El laplacià normalitzat, denotat per $L_{N} \in \R^{n \times n}$, es defineix multiplicant per l'esquerra la inversa de la matriu de grau pel laplacià:
+    \begin{equation}
+        L_{N} = D^{-1}L
+    \end{equation}
+    on $I \in \R^{n \times n}$ és la matriu identitat de dimensió $n$. Observem que $L_{N} = D^{-1}L = D^{-1}(D-W) = I - D^{-1}W$.
+\end{definition}
+
+\begin{proposition}
+    Trobar els vectors propis $u$ que satisfan el problema generalitzat $L u = \lambda D u$ és equivalent a resoldre el problema de valors propis estàndard per al laplacià normalitzat:
+    \begin{equation}\label{eq:valors_propis_normalitzat}
+        L_{N} u = \lambda u
+    \end{equation}
+\end{proposition}
+
+\begin{proof}
+    \begin{equation*}
+        Lu = \lambda Du \iff D^{-1}Lu = D^{-1} (\lambda Du) \iff L_{N} u = \lambda u
+    \end{equation*}
+\end{proof}
+
+Per construcció, la suma de les files de $L$ i de $L_{N}$ és sempre zero, fet que implica que el vector format exclusivament per uns ($\mathbf{1} \in \R^n$) és un vector propi associat al valor propi $\lambda = 0$. 
+
+Donat que $L_{N}$ prové d'una matriu d'afinitat simètrica i amb valors no negatius, se sap que tots els seus valors propis són reals i no negatius, la qual cosa permet ordenar-los de forma ascendent:
+\begin{equation}
+    0 = \lambda_0 \leq \lambda_1 \leq \lambda_2 \leq \dots \leq \lambda_{n-1}
+\end{equation}
+
+D'ara endavant, suposarem que el conjunt de $n$ valors propis (VAPs) i $n$ vectors propis (VEPs) està ordenat ascendentment, on l'ordre ve donat pels VAPs.
+
+\subsection{Heurística del salt espectral}
+\label{seccio:num_clusters}
+Per determinar el nombre òptim de clústers, ens basem en l'heurística del salt espectral.
+
+\begin{definition}[Eigengap]
+    Donat un conjunt de valors propis ordenats ascendentment, el salt espectral o \textit{eigengap} és la diferència entre dos valors propis consecutius.
+\end{definition}
+
+\begin{definition}[Eigengap màxim]
+    El salt espectral màxim o \textit{eigengap} màxim és la diferència més gran entre valors propis consecutius ordenats. La posició on s'assoleix aquest màxim l'anomenarem $k_{opt}$, on
+    \begin{equation}
+        k_{opt} = \operatorname*{arg\,max}_{i\in \{0,\dots,n-2\}} (\lambda_{i+1} - \lambda_i).
+    \end{equation}
+    % Hem sumat 1 perquè els nostres índexs comencen des del zero. 
+    D'aquesta manera, $k_{opt}$ representa el nombre de valors propis que hi ha abans de l'eigengap màxim. 
+\end{definition}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/autonom/eigenvalues_vs_index.pdf}
+    \caption[Exemple de valors propis ordenats ascendentment per calcular l'eigengap màxim]{Exemple de valors propis ordenats ascendentment, on es mostra el salt màxim entre VAPs consecutius. 
+    % Aquí, $k=\operatorname*{arg\,max}_{i\in \{0,\dots,n-2\}} (\lambda_{i+1} - \lambda_i)$
+    }
+    \label{fig:eigenvalues_example}
+\end{figure}
+
+Un salt espectral significatiu indica que els primers vectors propis contenen la informació estructural dominant del flux, permetent identificar les estructures coherents lagrangianes (LCS) com a regions d'alta densitat de trajectòries i baixa barreja amb l'exterior.
+
+Considerant que en l'estudi de fluids sovint existeix un clúster addicional que representa el fons incoherent (el fluid que es barreja lliurement fora dels vòrtexs), el nombre final de clústers a extreure es defineix com 
+$$n_c = k_{opt} + 1$$ 
+
+Aquest ajust permet capturar correctament tant les estructures coherents identificades com el fons circumdant.
+
+
+\subsection{K-means}
+
+Un cop hem determinat el nombre de clústers $n_c$ mitjançant l'heurística del salt espectral, procedim a l'última fase de l'agrupament espectral: la classificació geomètrica.
+
+En primer lloc, seleccionem els $n_c$ vectors propis $\{u_0, u_1, \dots, u_{n_c-1}\}$ associats als $n_c$ valors propis més petits. Amb ells, construïm una matriu $U \in \R^{n \times n_c}$ disposant aquests vectors per columnes. 
+
+Dins d'aquesta matriu, cada fila $i$, que denotarem com el vector $y_i \in \R^{n_c}$, correspon a la projecció de la trajectòria original $x^i$ cap al nou espai espectral. En aquest nou espai de menor dimensió, les complexes connexions topològiques del graf s'han transformat en proximitats espacials simples: les trajectòries que estaven fortament connectades ara formen núvols de punts compactes i ben separats de la resta.
+
+Per extreure els clústers definitius d'aquest espai, s'aplica l'algorisme de les \textit{k}-mitjanes (més conegut pel seu terme en anglès, $k$-means) sobre les files de la matriu $U$.
+
+\begin{definition}[Algorisme $k$-means]
+    Donat un conjunt de $n$ punts $\{y_0, \dots, y_{n-1}\} \subset \R^{n_c}$ i un enter positiu $n_c\in\N$, l'algorisme $k$-means divideix els $n$ punts en $n_c$ conjunts disjunts $C = \{C_1, C_2, \dots, C_{n_c}\}$ minimitzant la variància dins de cada clúster. 
+    
+    L'objectiu matemàtic és trobar l'assignació que minimitzi la suma de les distàncies euclidianes al quadrat entre cada punt i el centre del seu respectiu clúster:
+    \begin{equation}
+        \operatorname*{arg\,min}_{C} \sum_{j=1}^{n_c} \sum_{y_i \in C_j} \|y_i - \mu_j\|^2
+    \end{equation}
+    on $\mu_j \in \R^{n_c}$ és el centroide (la mitjana) dels punts assignats al clúster $C_j$.
+\end{definition}
+
+L'algorisme resol aquest problema d'optimització de forma iterativa mitjançant dos passos fonamentals:
+\begin{enumerate}
+    \item Fase d'assignació: Cada punt $y_i$ s'assigna al clúster el centroide del qual ($\mu_j$) sigui el més proper en distància euclidiana.
+    \item Fase d'actualització: Es recalculen els centroides $\mu_j$ com la mitjana aritmètica de tots els punts que acaben de ser assignats al clúster $C_j$.
+\end{enumerate}
+Aquest procés es repeteix fins que l'assignació de punts no canvia o s'assoleix una tolerància de convergència predeterminada. 
+
+La decisió final per al nostre problema de dinàmica de fluids s'obté de forma directa. Recuperant l'equivalència entre les files de $U$ i les nostres dades inicials, assignem la trajectòria física original $x^i$ al clúster $C_j$ si i només si la seva representació espectral $y_i$ pertany al clúster $C_j$ calculat pel $k$-means.
+
+
+
+
+\section{Aplicació de l'algorisme al sistema de Duffing}\label{section:aplicacio}
+
+En aquesta secció primer analitzarem la dinàmica i l'estabilitat del sistema de Duffing i, després, posarem en pràctica l'algorisme d'agrupament espectral.
+
+\subsection{Equacions de Duffing}
+
+Definim el següent sistema dinàmic a partir de les equacions de Duffing \cite{Jezabel2018}.
+\begin{equation}
+    \label{eq:pvi}
+    \left\{
+    \begin{aligned}
+        \dot{x} &= y \\
+        \dot{y} &= x - x^3 
+    \end{aligned}
+    \right.
+\end{equation}
+
+Denotem per $F(x,y)=(y,x-x^3)$ el camp vectorial que defineix l'EDO anterior.
+A continuació, calculem els punts fixos o d'equilibri del sistema dinàmic, que es donen quan $F(x,y)=(0,0)$.
+\begin{equation}
+    \left\{
+    \begin{aligned}
+        \dot{x}=0 &\iff y=0\\
+        \dot{y}=0 &\iff x-x^3=-x(x+1)(x-1)=0
+    \end{aligned}
+    \right.
+\end{equation}
+
+Deduïm que només hi ha tres punts d'equilibri, que són l'origen i els dos punts $p_\pm=(\pm1,0)$.
+Pel teorema 4.6 de \cite{Meiss2007}, l'estabilitat de cada punt ve donada pels valors propis de la matriu diferencial del camp, $DF(x,y)$.
+\begin{equation}
+    DF(x,y) = 
+\begin{pmatrix}
+\cfrac{\partial \dot{x}}{\partial x} & \cfrac{\partial \dot{x}}{\partial y} \\
+\cfrac{\partial \dot{y}}{\partial x} & \cfrac{\partial \dot{y}}{\partial y}
+\end{pmatrix}
+= 
+\begin{pmatrix}
+0 & 1 \\
+1 - 3x^2 & 0
+\end{pmatrix}
+\end{equation}
+
+Si avaluem la matriu diferencial a l'origen obtenim que els valors propis de 
+$DF(0,0) =\begin{pmatrix}
+0 & 1 \\
+1 & 0
+\end{pmatrix}$
+són $\lambda_{\pm} = \pm1$.
+Com la part real de $\lambda_\pm$ és no nul$\cdot$la, deduïm que l'origen és un punt fix hiperbòlic.
+En particular, és un punt de sella, doncs els valors propis tenen signes oposats.
+La matriu diferencial avaluada en els altres dos punts fixos és $DF(\pm1,0) =\begin{pmatrix}
+0 & 1 \\
+-2 & 0
+\end{pmatrix}$, que té valors propis $\lambda_\pm = \pm i\sqrt{2}$.
+Per tant, els punts fixos $p_\pm$ són no hiperbòlics, ja que $Re(\lambda_\pm) = 0$.
+
+Aquest sistema dinàmic es pot modelar des de la perspectiva de la dinàmica de fluids incompressibles mitjançant una funció de corrent (\textit{stream function}) autònoma $\Psi(x,y)$. En aquest marc, el camp de velocitats es relaciona amb les derivades parcials de $\Psi$ mitjançant el següent conveni de signes:
+
+\begin{equation}
+    \label{eq:stream_field}
+    \left\{
+    \begin{aligned}
+        \dot{x} &= -\frac{\partial \Psi}{\partial y}\\
+        \dot{y} &= \frac{\partial \Psi}{\partial x} 
+    \end{aligned}
+    \right.
+\end{equation}
+
+Igualant les expressions de $\dot{x}$ i $\dot{y}$ a les equacions \eqref{eq:pvi} i \eqref{eq:stream_field}, s'obté el següent sistema d'equacions diferencials:
+
+\begin{equation}
+    \label{eq:edo_stream}
+    \left\{
+    \begin{aligned}
+        -\frac{\partial \Psi}{\partial y} &= y \\
+        \frac{\partial \Psi}{\partial x} &= x - x^3 
+    \end{aligned}
+    \right.
+\end{equation}
+
+Integrant de manera independent respecte a cada variable s'obté l'expressió exacta per a la funció de corrent del sistema:
+\begin{equation}
+    \Psi(x,y) = -\frac{y^2}{2} + \frac{x^2}{2} - \frac{x^4}{4}
+\end{equation}
+
+Per tant, les trajectòries del sistema en l'espai de fases venen donades de forma implícita per les corbes de nivell on la funció de corrent roman constant:
+\begin{equation}
+    \Psi(x,y) = -\frac{y^2}{2} + \frac{x^2}{2} - \frac{x^4}{4} = \text{constant}
+\end{equation}
+
+Si anomenem $\beta\in\R$ a aquesta constant, podem aïllar la variable $y$ per calcular i representar les trajectòries de forma analítica i explícita:
+\begin{equation}
+    y(x) = \pm \sqrt{ x^2 - \frac{x^4}{2} - 2\beta}
+\end{equation}
+
+L'expressió anterior només està ben definida en els nombres reals quan el radicand és no negatiu, la qual cosa imposa la condició que la constant satisfaci $\beta \leq \frac{1}{4}$. A continuació podem veure la forma de les trajectòries resultants.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/edo.pdf}
+    \caption[Trajectòries del sistema de Duffing.]{Trajectòries del sistema de Duffing (equació \eqref{eq:pvi}).}
+    \label{fig:trajectories}
+\end{figure}
+
+Podem classificar les òrbites del sistema en funció del valor de la constant $\beta$:
+\begin{itemize}
+    \item Si $0 < \beta \leq 1/4$, ens trobem davant de trajectòries tancades independents que envolten cadascun dels punts fixos estables $p_\pm$ (representades en color blau, verd i taronja a la figura \ref{fig:trajectories}). Aquestes dues regions disjuntes s'anomenaran \textit{conques} al llarg d'aquest treball. El valor màxim $\beta = 1/4$ s'assoleix exactament en els centres $p_\pm$ de cada conca.
+    \item Si $\beta=0$, la corba de nivell correspon a l'òrbita homoclínica (\textit{separatriu}), que té la forma geomètrica d'un infinit ($\infty$) i és l'única línia de corrent que conté el punt de sella de l'origen.
+    \item Si $\beta<0$, les trajectòries formen òrbites tancades exteriors de gran escala (les corbes vermella i lila a la figura \ref{fig:trajectories}), l'interior de les quals engloba simultàniament l'origen i els dos punts fixos $p_\pm$.
+\end{itemize}
+
+
+\subsection{Metodologia d'esparsificació}
+
+Un dels paràmetres més crítics i que major impacte té en el rendiment de l'agrupament espectral és el radi d'esparsificació $\epsilon$ introduït a la definició \ref{def:esparsificacio}. La tria d'aquest llindar determina quines connexions del graf es consideren rellevants i quines es descarten com a soroll de fons. En aquest treball, per tal de trobar una configuració òptima que separi correctament les estructures coherents lagrangianes (LCS), analitzem i comparem dos enfocaments metodològics diferents.
+
+\subsubsection{Mètode del llindar fix (esparsificar al 90\%)}
+\label{seccio:esparsfificar90}
+
+L'enfocament clàssic dins de la literatura de detecció de vòrtexs mitjançant l'agrupament espectral consisteix a fixar un percentatge de retenció constant per a la matriu d'afinitat $W$ \cite{Hadjighasem2016}. En concret, se sol aplicar l'anomenada \textit{regla del 90\%}, on el radi d'esparsificació $\epsilon$ es defineix com el percentil 90 de tots els pesos (afinitats) de les arestes fora de la diagonal principal:
+
+\begin{equation}
+    \epsilon_{90} = P_{90}\left(\{w_{ij} \in W : i \neq j\}\right)
+\end{equation}
+
+D'aquesta manera, la matriu esparsificada $\tilde{W}$ només conserva el 10\% de les connexions més fortes del graf, forçant un pes nul ($w_{ij}=0$) per al 90\% restant. L'avantatge principal d'aquest mètode és la seva simplicitat computacional. No obstant això, presenta l'inconvenient de ser un criteri global i arbitrari que no té en compte les característiques geomètriques o topològiques particulars de cada flux.
+
+\subsubsection{Mètode d'esparsificació adaptatiu (escombrament de radis)}
+
+Com a alternativa al criteri fix, Filippi et al. \cite{Filippi2021} desenvolupen un procediment d'optimització paramètrica, el qual anomenarem \textit{mètode d'esparsificació adaptatiu}. Aquest enfocament no assumeix cap percentatge predeterminat, sinó que busca el radi $\epsilon$ que maximitzi l'estabilitat topològica del graf.
+
+El mètode s'executa mitjançant els següents passos:
+\begin{enumerate}
+    \item Definim un rang de valors discrets per al radi d'esparsificació, $\mathcal{E} = \{\epsilon_{min}, \dots, \epsilon_{max}\}$.
+    \item Per a cada valor $\epsilon_k \in \mathcal{E}$, construïm la corresponent matriu d'afinitat esparsificada $W(\epsilon_k)$ i calculem els valors propis del seu laplacià normalitzat, ordenats ascendentment: $0 = \lambda_0 \leq \lambda_1 \leq \dots \leq \lambda_{n-1}$.
+    \item Calculem el salt espectral màxim i el normalitzem respecte a la magnitud dels seus valors propis:
+    \begin{equation}
+        g(\epsilon_k) = \frac{|\text{max gap}|}{\lambda_{max} - \lambda_{min}}
+    \end{equation}
+    on $\lambda_{max}$ és el valor propi més gran, $\lambda_{min}$ és el valor propi més petit i 
+    $$|\text{max gap}|=\max_{i\in \{0,\dots,n-2\}} (\lambda_{i+1} - \lambda_i).$$
+\end{enumerate}
+
+La hipòtesi fonamental d'aquest enfocament és que els màxims relatius de la funció de salt espectral, $g(\epsilon)$, identifiquen radis d'esparsificació òptims. En aquests punts crítics, el graf s'ha desfet del soroll de fons just abans que l'augment del llindar comenci a fracturar les estructures coherents principals (les LCS de les conques de Duffing), garantint així una classificació altament robusta. És important remarcar el fet de normalitzar els eigengaps. Sense la normalització no podríem comparar els salts màxims calculats a partir de diferents radis d'esparsificació.
+
+
+
+
+
+\subsection{Aplicació de l'algorisme al sistema de Duffing autònom}
+
+Per establir el punt de partida del nostre experiment, s'ha procedit a simular el sistema de Duffing autònom descrit a l'equació \eqref{eq:pvi}. 
+
+
+
+\subsubsection{Generació del conjunt de dades}
+Les condicions inicials s'han generat definint una graella rectangular uniforme a l'espai $(x,y)\in\R^2$. En concret, s'ha pres un domini on la posició s'estén entre $x \in [-1.6, 1.6]$ i $y \in [-1, 1]$, amb un pas d'espai constant de $\Delta x = \Delta y = 0.05$. Aquesta discretització dóna lloc a una graella de $65 \times 41$ punts, la qual cosa proporciona un total de $n = 2665$ trajectòries a analitzar.
+
+L'evolució d'aquestes partícules s'ha calculat integrant el camp vectorial numèricament mitjançant un mètode de Runge-Kutta explícit (RK45). L'interval temporal d'integració s'ha definit entre l'instant inicial $t_0 = 0$ i el temps final $t_{end} = 4\pi$. Les posicions de cada partícula s'han avaluat en $m = 300$ passes de temps equidistants.
+
+Així doncs, l'aplicació de l'algorisme comença a partir d'un tensor de dades $\mathcal{X}$ de dimensions $(2665 \times 300 \times 2)=$(trajectòries, passes de temps, dimensió de $\R^2$), sobre el qual s'ha calculat la matriu de distàncies en mitjana temporal i, consegüentment, la matriu d'afinitat.
+
+
+\subsubsection{Salt espectral}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/autonom/eigenvalues_vs_index.pdf}
+    \caption[Valors propis ordenats ascendentment i màxim eigengap]{Representació dels valors propis ordenats ascendentment, on es mostra en color vermell el salt màxim entre VAPs consecutius. Aquí, $k=\operatorname*{arg\,max}_{i\in \{0,\dots,n-2\}} (\lambda_{i+1} - \lambda_i)$.}
+    \label{fig:vaps_vs_index}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/autonom/eigengaps_vs_index.pdf}
+    \caption[Eigengap respecte de l'índex]{Representació de les diferències entre VAPs consecutius. En color vermell es mostra la diferència màxima (eigengap màxim), on $k=\operatorname*{arg\,max}_{i\in \{0,\dots,n-2\}} (\lambda_{i+1} - \lambda_i)$.}
+    \label{fig:eigengaps_vs_index}
+\end{figure}
+
+
+
+% En lloc de fixar un llindar d'esparsificació arbitrari (com ara retenir únicament el 90\% o 95\% de les connexions), en aquest treball proposem el que anomenarem el \textbf{mètode d'esparsificació adaptativa}. Aquest enfocament consisteix a fer un escombrat computacional al llarg de diferents valors del radi d'esparsificació $\epsilon$. Per a cada graf resultant, calculem el salt espectral (\textit{eigengap}) màxim normalitzat. 
+
+% La hipòtesi d'aquest mètode és que els màxims relatius d'aquest \textit{eigengap} normalitzat (vegeu la figura \ref{fig:eigengap}) corresponen a radis d'esparsificació topològicament òptims. En aquests punts, el graf s'ha desfet del soroll de fons just abans de començar a trencar les estructures coherents principals. En la figura \ref{fig:clusters_per_max_relatiu_grid} es pot visualitzar l'assignació de clústers per a cada extrem local trobat mitjançant aquesta heurística.
+
+
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{images/autonom/clusters=7_traj=2665_tsteps=300_t_end=12.6_tol=1.3_sparse=90.pdf}
+    \caption[Resultat de l'algorisme usant el mètode d'esparsificar al 90\%.]{Clústers trobats amb el mètode d'esparsificar al 90\%.}
+    \label{fig:clusters_90sparse}
+\end{figure}
+
+Cal destacar que allò que ens interessa no són els colors, sinó que és la forma de cada grup de trajectòries (clúster).
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{images/autonom_maxs_rels/eigengap_vs_radi-max_clusters=50_radis=50_t_end=12.6.pdf}
+    \caption[Evolució de variables respecte del radi d'esparsificació.]{Evolució de tres indicadors respecte del radi d'esparsificació.}
+    \label{fig:eigengap}
+\end{figure}
+
+ En la figura \ref{fig:eigengap} podem observar el salt espectral màxim normalitzat (color blau), el nombre de clústers que ens dona cada esparsificació (color vermell) i el percentatge de la matriu d'afinitat que s'ha tornat esparsa (color verd). Els màxims relatius dels eigengaps normalitzats estan remarcats amb cercles de color taronja i s'assoleixen en els següents valors del radi d'esparsificació: $r=1.244,\  1.426$ i $1.517$. En la figura \ref{fig:clusters_per_max_relatiu_grid} es pot visualitzar l'assignació de clústers per a cada extrem local. Les cinc rectes verticals representen els valors estadísticament significatius de la matriu d'afinitat: el valor mínim, la mediana, la mitjana i els percentils 90 i 95. La línia lila del percentil 90 resulta clau per comparar aquest mètode amb el d'esparsificar al 90\%, ja que ens mostra que els resultats d'ambdós mètodes són molt propers.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{images/eigengap/17-25-39_eigengap_vs_radi.pdf}
+    \caption[Evolució de variables respecte del radi d'esparsificació.]{
+         \textcolor{red}{Esta figura la borraré porque he usado el eigengap sin normalizar.}
+    Evolució dels indicadors respecte del radi d'esparsificació.}
+    \label{fig:eigengap_borrar}
+\end{figure}
+
+\textcolor{red}{Decidir cómo llamar al método alternativo al de esparsificar al 90\%. Ideas: ¿Mètode d'esparsificació adaptatiu, mètode d'escombrament de radis, heurística de l'eigengap adaptatiu?}
+
+
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.33\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/autonom_maxs_rels/max_rel-1_clusters=16_traj=2665_tsteps=300_t_end=12.6_tol=1.2_sparse=89.pdf}
+         \caption{Primer màxim relatiu}
+         \label{fig:sub1}
+     \end{subfigure}%
+     \hfill
+     \begin{subfigure}[b]{0.33\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/autonom_maxs_rels/max_rel-2_clusters=7_traj=2665_tsteps=300_t_end=12.6_tol=1.4_sparse=92.pdf}
+         \caption{Segon màxim relatiu}
+         \label{fig:sub2}
+     \end{subfigure}%
+     \hfill
+     \begin{subfigure}[b]{0.33\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/autonom_maxs_rels/max_rel-3_clusters=7_traj=2665_tsteps=300_t_end=12.6_tol=1.5_sparse=93.pdf}
+         \caption{Tercer màxim relatiu}
+         \label{fig:sub3}
+     \end{subfigure}
+     
+     \caption[Resultat de l'algorisme usant el mètode d'escombrada de radis]{Clústers trobats amb el mètode de buscar els màxims relatius de les diferències màximes de valors propis consecutius respecte el radi d'esparsificació.}
+     \label{fig:clusters_per_max_relatiu_grid}
+\end{figure}
+
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/eigengap/17-25-36_clusters=2_traj=2665_tsteps=300_t_end=12.6_tol=0.5_sparse=4.pdf}
+         \caption{Primer màxim relatiu}
+         % \label{fig:sub1}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/eigengap/17-25-36_clusters=23_traj=2665_tsteps=300_t_end=12.6_tol=0.6_sparse=27.pdf}
+         \caption{Segon màxim relatiu}
+         % \label{fig:sub2}
+     \end{subfigure}
+
+     % \vspace{0.5cm} 
+     
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/eigengap/17-25-37_clusters=34_traj=2665_tsteps=300_t_end=12.6_tol=0.9_sparse=79.pdf}
+         \caption{Tercer màxim relatiu}
+         % \label{fig:sub3}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/eigengap/17-25-38_clusters=7_traj=2665_tsteps=300_t_end=12.6_tol=1.4_sparse=91.pdf}
+         \caption{Quart màxim relatiu}
+         % \label{fig:sub4}
+     \end{subfigure}
+     
+     \caption[Resultat de l'algorisme usant el mètode d'escombrada de radis]{
+     \textcolor{red}{Esta figura la borraré porque he usado el eigengap sin normalizar.}
+     Clústers trobats amb el mètode de buscar els màxims relatius de les diferències màximes de valors propis consecutius respecte el radi d'esparsificació.}
+     \label{fig:clusters_per_max_relatiu_grid_borrar}
+\end{figure}
+
+
+
+
+\newpage
+
+\subsection{Aplicació de l'algorisme al sistema de Duffing no autònom}
+
+Per tal d'estudiar la robustesa de l'algorisme en fluxos no estacionaris, introduïm una dependència temporal al sistema. Seguint l'article de Margaux Filippi \cite{Filippi2021}, definim el sistema de Duffing no autònom a partir d'una funció de corrent (\textit{stream function}) pertorbada $\Psi(x, y, t)$. Aquesta funció ve donada per:
+
+\begin{equation}
+    \label{eq:stream_function_no_autonom}
+    \Psi(x, y, t) = -\frac{y^2}{2} + \left(1 - \delta(x) \cos(\theta t + \phi)\right) \left(\frac{x^2}{2} - a\frac{x^4}{4}\right)
+\end{equation}
+
+on hem introduït una funció de pertorbació espacial $\delta(x)$:
+
+\begin{equation}
+    \delta(x) = \delta_0 \frac{x + 4.5}{2}
+\end{equation}
+
+Els paràmetres que controlen l'escala d'aquesta pertorbació són els següents: l'amplitud base de la pertorbació $\delta_0 = 0.1$, el coeficient de no-linealitat $a = 0.5$, la freqüència angular $\theta = \frac{3\pi}{2}$ i la fase inicial $\phi = \frac{\pi}{4}$.
+
+El camp vectorial resultant s'obté a partir de les derivades de la funció de corrent, $\dot{x} = -\frac{\partial \Psi}{\partial y}$, $\dot{y} = \frac{\partial \Psi}{\partial x}$, on hem usat la convenció de signes de l'estudi dels fluids geofísics (la qual difereix de l'habitual en sistemes hamiltonians). Això dóna lloc a les següents equacions diferencials ordinàries per a les trajectòries de les partícules:
+
+\begin{equation}
+    \label{eq:pertorbacio_no_autonom}
+    \left\{
+    \begin{aligned}
+        \dot{x} &= -\frac{\partial \Psi}{\partial y} = y \\
+        \dot{y} &= \frac{\partial \Psi}{\partial x} = - \delta'(x) \cos(\theta t + \phi) \left( \frac{x^2}{2} - a \frac{x^4}{4} \right) + (1 - \delta(x) \cos(\theta t + \phi)) (x - a x^3)
+    \end{aligned}
+    \right.
+\end{equation}
+
+on la derivada espacial de $\delta(x)$ és una constant que depèn de l'amplitud base, $\delta'(x) = \frac{\delta_0}{2}$.
+
+La pertorbació trenca completament l'estructura d'òrbites tancades pròpia del cas autònom, generant regions de mescla caòtica al voltant de les varietats invariants de l'origen. Com que el camp de velocitats ja no és estacionari, l'evolució de les partícules i la separació final dels clústers de trajectòries dependran fortament de l'interval de temps triat i, en particular, de l'instant de temps inicial considerat.
+
+A continuació es mostra el comportament d'algunes trajectòries integrades sota aquestes condicions caòtiques.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/no_autonom/trajectories.pdf}
+    \caption[Trajectòries del sistema de Duffing no autònom.]{Trajectòries del sistema de Duffing no autònom descrit a l'equació \eqref{eq:pertorbacio_no_autonom}.}
+    \label{fig:trajectories_no_autonom}
+\end{figure}
+
+Seguidament, analitzarem els resultats de l'algorisme d'agrupament espectral pel sistema de Duffing no autonom. En primer lloc, hem generat $5151$ trajectòries i calculat la matriu d'afinitat. En segon lloc, fem que la matriu d'afinitat sigui esparsa al $90\%$, seguint el mètode de l'apartat \ref{seccio:esparsfificar90}.
+
+En les figures \ref{fig:vaps_no_autonom} i \ref{fig:eigengaps_no_autonom} es mostren els valors propis obtinguts i els seus salts consecutius (\textit{eigengaps}).
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/no_autonom/eigenvalues_vs_index.pdf}
+        \caption{Valors propis ordenats.}
+        \label{fig:vaps_no_autonom}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/no_autonom/eigengaps_vs_index.pdf}
+        \caption{Salts espectrals (\textit{eigengaps}).}
+        \label{fig:eigengaps_no_autonom}
+    \end{subfigure}
+    \caption[Anàlisi espectral del sistema de Duffing no autònom.]{Anàlisi espectral del laplacià del graf per al cas no autònom del sistema de Duffing.}
+    \label{fig:espectre_no_autonom}
+\end{figure}
+
+Com es pot apreciar a la figura \ref{fig:eigengaps_no_autonom}, s'identifica que el salt espectral màxim es troba a l'índex $k_{opt} = 8$. D'acord amb l'heurística descrita a la secció metodològica, on es considera un clúster addicional per absorbir el fons incoherent de l'ambient circumdant, el nombre final de clústers òptims a extreure mitjançant l'algorisme de $k$-means és:
+\begin{equation}
+    n_c = k_{opt} + 1 = 8 + 1 = 9 \text{ clústers}
+\end{equation}
+
+Aquest resultat indica que l'espai espectral de vuit dimensions conté la informació geomètrica necessària per segregar les estructures dinàmiques principals del fluid en vuit nuclis coherents diferenciats més la regió de mescla dispersa. El resultat macroscòpic d'aquesta classificació es mostra a la figura \ref{fig:clusters_no_autonom_9}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/no_autonom/clusters=10_traj=5151_tsteps=300_t_end=12.6_tol=1.2_sparse=90.pdf}
+    \caption[Clústers obtinguts per al sistema de Duffing no autònom.]{Classificació dels clústers obtinguts per al sistema de Duffing no autònom.}
+    \label{fig:clusters_no_autonom_9}
+\end{figure}
+
+L'anàlisi visual de la figura \ref{fig:clusters_no_autonom_9} mostra la potència de l'agrupament espectral en sistemes no estacionaris. A diferència del cas autònom, on les conques interiors de cada vòrtex estan perfectament separades per una línia homoclínica estàtica, la introducció de la pertorbació $\delta(x)\cos(\theta t + \phi)$ trenca aquesta simetria espacial i indueix fenòmens de mescla caòtica. 
+Malgrat aquesta distorsió, l'algorisme és capaç d'identificar i aïllar de forma objectiva les dues conques.
+
+Les franges més estretes subdivideixen la complexa regió perifèrica de les conques pertorbades. En aquesta zona de transició, les partícules pateixen processos d'atracció i repulsió a causa de l'evolució de les varietats invariants estables i inestables del punt de sella de l'origen. L'algorisme agrupa aquestes trajectòries caòtiques no segons la seva posició geomètrica inicial, sinó en funció del seu comportament asimptòtic comú (per exemple, partícules que acaben sent ejectades cap a l'exterior o que orbiten conjuntament al voltant d'un perfil lobular). Això demostra que el mètode captura perfectament l'esquelet geomètric d'un flux pertorbat.
+
+
+
+\section{Conclusió}\label{section:conclusio}
+
+
+\bibliographystyle{unsrt}
+\bibliography{refs}
+
+\end{document}
