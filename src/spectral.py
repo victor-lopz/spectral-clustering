@@ -90,7 +90,7 @@ def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> Tuple[int, float]:
     Aquesta regla diu que el nombre de clusters és el valor de l'índex k 
     on la diferència entre vaps[k] i vaps[k-1] és màxima. És a dir, és 
     l'argument del màxim de diferències consecutives de VAPs ordenats.
-    També retorna el valor de la diferència màxima trobada.
+    També retorna el valor de la diferència màxima trobada (max eigengap).
     """
     diffs = np.diff(vaps)
     k = int(np.argmax(diffs))
@@ -110,17 +110,18 @@ def troba_clusters(num_clusters: int, veps: np.ndarray) -> np.ndarray:
     return labels
 
 
-def calcula_diffs_vs_radis(matriu_pesos: np.ndarray,
-                           constant_diagonal: float,
-                           params: ParametresGenerals
-                           ) -> SpectralAnalysisResult:
+def calcula_indicadors_vs_radis(matriu_pesos: np.ndarray,
+                                constant_diagonal: float,
+                                params: ParametresGenerals
+                                ) -> SpectralAnalysisResult:
     """
-    Retorna una classe SpectralAnalysisResult amb:
-    - les diferències màximes entre VAPs consecutius
-    - les diferències normalitzades entre VAPs consecutius
-    - el nombre de clusters trobats dins del rang [1, max_clusters]
+    Retorna una classe SpectralAnalysisResult que, 
+    per a cada radi d'esparsificació, conté:
+    - la diferència màxima entre VAPs consecutius
+    - la diferència màxima normalitzada entre VAPs consecutius
+    - el nombre de clusters trobat, sempre dins del rang [1, max_clusters]
     - el percentatge d'esparsificació
-    - els estadístics de la matriu de pesos
+    - els estadístics de la matriu de pesos (min, max, mediana, mitja, percentils90 i 95)
     - tots els VEPs associats a cada radi d'esparsificació
     """
     estadistics = calcula_estadistics(matriu_pesos)
@@ -131,11 +132,11 @@ def calcula_diffs_vs_radis(matriu_pesos: np.ndarray,
         result.sparsificacions.append(percent)
         np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
         vaps, veps = calcula_vaps(matriu_similaritat_W, params.max_clusters)
-        n_clusters, diff_max = calcula_num_clusters_i_max_eigengap(vaps)
+        num_clusters, max_eigengap = calcula_num_clusters_i_max_eigengap(vaps)
+        result.nums_clusters.append(num_clusters)
+        result.eigengaps.append(max_eigengap)
         rang_espectral = vaps[-1] - vaps[0]
-        gap_normalitzat = diff_max / rang_espectral if rang_espectral > 0 else 0
-        result.nums_clusters.append(n_clusters)
-        result.eigengaps.append(diff_max)
+        gap_normalitzat = max_eigengap / rang_espectral if rang_espectral > 0 else 0
         result.normalized_eigengaps.append(gap_normalitzat)
         result.veps_list.append(veps)
     return result
