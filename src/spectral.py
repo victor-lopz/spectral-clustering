@@ -91,11 +91,15 @@ def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> Tuple[int, float]:
     on la diferència entre vaps[k] i vaps[k-1] és màxima. És a dir, és 
     l'argument del màxim de diferències consecutives de VAPs ordenats.
     També retorna el valor de la diferència màxima trobada (max eigengap).
+
+    Es suma 1 perquè els VAPs es compten des de l'índex zero i, a la fórmula
+    de l'article, es compten des de l'índex 1. A més, es suma 1 més per
+    incloure el cluster dels estats incoherents.
     """
     diffs = np.diff(vaps)
     k = int(np.argmax(diffs))
-    num_clusters = k + 1 # sumem 1 per incloure el cluster dels estats incoherents
     diff_max = diffs[k]
+    num_clusters = k + 2
     return num_clusters, diff_max
 
 
