@@ -25,19 +25,25 @@ def grafica_trajectories(trajectories: np.ndarray,
         coordenades_x = trajectoria[:,0]
         coordenades_y = trajectoria[:,1]
         plt.plot(coordenades_x, coordenades_y)
+    mida_punt = 5
     for trajectoria in trajectories:
         coordenades_x = trajectoria[:,0]
         coordenades_y = trajectoria[:,1]
         pos_inicial = (coordenades_x[0], coordenades_y[0])
-        inici_string = f'Inici = ({pos_inicial[0]:.2f}, {pos_inicial[1]:.2f})'
-        plt.plot(pos_inicial[0], pos_inicial[1], 'o', label=inici_string, color='grey', markersize=4)
+        plt.plot(pos_inicial[0], pos_inicial[1], 'o', color='grey', markersize=mida_punt)
         pos_final = (coordenades_x[-1], coordenades_y[-1])
-        final_string = f'Final = ({pos_final[0]:.2f}, {pos_final[1]:.2f})'
-        plt.plot(pos_final[0], pos_final[1], 'o', label=final_string, color='red', markersize=4)
+        plt.plot(pos_final[0], pos_final[1], 'o', color='red', markersize=mida_punt)
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid()
     plt.gca().set_aspect('equal', adjustable='box')
+    punts_llegenda = [
+        Line2D([0], [0], marker='o', markerfacecolor='grey', markeredgecolor='grey', 
+               markersize=mida_punt, linestyle='None', label='Inici'),
+        Line2D([0], [0], marker='o', markerfacecolor='red', markeredgecolor='red', 
+               markersize=mida_punt, linestyle='None', label='Final')
+    ]
+    plt.legend(handles=punts_llegenda, loc='best')
     filename = "trajectories.pdf"
     plt.savefig(get_output_path(filename, subfolder), bbox_inches='tight')
     plt.show()
