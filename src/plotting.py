@@ -19,8 +19,11 @@ def get_output_path(filename: str, subfolder: str|None = None) -> str:
 
     
 def grafica_trajectories(trajectories: np.ndarray,
-                         subfolder: str|None = None
+                         subfolder: str|None = None,
+                         titol: str|None = None
                          ) -> None:
+    if titol:
+        plt.title(titol)
     for trajectoria in trajectories:
         coordenades_x = trajectoria[:,0]
         coordenades_y = trajectoria[:,1]
