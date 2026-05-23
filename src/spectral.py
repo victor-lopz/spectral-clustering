@@ -140,7 +140,7 @@ def calcula_indicadors_vs_radis(matriu_pesos: np.ndarray,
 
 
 def troba_indexs_max_rel(diffs: list[float]) -> list[int]:
-    """Troba els màxims relatius d'un vector i retorna els seus índexs.
+    """Retorna els índexs dels màxims relatius del vector 'diffs'.
     S'utilitza per trobar els màxims relatius de les diferències 
     entre VAPs consecutius en funció del radi d'esparsificació."""
     maxs_rels = []
@@ -160,17 +160,17 @@ def grafica_clusters_maxs_rel(
     params: ParametresGenerals,
     subfolder: str|None = None
 ) -> None:
-    """Dibuixa els clusters trobats per cada radi d'esparsificació 
-    que generi un màxim relatiu de les diferències entre VAPs consecutius."""
+    """Dibuixa els clústers trobats per cada radi d'esparsificació que 
+    generi un màxim relatiu de les diferències entre VAPs consecutius."""
     for num, index in enumerate(indexs_max_rel, start=1):
         radi = result.radis[index]
         percent = result.sparsificacions[index]
         n_clusters = result.nums_clusters[index]
         diff_max = result.eigengaps[index]
         veps = result.veps_list[index]
-        print(f"Maxim_relatiu_num {num}\n"
+        print(f"Màxim_relatiu_num {num}\n"
               f"Radi: {radi:.3f}, Esparsificació: {percent:.2%}, "
-              f"Clusters: {n_clusters}, Max Eigen gap: {diff_max:.5e}")
+              f"Clústers: {n_clusters}, Max eigengap: {diff_max:.5e}")
         labels = troba_clusters(n_clusters, veps)
         grafica_clusters(condicions_inicials, labels, n_clusters, radi, percent, 
                          params, subfolder, filename_prefix=f"max_rel-{num}_")
