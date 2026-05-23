@@ -22,13 +22,6 @@ def calcula_estadistics(matriu_pesos: np.ndarray) -> Dict[str, float]:
     return estadistics
 
 
-def imprimeix_estadistics(matriu_pesos: np.ndarray) -> None:
-    print(f"Dimensions de la matriu de pesos: {matriu_pesos.shape}")
-    estadistics = calcula_estadistics(matriu_pesos)
-    for nom, valor in estadistics.items():
-        print(f"{nom:<12} {valor:.3f}")
-
-
 def sparcify_with_tol(matriu: np.ndarray, tol: float) -> Tuple[np.ndarray, float]:
     """Retorna una matriu on els elements més petits que la tolerància es tornen zero.
     Opcionalment, retorna també el percentatge d'esparsificació obtingut.
