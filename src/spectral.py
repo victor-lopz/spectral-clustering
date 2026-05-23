@@ -10,13 +10,13 @@ from src.plotting import grafica_clusters
 def calcula_estadistics(matriu_pesos: np.ndarray) -> Dict[str, float]:
     triangular_upper = matriu_pesos[np.triu_indices(len(matriu_pesos), k=1)]
     percentils = np.percentile(triangular_upper, [0, 50, 90, 95, 100])
-    pes_min, pes_mediana, percentil90, percentil95, pes_max = percentils
+    pes_min, pes_mediana, p90, p95, pes_max = percentils
     estadistics = {
         "pes_min":     pes_min,
         "pes_mediana": pes_mediana,
         "pes_mitja":   np.mean(triangular_upper),
-        "percentil90": percentil90,
-        "percentil95": percentil95,
+        "percentil90": p90,
+        "percentil95": p95,
         "pes_max":     pes_max
     }
     return estadistics
@@ -67,7 +67,7 @@ def calcula_vaps(matriu_similaritat_W: np.ndarray,
     Requisit: les matrius L i D han de ser simètriques."""
     n = matriu_similaritat_W.shape[0]
     if n == 0:
-        raise ValueError("La matriu de similaritat ha de tenir almenys una trajectòria.")
+        raise ValueError("La matriu de similaritat no pot ser buida.")
     if max_clusters <= 0:
         raise ValueError(f"cal max_clusters > 0, rebut: {max_clusters}.")
     max_index = min(max_clusters - 1, n - 1)
@@ -118,11 +118,14 @@ def calcula_indicadors_vs_radis(matriu_pesos: np.ndarray,
     - la diferència màxima normalitzada entre VAPs consecutius
     - el nombre de clusters trobat, sempre dins del rang [1, max_clusters]
     - el percentatge d'esparsificació
-    - els estadístics de la matriu de pesos (min, max, mediana, mitja, percentils90 i 95)
+    - els estadístics de la matriu de pesos, que són:
+        el pes mínim, màxim, mediana, mitjà, percentils 90 i 95
     - tots els VEPs associats a cada radi d'esparsificació
     """
     estadistics = calcula_estadistics(matriu_pesos)
-    radis = np.linspace(estadistics["pes_min"], estadistics["percentil95"], params.num_radis)
+    radis = np.linspace(estadistics["pes_min"], 
+                        estadistics["percentil95"], 
+                        params.num_radis)
     result = SpectralAnalysisResult(radis=radis, estadistics=estadistics)
     for radi in radis:
         matriu_similaritat_W, percent = sparcify_with_tol(matriu_pesos, radi)
