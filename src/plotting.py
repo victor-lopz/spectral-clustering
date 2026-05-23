@@ -202,8 +202,8 @@ def grafica_clusters(condicions_inicials: np.ndarray,
 def grafica_eigengaps_vs_radi(
     result: SpectralAnalysisResult,
     params: ParametresGenerals,
+    indexs_max_rel: list[int]|None = None,
     subfolder: str|None = None,
-    indexs_max_rel: list[int]|None = None
 ) -> None:
     """
     Grafica el nombre de clusters, l'eigengap i el percentatge d'esparsificació
