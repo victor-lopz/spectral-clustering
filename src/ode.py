@@ -3,7 +3,7 @@ import numpy as np
 
 def edo_duffing_autonom(t, z):
     """Paràmetres:
-        t: temps
+        t: temps (no s'utilitza)
         z: posició al pla R^2
     Retorna el camp vectorial del sistema d'EDOs x'=y; y'=x-x^3.
     """
@@ -15,8 +15,8 @@ def edo_duffing_no_autonom(t, z):
         t: temps
         z: posició al pla R^2
     Retorna el camp vectorial del sistema d'EDOs 
-    x_dot = dPsi/dy; y_dot = -dPsi/dx, on Psi és la funció de corrent 
-    de Duffing no autònom de l'article d'Irina.
+    x_dot = - dPsi/dy; y_dot = dPsi/dx, on Psi és la funció de corrent 
+    de Duffing no autònom.
     """
     x, y = z
     a = 0.5               # Coeficient de no linealitat
@@ -32,7 +32,7 @@ def edo_duffing_no_autonom(t, z):
         return delta_0 / 2
   
     x_dot = y
-    first = - (delta_derivada(x) * cosinus) * (x**2 / 2 - a * x**4 / 4)
-    second = (1 - delta(x) * cosinus) * (x - a * x**3)
-    y_dot = first + second
+    primer = - (delta_derivada(x) * cosinus) * (x**2 / 2 - a * x**4 / 4)
+    segon = (1 - delta(x) * cosinus) * (x - a * x**3)
+    y_dot = primer + segon
     return [x_dot, y_dot]
