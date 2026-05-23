@@ -6,6 +6,14 @@ from typing import Callable
 from src.datatypes import ParametresGenerals
 
 def generar_condicions_inicials(params: ParametresGenerals) -> np.ndarray:
+    """
+    Genera una malla de punts a l'espai R^2 dins dels límits definits per 
+    params.x_min, params.x_max, params.y_min, params.y_max.
+    El pas entre punts ve donat per params.espai_entre_punts.
+    Retorna una matriu de mida (num_punts, 2) on cada fila és un punt (x,y).
+    num_punts es calcula de manera que cobreixi tot l'espai amb el pas indicat.
+    """
+    
     num_x = int(round((params.x_max - params.x_min) / params.espai_entre_punts)) + 1
     num_y = int(round((params.y_max - params.y_min) / params.espai_entre_punts)) + 1
     x = np.linspace(params.x_min, params.x_max, num_x)
@@ -25,7 +33,7 @@ def generar_trajectories(edo: Callable, condicions_inicials: np.ndarray,
     - params: objecte ParametresGenerals que conté les constants de la simulació:
         - t_span: tupla (t_inici, t_final) que indica l'interval de temps a simular
         - t_valors: np.array[float], conté els instants de temps on avaluem l'EDO
-        - dimensio: dimensió dels punts a l'espai R^n (per defecte es 2 a R^2)
+        - dimensio: dimensió dels punts a l'espai R^n (per defecte és 2 a R^2)
     
     Retorna: 
         matriu 3D de mida (num_trajectories, t_steps, dimensio)
@@ -33,7 +41,6 @@ def generar_trajectories(edo: Callable, condicions_inicials: np.ndarray,
         instants de temps indicats per t_valors.
     """
     num_trajectories = len(condicions_inicials)
-    t_steps = len(params.t_valors)
     y0_flat = condicions_inicials.T.flatten()  # [x0,x1,x2,..., y0,y1,y2,...]
 
     def edo_vectorial(t, y_flat):
@@ -46,11 +53,12 @@ def generar_trajectories(edo: Callable, condicions_inicials: np.ndarray,
     if sol.status != 0:
         raise RuntimeError(f"solve_ivp error: {sol.message}")
     
+    t_steps = len(params.t_valors)
     # sol.y té mida (dimensio * num_trajectories, t_steps)
     # reconstruïm les dimensions
     y = sol.y.reshape(params.dimensio, num_trajectories, t_steps)
-    # reordenem els eixos: de (dimensio, num_trajectories, t_steps) 
-    # a (num_trajectories, t_steps, dimensio)
+    # permutem els eixos per pasar de (dimensio, num_trajectories, t_steps) a
+    # (num_trajectories, t_steps, dimensio)
     trajectories = y.transpose(1, 2, 0)
     return trajectories
 
