@@ -76,7 +76,12 @@ def calcula_matriu_pesos(trajectories: np.ndarray) -> np.ndarray:
     Com el pas de temps de t_valors és uniforme (np.linspace), 
     la regla del trapezi es redueix a:
     r_ij ≈ [ d_0/2 + d_1 + ... + d_{T-2} + d_{T-1}/2 ] / (T-1)
-    Per això multipliquem per (t_steps - 1) al final.
+    
+    Cada pes w_ij és l'inversa de la distància r_ij, 
+    per això multipliquem per (t_steps - 1) al final.
+    
+    Per evitar confusió amb la matriu d'afinitat ja esparsificada, anomenem
+    aquesta matriu "matriu_pesos" en comptes de "matriu_afinitat".
     """
     num_trajectories, t_steps, dimensio = trajectories.shape
     distancies_1d = 0.5 * scipy.spatial.distance.pdist(trajectories[:, 0, :])
@@ -84,6 +89,6 @@ def calcula_matriu_pesos(trajectories: np.ndarray) -> np.ndarray:
         distancies_1d += scipy.spatial.distance.pdist(trajectories[:, t, :])
     distancies_1d += 0.5 * scipy.spatial.distance.pdist(trajectories[:, -1, :])
     pesos_1d = (t_steps - 1) / distancies_1d
-    # Converteix al format de matriu simètrica amb diagonal zero.
+    # Converteix la llista de pesos al format de matriu simètrica amb diagonal zero.
     matriu_pesos = scipy.spatial.distance.squareform(pesos_1d)
     return matriu_pesos
