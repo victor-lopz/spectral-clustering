@@ -12,7 +12,7 @@ class ParametresGenerals:
     x_max: float = 1.6
     y_min: float = -1.0
     y_max: float = 1.0
-    espai_entre_punts: float = 0.05
+    espai_entre_punts: float = 0.04
     max_clusters: int = 50
     num_radis: int = 50
     t_valors: np.ndarray = field(init=False)
