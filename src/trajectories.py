@@ -49,7 +49,8 @@ def generar_trajectories(edo: Callable, condicions_inicials: np.ndarray,
         # Avaluem totes les trajectories alhora i tornem a aplanar
         return np.array(edo(t, z)).flatten()
         
-    sol = scipy.integrate.solve_ivp(edo_vectorial, params.t_span, y0_flat, t_eval=params.t_valors)
+    sol = scipy.integrate.solve_ivp(edo_vectorial, params.t_span, y0_flat, 
+                                    t_eval=params.t_valors)
     if sol.status != 0:
         raise RuntimeError(f"solve_ivp error: {sol.message}")
     
