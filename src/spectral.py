@@ -79,7 +79,7 @@ def calcula_vaps(matriu_similaritat_W: np.ndarray,
 
 
 def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> Tuple[int, float]:
-    """Retorna el nombre de clusters segons la regla del colze.
+    """Retorna el nombre de clusters segons l'heurística del salt espectral.
     Aquesta regla diu que el nombre de clusters és el valor de l'índex k 
     on la diferència entre vaps[k] i vaps[k-1] és màxima. És a dir, és 
     l'argument del màxim de diferències consecutives de VAPs ordenats.
