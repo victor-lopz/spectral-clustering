@@ -12,6 +12,4 @@ troba_clusters, grafica_clusters_maxs_rel)
 from .plotting import (grafica_trajectories, grafica_punts, grafica_eigengaps_vs_radi,
 grafica_clusters, grafica_eigenvalues_vs_index, grafica_eigengaps_vs_index)
 
-from .utils import (troba_radi_optim, aplica_spectral_clustering_optim)
-
 from .datatypes import (ParametresGenerals, SpectralAnalysisResult)
