@@ -171,13 +171,13 @@ def grafica_clusters(condicions_inicials: np.ndarray,
             plt.scatter(condicions_inicials[indices, 0], 
                         condicions_inicials[indices, 1], 
                         s=30, label=cluster_id)
-    plt.title('Clusters')
+    plt.title('Clústers')
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid(False)
     plt.gca().set_aspect('equal')
     descripcio = (
-        f"{num_clusters} clusters, {num_trajectories} trajectòries, "
+        f"{num_clusters} clústers, {num_trajectories} trajectòries, "
         f"{params.t_steps} passes de temps," "\n"
         f"temps final = {params.t_span[-1]:.1f}s, "
         f"esparsificació = {percent_esparsificacio*100:.0f}%"
