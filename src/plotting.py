@@ -183,8 +183,11 @@ def grafica_clusters(condicions_inicials: np.ndarray,
         f"esparsificació = {percent_esparsificacio*100:.0f}%"
         f", radi = {radi_esparsificacio:.2f}"
     )
-    plt.figtext(0.5, 0.01, descripcio, ha='center', fontsize=11)
-    plt.subplots_adjust(bottom=0.1)
+    plt.text(0.5, -0.18, descripcio, 
+             transform=plt.gca().transAxes, 
+             ha='center', va='top', fontsize=11)
+    # plt.figtext(0.5, 0.01, descripcio, ha='center', fontsize=11)
+    # plt.subplots_adjust(bottom=0.1)
     filename = (
         filename_prefix +
         f"clusters={num_clusters}"
