@@ -92,7 +92,7 @@ def grafica_eigenvalues_vs_index(eigenvalues: np.ndarray, subfolder: str|None = 
 
     plt.figure(figsize=(9, 5))
     plt.plot(indexes, vals, marker='o', linestyle='-', color='tab:blue', label='Valors propis')
-    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k=$'+f'{k}')
+    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Salt màxim en $k=$'+f'{k}')
     plt.axvline(k + 1, color='tab:red', linestyle='--', alpha=0.5)
     plt.plot([k, k + 1], [vals[k], vals[k+1]], color='tab:red', linewidth=2.5)
     set_custom_xtick(vals, at_index=k)
@@ -131,8 +131,8 @@ def grafica_eigengaps_vs_index(eigenvalues: np.ndarray, subfolder: str|None = No
     k = max_gap_pos
 
     plt.figure(figsize=(9, 5))
-    plt.plot(indexes, gaps, marker='o', linestyle='-', color='tab:blue', label='Eigengaps')
-    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Max eigengap en $k=$'+f'{k}')
+    plt.plot(indexes, gaps, marker='o', linestyle='-', color='tab:blue', label='Salts espectrals')
+    plt.axvline(k, color='tab:red', linestyle='--', alpha=0.8, label=r'Salt màxim en $k=$'+f'{k}')
     plt.scatter([k], [max_gap], color='tab:red', zorder=3)
     set_custom_xtick(gaps, at_index=k)
     plt.annotate(
@@ -144,8 +144,8 @@ def grafica_eigengaps_vs_index(eigenvalues: np.ndarray, subfolder: str|None = No
         color='tab:red'
     )
     plt.xlabel(r'Índex $k$')
-    plt.ylabel(r'Eigengap ($\lambda_{k+1} - \lambda_{k}$)')
-    plt.title('Eigengaps respecte al seu índex')
+    plt.ylabel(r'Salt espectral ($\lambda_{k+1} - \lambda_{k}$)')
+    plt.title("Salts espectrals respecte l'índex")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.legend()
