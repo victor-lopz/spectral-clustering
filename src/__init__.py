@@ -29,6 +29,8 @@ from .trajectories import (
 )
 
 __all__ = [
+    "ParametresGenerals",
+    "SpectralAnalysisResult",
     "calcula_estadistics",
     "calcula_indicadors_vs_radis",
     "calcula_matriu_grau",
@@ -41,13 +43,11 @@ __all__ = [
     "generar_trajectories",
     "grafica_clusters",
     "grafica_clusters_maxs_rel",
-    "grafica_eigenvalues_vs_index",
     "grafica_eigengaps_vs_index",
     "grafica_eigengaps_vs_radi",
+    "grafica_eigenvalues_vs_index",
     "grafica_punts",
     "grafica_trajectories",
-    "ParametresGenerals",
-    "SpectralAnalysisResult",
     "sparsify",
     "sparsify_with_tol",
     "troba_clusters",
