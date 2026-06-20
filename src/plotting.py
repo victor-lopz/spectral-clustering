@@ -89,7 +89,6 @@ def grafica_eigenvalues_vs_index(eigenvalues: np.ndarray, subfolder: str|None = 
     indexes = np.arange(vals.size)
     gaps = np.diff(vals)
     max_gap_pos = int(np.argmax(gaps))
-    max_gap = float(gaps[max_gap_pos])
     k = max_gap_pos
 
     plt.figure(figsize=(9, 5))
