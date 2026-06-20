@@ -1,16 +1,55 @@
 # src/__init__.py
 
-from .ode import (edo_duffing_autonom, edo_duffing_no_autonom)
+from .datatypes import ParametresGenerals, SpectralAnalysisResult
+from .ode import edo_duffing_autonom, edo_duffing_no_autonom
+from .plotting import (
+    grafica_clusters,
+    grafica_eigengaps_vs_index,
+    grafica_eigengaps_vs_radi,
+    grafica_eigenvalues_vs_index,
+    grafica_punts,
+    grafica_trajectories,
+)
+from .spectral import (
+    calcula_estadistics,
+    calcula_indicadors_vs_radis,
+    calcula_matriu_grau,
+    calcula_num_clusters_i_max_eigengap,
+    calcula_vaps,
+    grafica_clusters_maxs_rel,
+    sparsify,
+    sparsify_with_tol,
+    troba_clusters,
+    troba_indexs_max_rel,
+)
+from .trajectories import (
+    calcula_matriu_pesos,
+    generar_condicions_inicials,
+    generar_trajectories,
+)
 
-from .trajectories import (generar_condicions_inicials, generar_trajectories, 
-                           calcula_matriu_pesos)
-
-from .spectral import (calcula_estadistics, sparcify, calcula_matriu_grau, calcula_vaps, sparcify_with_tol,
-calcula_num_clusters_i_max_eigengap, calcula_indicadors_vs_radis, troba_indexs_max_rel,
-troba_clusters, grafica_clusters_maxs_rel)
-
-from .plotting import (grafica_trajectories, grafica_punts, grafica_eigengaps_vs_radi,
-grafica_clusters, grafica_eigenvalues_vs_index, grafica_eigengaps_vs_index,
-grafica_eigengaps_vs_radi_for_slides)
-
-from .datatypes import (ParametresGenerals, SpectralAnalysisResult)
+__all__ = [
+    "ParametresGenerals",
+    "SpectralAnalysisResult",
+    "calcula_estadistics",
+    "calcula_indicadors_vs_radis",
+    "calcula_matriu_grau",
+    "calcula_matriu_pesos",
+    "calcula_num_clusters_i_max_eigengap",
+    "calcula_vaps",
+    "edo_duffing_autonom",
+    "edo_duffing_no_autonom",
+    "generar_condicions_inicials",
+    "generar_trajectories",
+    "grafica_clusters",
+    "grafica_clusters_maxs_rel",
+    "grafica_eigengaps_vs_index",
+    "grafica_eigengaps_vs_radi",
+    "grafica_eigenvalues_vs_index",
+    "grafica_punts",
+    "grafica_trajectories",
+    "sparsify",
+    "sparsify_with_tol",
+    "troba_clusters",
+    "troba_indexs_max_rel",
+]
