@@ -17,8 +17,8 @@ from .spectral import (
     calcula_num_clusters_i_max_eigengap,
     calcula_vaps,
     grafica_clusters_maxs_rel,
-    sparcify,
-    sparcify_with_tol,
+    sparsify,
+    sparsify_with_tol,
     troba_clusters,
     troba_indexs_max_rel,
 )
@@ -48,8 +48,8 @@ __all__ = [
     "grafica_trajectories",
     "ParametresGenerals",
     "SpectralAnalysisResult",
-    "sparcify",
-    "sparcify_with_tol",
+    "sparsify",
+    "sparsify_with_tol",
     "troba_clusters",
     "troba_indexs_max_rel",
 ]

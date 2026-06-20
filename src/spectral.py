@@ -22,7 +22,7 @@ def calcula_estadistics(matriu_pesos: np.ndarray) -> Dict[str, float]:
     return estadistics
 
 
-def sparcify_with_tol(matriu: np.ndarray, tol: float) -> Tuple[np.ndarray, float]:
+def sparsify_with_tol(matriu: np.ndarray, tol: float) -> Tuple[np.ndarray, float]:
     """Retorna una matriu on els elements més petits que la tolerància es tornen zero.
     Opcionalment, retorna també el percentatge d'esparsificació obtingut.
     Requisit: la diagonal de la matriu ha de ser zero."""
@@ -45,12 +45,12 @@ def calcula_tol_esparsificacio(matriu: np.ndarray, percent: float) -> float:
     return float(radi_esparsificacio)
 
 
-def sparcify(matriu: np.ndarray, percent: float) -> Tuple[np.ndarray, float, float]:
+def sparsify(matriu: np.ndarray, percent: float) -> Tuple[np.ndarray, float, float]:
     """Retorna una matriu esparsa on el percentatge escollit dels 
     elements més petits es tornen zero.
     Requisit: la matriu ha de ser simètrica amb diagonal nul·la."""
     tol = calcula_tol_esparsificacio(matriu, percent)
-    matriu_esparsa, sparsification_percent = sparcify_with_tol(matriu, tol)
+    matriu_esparsa, sparsification_percent = sparsify_with_tol(matriu, tol)
     return matriu_esparsa, tol, sparsification_percent
 
 
@@ -128,7 +128,7 @@ def calcula_indicadors_vs_radis(matriu_pesos: np.ndarray,
                         params.num_radis)
     result = SpectralAnalysisResult(radis=radis, estadistics=estadistics)
     for radi in radis:
-        matriu_similaritat_W, percent = sparcify_with_tol(matriu_pesos, radi)
+        matriu_similaritat_W, percent = sparsify_with_tol(matriu_pesos, radi)
         result.sparsificacions.append(percent)
         np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
         vaps, veps = calcula_vaps(matriu_similaritat_W, params.max_clusters)
