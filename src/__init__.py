@@ -10,7 +10,6 @@ calcula_num_clusters_i_max_eigengap, calcula_indicadors_vs_radis, troba_indexs_m
 troba_clusters, grafica_clusters_maxs_rel)
 
 from .plotting import (grafica_trajectories, grafica_punts, grafica_eigengaps_vs_radi,
-grafica_clusters, grafica_eigenvalues_vs_index, grafica_eigengaps_vs_index,
-grafica_eigengaps_vs_radi_for_slides)
+grafica_clusters, grafica_eigenvalues_vs_index, grafica_eigengaps_vs_index)
 
 from .datatypes import (ParametresGenerals, SpectralAnalysisResult)
