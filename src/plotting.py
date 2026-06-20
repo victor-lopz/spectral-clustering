@@ -72,7 +72,7 @@ def set_custom_xtick(y_vals: np.ndarray, at_index: int) -> None:
     default_ticks = default_ticks[(default_ticks >= 0) & (default_ticks <= y_vals.size)]
     all_ticks = np.unique(np.append(default_ticks, at_index))
     ax.set_xticks(all_ticks)
-    for tick_value, tick_label in zip(ax.get_xticks(), ax.get_xticklabels()):
+    for tick_value, tick_label in zip(ax.get_xticks(), ax.get_xticklabels(), strict=True):
         if np.isclose(tick_value, at_index):
             tick_label.set_color("tab:red")
 
