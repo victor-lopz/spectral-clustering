@@ -274,7 +274,8 @@ def grafica_eigengaps_vs_radi(
 ) -> None:
     """
     Grafica el nombre de clusters, l'eigengap i el percentatge d'esparsificació
-    en funció del radi d'esparsificació. Encercla els màxims relatius de les diferències entre VAPs consecutius.
+    en funció del radi d'esparsificació.
+    Encercla els màxims relatius de les diferències entre VAPs consecutius.
     """
     fig, host = plt.subplots(figsize=(10, 6))
     fig.subplots_adjust(right=0.75)
