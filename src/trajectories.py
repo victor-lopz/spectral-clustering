@@ -21,13 +21,14 @@ def generar_condicions_inicials(params: ParametresGenerals) -> np.ndarray:
     x = np.linspace(params.x_min, params.x_max, num_x)
     y = np.linspace(params.y_min, params.y_max, num_y)
     malla = np.empty((num_x * num_y, 2))
-    malla[:, 0] = np.repeat(x, num_y) # repetim cada valor de x num_y vegades
-    malla[:, 1] = np.tile(y, num_x) # repetim tot el vector y num_x vegades
+    malla[:, 0] = np.repeat(x, num_y)  # repetim cada valor de x num_y vegades
+    malla[:, 1] = np.tile(y, num_x)  # repetim tot el vector y num_x vegades
     return malla
 
 
-def generar_trajectories(edo: Callable, condicions_inicials: np.ndarray,
-                         params: ParametresGenerals) -> np.ndarray:
+def generar_trajectories(
+    edo: Callable, condicions_inicials: np.ndarray, params: ParametresGenerals
+) -> np.ndarray:
     """
     Paràmetres:
     - edo: funció que representa el camp vectorial d'una EDO
@@ -51,8 +52,9 @@ def generar_trajectories(edo: Callable, condicions_inicials: np.ndarray,
         # Avaluem totes les trajectories alhora i tornem a aplanar
         return np.array(edo(t, z)).flatten()
 
-    sol = scipy.integrate.solve_ivp(edo_vectorial, params.t_span, y0_flat,
-                                    t_eval=params.t_valors)
+    sol = scipy.integrate.solve_ivp(
+        edo_vectorial, params.t_span, y0_flat, t_eval=params.t_valors
+    )
     if sol.status != 0:
         raise RuntimeError(f"solve_ivp error: {sol.message}")
 

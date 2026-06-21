@@ -13,12 +13,12 @@ def calcula_estadistics(matriu_pesos: np.ndarray) -> Dict[str, float]:
     percentils = np.percentile(triangular_upper, [0, 50, 90, 95, 100])
     pes_min, pes_mediana, p90, p95, pes_max = percentils
     estadistics = {
-        "pes_min":     pes_min,
+        "pes_min": pes_min,
         "pes_mediana": pes_mediana,
-        "pes_mitja":   np.mean(triangular_upper),
+        "pes_mitja": np.mean(triangular_upper),
         "percentil90": p90,
         "percentil95": p95,
-        "pes_max":     pes_max
+        "pes_max": pes_max,
     }
     return estadistics
 
@@ -60,9 +60,9 @@ def calcula_matriu_grau(matriu_similaritat: np.ndarray) -> np.ndarray:
     return np.diag(matriu_similaritat.sum(axis=1))
 
 
-def calcula_vaps(matriu_similaritat_W: np.ndarray,
-                 max_clusters: int
-                 ) -> Tuple[np.ndarray, np.ndarray]:
+def calcula_vaps(
+    matriu_similaritat_W: np.ndarray, max_clusters: int
+) -> Tuple[np.ndarray, np.ndarray]:
     """Retorna els n VAPs més petits ordenats ascendentment i
     els VEPs del problema generalitzat Lu = lambda Du.
     Requisit: les matrius L i D han de ser simètriques."""
@@ -74,8 +74,9 @@ def calcula_vaps(matriu_similaritat_W: np.ndarray,
     max_index = min(max_clusters - 1, n - 1)
     matriu_grau_D = calcula_matriu_grau(matriu_similaritat_W)
     matriu_laplacia_L = matriu_grau_D - matriu_similaritat_W
-    vaps, veps = scipy.linalg.eigh(matriu_laplacia_L, matriu_grau_D,
-                                   subset_by_index=[0, max_index])
+    vaps, veps = scipy.linalg.eigh(
+        matriu_laplacia_L, matriu_grau_D, subset_by_index=[0, max_index]
+    )
     return vaps, veps
 
 
@@ -108,10 +109,9 @@ def troba_clusters(num_clusters: int, veps: np.ndarray) -> np.ndarray:
     return labels
 
 
-def calcula_indicadors_vs_radis(matriu_pesos: np.ndarray,
-                                constant_diagonal: float,
-                                params: ParametresGenerals
-                                ) -> SpectralAnalysisResult:
+def calcula_indicadors_vs_radis(
+    matriu_pesos: np.ndarray, constant_diagonal: float, params: ParametresGenerals
+) -> SpectralAnalysisResult:
     """
     Retorna una classe SpectralAnalysisResult que,
     per a cada radi d'esparsificació, conté:
@@ -124,9 +124,9 @@ def calcula_indicadors_vs_radis(matriu_pesos: np.ndarray,
     - tots els VEPs associats a cada radi d'esparsificació
     """
     estadistics = calcula_estadistics(matriu_pesos)
-    radis = np.linspace(estadistics["pes_min"],
-                        estadistics["percentil95"],
-                        params.num_radis)
+    radis = np.linspace(
+        estadistics["pes_min"], estadistics["percentil95"], params.num_radis
+    )
     result = SpectralAnalysisResult(radis=radis, estadistics=estadistics)
     for radi in radis:
         matriu_similaritat_W, percent = sparsify_with_tol(matriu_pesos, radi)
@@ -150,10 +150,11 @@ def troba_indexs_max_rel(diffs: list[float]) -> list[int]:
     maxs_rels = []
     i = 1
     while i < len(diffs) - 1:
-        if diffs[i-1] < diffs[i] > diffs[i+1]:
+        if diffs[i - 1] < diffs[i] > diffs[i + 1]:
             maxs_rels.append(i)
             i += 2
-        else: i += 1
+        else:
+            i += 1
     return maxs_rels
 
 
@@ -162,7 +163,7 @@ def grafica_clusters_maxs_rel(
     result: SpectralAnalysisResult,
     condicions_inicials: np.ndarray,
     params: ParametresGenerals,
-    subfolder: str|None = None
+    subfolder: str | None = None,
 ) -> None:
     """Dibuixa els clústers trobats per cada radi d'esparsificació que
     generi un màxim relatiu de les diferències entre VAPs consecutius."""
@@ -172,9 +173,19 @@ def grafica_clusters_maxs_rel(
         n_clusters = result.nums_clusters[index]
         diff_max = result.eigengaps[index]
         veps = result.veps_list[index]
-        print(f"Màxim_relatiu_num {num}\n"
-              f"Radi: {radi:.3f}, Esparsificació: {percent:.2%}, "
-              f"Clústers: {n_clusters}, Max eigengap: {diff_max:.5e}")
+        print(
+            f"Màxim_relatiu_num {num}\n"
+            f"Radi: {radi:.3f}, Esparsificació: {percent:.2%}, "
+            f"Clústers: {n_clusters}, Max eigengap: {diff_max:.5e}"
+        )
         labels = troba_clusters(n_clusters, veps)
-        grafica_clusters(condicions_inicials, labels, n_clusters, radi, percent,
-                         params, subfolder, filename_prefix=f"max_rel-{num}_")
+        grafica_clusters(
+            condicions_inicials,
+            labels,
+            n_clusters,
+            radi,
+            percent,
+            params,
+            subfolder,
+            filename_prefix=f"max_rel-{num}_",
+        )

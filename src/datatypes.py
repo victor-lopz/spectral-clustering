@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple
 
@@ -21,6 +20,7 @@ class ParametresGenerals:
 
     def __post_init__(self):
         self.t_valors = np.linspace(self.t_span[0], self.t_span[1], self.t_steps)
+
 
 @dataclass
 class SpectralAnalysisResult:
