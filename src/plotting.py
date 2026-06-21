@@ -266,6 +266,13 @@ def grafica_clusters(
     plt.show()
 
 
+def make_patch_spines_invisible(ax) -> None:
+    ax.set_frame_on(True)
+    ax.patch.set_visible(False)
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+
+
 def grafica_eigengaps_vs_radi(
     result: SpectralAnalysisResult,
     params: ParametresGenerals,
@@ -282,12 +289,6 @@ def grafica_eigengaps_vs_radi(
     par1 = host.twinx()
     par2 = host.twinx()
     par2.spines["right"].set_position(("axes", 1.1))
-
-    def make_patch_spines_invisible(ax):
-        ax.set_frame_on(True)
-        ax.patch.set_visible(False)
-        for sp in ax.spines.values():
-            sp.set_visible(False)
 
     make_patch_spines_invisible(par2)
     par2.spines["right"].set_visible(True)
@@ -350,9 +351,7 @@ def grafica_eigengaps_vs_radi(
             lines.append(line)
             labels.append(str(line.get_label()))
 
-    def destaca_max_rels():
-        if indexs_max_rel is None:
-            return
+    if indexs_max_rel:  # highlight relative maxima of eigengaps
         for index in indexs_max_rel:
             host.plot(
                 result.radis[index],
@@ -363,21 +362,19 @@ def grafica_eigengaps_vs_radi(
                 markeredgecolor="tab:orange",
                 markeredgewidth=2.1,
             )
-        if len(indexs_max_rel) > 0:
-            proxy_circle = Line2D(
-                [0],
-                [0],
-                linestyle="none",
-                marker="o",
-                markersize=12,
-                markerfacecolor="none",
-                markeredgecolor="tab:orange",
-                markeredgewidth=2.1,
-            )
-            lines.append(proxy_circle)
-            labels.append("Màxim relatiu")
+        proxy_circle = Line2D(
+            [0],
+            [0],
+            linestyle="none",
+            marker="o",
+            markersize=12,
+            markerfacecolor="none",
+            markeredgecolor="tab:orange",
+            markeredgewidth=2.1,
+        )
+        lines.append(proxy_circle)
+        labels.append("Màxim relatiu")
 
-    destaca_max_rels()
     host.legend(lines, labels, loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=3)
     fig.tight_layout()
     filename = (
