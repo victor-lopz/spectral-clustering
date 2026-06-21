@@ -1,12 +1,72 @@
-# TFG
+# Spectral clustering for Lagrangian particle flow analysis
 
-Final degree project for the BSc in Mathematics at UPC. Machine Learning Clustering Techniques for Lagrangian Particle Analysis in Geophysical Flows
+This repository explores a spectral clustering algorithm to discover coherent structures and patterns in dynamical systems.
 
-## Folder structure
+## Table of contents
 
-- notebooks: orchestrate the spectral clustering algorithm to show results and plots
-- src: all the functions are here separated by domain
-- articles: bibliography with 2 articles.
-  - Alireza's article contains the method of sparsification up to 90%
-  - Filippi's article explains the adaptive sparsification method (radii sweep)
-- latex: my own written work, both in .tex and compiled to .pdf
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Repository structure](#repository-structure)
+
+## Overview
+
+The notebooks in this project demonstrate data generation, numerical integration of trajectories, construction of similarity matrices, spectral embedding, and clustering to identify coherent sets in flows.
+
+## Requirements
+
+- Python 3.14+
+- Scientific stack: `numpy`, `scipy`, `matplotlib`, `scikit-learn`
+- `pre-commit`: for running linters and formatters locally (optional)
+
+## Installation
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/victor-lopz/TFG
+   cd your-repo-name
+   ```
+
+2. **Set up a virtual environment and install dependencies:**
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+3. **Set up pre-commit hooks (optional):**
+
+   ```bash
+   pre-commit install
+   ```
+
+## Usage
+
+- To reproduce the figures and experiments, open the notebooks in the `notebooks/` folder and run the cells in order using Jupyter.
+- Notebooks:
+  - [duffing_autonom.ipynb](notebooks/duffing_autonom.ipynb) — Autonomous Duffing flow experiments
+  - [duffing_no_autonom.ipynb](notebooks/duffing_no_autonom.ipynb) — Non-autonomous experiments
+  - [plot_trajectories.ipynb](notebooks/plot_trajectories.ipynb) — Plotting examples
+
+## Repository structure
+
+```text
+├── .github/workflows/
+│   └── lint.yaml       # CI workflow that lints and formats files
+├── notebooks/          # Jupyter notebooks used for results and figures
+│   ├── duffing_autonom.ipynb
+│   ├── duffing_no_autonom.ipynb
+│   └── plot_trajectories.ipynb
+├── src/                # Library code used by the notebooks
+│   ├── datatypes.py    # Dataclass definitions
+│   ├── ode.py          # ODE system definitions
+│   ├── plotting.py     # Plotting helper functions
+│   ├── spectral.py     # Similarity, Laplacian, and spectral embedding routines
+│   └── trajectories.py # Trajectory generation and processing
+├── .pre-commit-config.yaml
+├── README.md
+└── requirements.txt
+```
