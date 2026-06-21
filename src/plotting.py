@@ -343,11 +343,11 @@ def grafica_eigengaps_vs_radi(
     host.set_title(r"Eigengap i nombre de clústers vs radi d'esparsificació")
     host.grid(True, alpha=0.3)
     lines = [p1, p2, p3]
-    labels: list[str] = [str(l.get_label()) for l in lines]
-    for l in host.get_lines():
-        if l not in lines:
-            lines.append(l)
-            labels.append(str(l.get_label()))
+    labels: list[str] = [str(line.get_label()) for line in lines]
+    for line in host.get_lines():
+        if line not in lines:
+            lines.append(line)
+            labels.append(str(line.get_label()))
 
     def destaca_max_rels():
         if indexs_max_rel is None:
