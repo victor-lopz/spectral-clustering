@@ -1,6 +1,12 @@
 # Spectral clustering for Lagrangian particle flow analysis
 
-This repository explores a spectral clustering algorithm to discover coherent structures and patterns in dynamical systems.
+> This repository explores a spectral clustering algorithm to discover coherent structures and patterns in dynamical systems.
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)
+[![CI](https://github.com/victor-lopz/spectral-clustering/actions/workflows/lint.yaml/badge.svg?branch=main)](https://github.com/victor-lopz/spectral-clustering/actions/workflows/lint.yaml)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![GitHub last commit](https://img.shields.io/github/last-commit/SantanderAI/gen-fraud-graph)](https://github.com/SantanderAI/gen-fraud-graph/commits/main)
 
 ## Table of contents
 
@@ -12,13 +18,23 @@ This repository explores a spectral clustering algorithm to discover coherent st
 
 ## Overview
 
-The notebooks in this project demonstrate data generation, numerical integration of trajectories, construction of similarity matrices, spectral embedding, and clustering to identify coherent sets in flows.
+The notebooks in this project show data generation, numerical integration of trajectories, construction of similarity matrices, spectral embedding, and clustering to identify coherent sets in flows. A coherent set or cluster is a group of alike trajectories.
 
 ## Requirements
 
-- Python 3.14+
-- Scientific stack: `numpy`, `scipy`, `matplotlib`, `scikit-learn`
-- `pre-commit`: for running linters and formatters locally (optional)
+Core (always installed):
+
+- `Python` >= 3.14
+- `NumPy` >= 1.24
+- `SciPy` >= 1.18
+- `Scikit-learn` >= 1.9
+- `Matplotlib` >= 3.11
+
+Optional:
+
+- `pre-commit`: for running linters and formatters locally
+
+---
 
 ## Installation
 
