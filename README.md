@@ -41,8 +41,8 @@ Optional:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/victor-lopz/TFG
-   cd your-repo-name
+   git clone https://github.com/victor-lopz/spectral-clustering.git
+   cd spectral-clustering
    ```
 
 2. **Set up a virtual environment and install dependencies:**
