@@ -53,12 +53,6 @@ Optional:
    pip install -r requirements.txt
    ```
 
-3. **Set up pre-commit hooks (optional):**
-
-   ```bash
-   pre-commit install
-   ```
-
 ## Usage
 
 - To reproduce the figures and experiments, open the notebooks in the `notebooks/` folder and run the cells in order using Jupyter.
