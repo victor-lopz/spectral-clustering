@@ -1,10 +1,10 @@
 # Spectral clustering for Lagrangian particle flow analysis
 
-> This repository explores a spectral clustering algorithm to discover coherent structures and patterns in dynamical systems.
+> Exploring a spectral clustering algorithm to discover coherent structures and patterns in dynamical systems.
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)
-[![CI](https://github.com/victor-lopz/spectral-clustering/actions/workflows/lint.yaml/badge.svg?branch=main)](https://github.com/victor-lopz/spectral-clustering/actions/workflows/lint.yaml)
+[![CI](https://github.com/victor-lopz/spectral-clustering/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/victor-lopz/spectral-clustering/actions/workflows/ci.yaml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![GitHub last commit](https://img.shields.io/github/last-commit/victor-lopz/spectral-clustering)](https://github.com/victor-lopz/spectral-clustering/commits/main)
 
