@@ -39,4 +39,3 @@ jobs:
       - name: "Check remaining errors"
         if: steps.run_pre_commit.outcome == 'failure'
         run: exit 1
-
