@@ -23,10 +23,12 @@
 
 The code and notebooks show how to:
 
-- Generate ensembles of trajectories for example dynamical systems (Duffing oscillator).
-- Integrate trajectories numerically and extract features.
-- Build similarity matrices and graph Laplacians.
-- Compute spectral embeddings and apply clustering to identify coherent sets.
+1. Generate multiple trajectories for dynamical systems (e.g., the Duffing oscillator).
+2. Compute pairwise distances between trajectories.
+3. Build the similarity matrix to see which pairs of trajectories are alike.
+4. Build the graph Laplacian.
+5. Compute spectral embeddings to reduce the dimensionality of the data.
+6. Apply clustering with K-means to identify coherent sets.
 
 A coherent set is a group of trajectories that evolve similarly through time.
 
@@ -88,7 +90,7 @@ Check the `output/` folder after running notebooks to find images, CSVs, and int
 ├── output/             # Figures from notebooks saved in high-resolution format
 ├── src/                # Library code used by the notebooks
 │   ├── datatypes.py    # Dataclass definitions
-│   ├── ode.py          # ODE system definitions
+│   ├── ode.py          # ODE system definitions (e.g., Duffing oscillator)
 │   ├── plotting.py     # Plotting helper functions
 │   ├── spectral.py     # Similarity, Laplacian, and spectral embedding routines
 │   └── trajectories.py # Trajectory generation and pairwise distance computation
