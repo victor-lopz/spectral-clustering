@@ -1,6 +1,6 @@
 # Spectral clustering for Lagrangian particle flow analysis
 
-> Exploring an algorithm to discover patterns in dynamical systems, like masses of air that move together.
+> Exploring an algorithm to discover patterns in dynamical systems. Applications may include finding masses of air that move together in the atmosphere, detecting ocean currents, or identifying the shape of the Antarctic ozone hole.
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)
@@ -110,7 +110,7 @@ pre-commit run --all-files
 
 ## Contributing
 
-Contributions welcome — feel free to open issues or pull requests. If you plan to add features, please:
+Contributions are welcome. Feel free to open issues or pull requests. If you plan to add features, please:
 
 1. Open an issue to discuss the change.
 2. Create a branch for your work.
