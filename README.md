@@ -1,6 +1,6 @@
 # Spectral clustering for Lagrangian particle flow analysis
 
-> Exploring a spectral clustering algorithm to discover coherent structures and patterns in dynamical systems.
+> Exploring an algorithm to discover patterns in dynamical systems, like masses of air that move together.
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)
