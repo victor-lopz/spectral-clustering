@@ -7,7 +7,7 @@ from .plotting import (
     grafica_eigengaps_vs_index,
     grafica_eigengaps_vs_radi,
     grafica_eigenvalues_vs_index,
-    grafica_punts,
+    plot_coordinates,
     plot_trajectory_paths,
 )
 from .spectral import (
@@ -46,7 +46,7 @@ __all__ = [
     "grafica_eigengaps_vs_index",
     "grafica_eigengaps_vs_radi",
     "grafica_eigenvalues_vs_index",
-    "grafica_punts",
+    "plot_coordinates",
     "plot_trajectory_paths",
     "sparsify",
     "sparsify_with_tol",

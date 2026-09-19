@@ -88,13 +88,13 @@ def plot_trajectory_paths(
     plt.show()
 
 
-def grafica_punts(punts: Iterable) -> None:
-    """punts: conjunt de punts a R^2. Exemple: [[0,1], [0.5,1], [1,1]]"""
-    for punt in punts:
-        plt.plot(punt[0], punt[1], "o", markersize=5, color="grey")
+def plot_coordinates(coordinates: Iterable) -> None:
+    """coordinates: array of points in R^2. Example: [[0,1], [0.5,1], [1,1]]"""
+    for point in coordinates:
+        plt.plot(point[0], point[1], "o", markersize=5, color="grey")
     plt.xlabel("x")
     plt.ylabel("y")
-    plt.title("Condicions inicials")
+    plt.title("Initial conditions")
     plt.grid()
     plt.gca().set_aspect("equal", adjustable="box")
     plt.show()
