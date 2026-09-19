@@ -8,7 +8,7 @@ from .plotting import (
     grafica_eigengaps_vs_radi,
     grafica_eigenvalues_vs_index,
     grafica_punts,
-    grafica_trajectories,
+    plot_trajectory_paths,
 )
 from .spectral import (
     calcula_estadistics,
@@ -47,7 +47,7 @@ __all__ = [
     "grafica_eigengaps_vs_radi",
     "grafica_eigenvalues_vs_index",
     "grafica_punts",
-    "grafica_trajectories",
+    "plot_trajectory_paths",
     "sparsify",
     "sparsify_with_tol",
     "troba_clusters",

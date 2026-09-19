@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import Iterable
+from typing import Iterable, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,37 +22,52 @@ def get_output_path(filename: str, subfolder: str | None = None) -> str:
     return os.path.join(output_path, filename)
 
 
-def grafica_trajectories(
-    trajectories: np.ndarray, subfolder: str | None = None, titol: str | None = None
+def plot_trajectory_paths(
+    trajectories: np.ndarray,
+    subfolder: Optional[str] = None,
+    plot_title: Optional[str] = None,
 ) -> None:
-    if titol:
-        plt.title(titol)
-    for trajectoria in trajectories:
-        coordenades_x = trajectoria[:, 0]
-        coordenades_y = trajectoria[:, 1]
-        plt.plot(coordenades_x, coordenades_y)
-    mida_punt = 5
-    for trajectoria in trajectories:
-        coordenades_x = trajectoria[:, 0]
-        coordenades_y = trajectoria[:, 1]
-        pos_inicial = (coordenades_x[0], coordenades_y[0])
+    """
+    Plots the paths of multiple trajectories in 2D space.
+    """
+    if plot_title:
+        plt.title(plot_title)
+    for trajectory in trajectories:
+        x_coordinates = trajectory[:, 0]
+        y_coordinates = trajectory[:, 1]
+        plt.plot(x_coordinates, y_coordinates)
+    marker_size = 5
+    for trajectory in trajectories:
+        x_coordinates = trajectory[:, 0]
+        y_coordinates = trajectory[:, 1]
+        initial_position = (x_coordinates[0], y_coordinates[0])
         plt.plot(
-            pos_inicial[0], pos_inicial[1], "o", color="grey", markersize=mida_punt
+            initial_position[0],
+            initial_position[1],
+            "o",
+            color="grey",
+            markersize=marker_size,
         )
-        pos_final = (coordenades_x[-1], coordenades_y[-1])
-        plt.plot(pos_final[0], pos_final[1], "o", color="red", markersize=mida_punt)
+        final_position = (x_coordinates[-1], y_coordinates[-1])
+        plt.plot(
+            final_position[0],
+            final_position[1],
+            "o",
+            color="red",
+            markersize=marker_size,
+        )
     plt.xlabel("x")
     plt.ylabel("y")
     plt.grid()
     plt.gca().set_aspect("equal", adjustable="box")
-    punts_llegenda = [
+    legend_entries = [
         Line2D(
             [0],
             [0],
             marker="o",
             markerfacecolor="grey",
             markeredgecolor="grey",
-            markersize=mida_punt,
+            markersize=marker_size,
             linestyle="None",
             label="Inici",
         ),
@@ -62,12 +77,12 @@ def grafica_trajectories(
             marker="o",
             markerfacecolor="red",
             markeredgecolor="red",
-            markersize=mida_punt,
+            markersize=marker_size,
             linestyle="None",
             label="Final",
         ),
     ]
-    plt.legend(handles=punts_llegenda, loc="best")
+    plt.legend(handles=legend_entries, loc="best")
     filename = "trajectories.pdf"
     plt.savefig(get_output_path(filename, subfolder), bbox_inches="tight")
     plt.show()
