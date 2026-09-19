@@ -4,9 +4,9 @@ from .datatypes import ParametresGenerals, SpectralAnalysisResult
 from .ode import edo_duffing_autonom, edo_duffing_no_autonom
 from .plotting import (
     grafica_clusters,
-    grafica_eigengaps_vs_index,
+    plot_eigengaps_vs_index,
     grafica_eigengaps_vs_radi,
-    grafica_eigenvalues_vs_index,
+    plot_eigenvalues_vs_index,
     plot_coordinates,
     plot_trajectory_paths,
 )
@@ -43,9 +43,9 @@ __all__ = [
     "generar_trajectories",
     "grafica_clusters",
     "grafica_clusters_maxs_rel",
-    "grafica_eigengaps_vs_index",
+    "plot_eigengaps_vs_index",
     "grafica_eigengaps_vs_radi",
-    "grafica_eigenvalues_vs_index",
+    "plot_eigenvalues_vs_index",
     "plot_coordinates",
     "plot_trajectory_paths",
     "sparsify",

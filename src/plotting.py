@@ -113,52 +113,54 @@ def set_custom_xtick(y_vals: np.ndarray, at_index: int) -> None:
             tick_label.set_color("tab:red")
 
 
-def grafica_eigenvalues_vs_index(
+def plot_eigenvalues_vs_index(
     eigenvalues: np.ndarray, subfolder: str | None = None
 ) -> None:
     """
-    Grafica els valors propis ordenats de menor a major respecte el seu index natural.
-    També destaca el major eigengap per identificar visualment k.
+    Plots the eigenvalues in ascending order with respect to their natural index.
+    Also highlights the largest eigengap to identify its index.
     """
     vals = np.sort(np.asarray(eigenvalues).ravel())
     if vals.size < 2:
-        raise ValueError("Calen com a minim 2 valors propis per calcular l'eigengap.")
+        raise ValueError(
+            "At least 2 eigenvalues are required to calculate the eigengap."
+        )
 
-    indexes = np.arange(vals.size)
-    gaps = np.diff(vals)
-    max_gap_pos = int(np.argmax(gaps))
-    k = max_gap_pos
+    indices = np.arange(vals.size)
+    eigengaps = np.diff(vals)
+    largest_eigengap_index = int(np.argmax(eigengaps))
+    k = largest_eigengap_index
 
     plt.figure(figsize=(9, 5))
     plt.plot(
-        indexes,
+        indices,
         vals,
         marker="o",
         linestyle="-",
         color="tab:blue",
-        label="Valors propis",
+        label="Eigenvalues",
     )
     plt.axvline(
         k,
         color="tab:red",
         linestyle="--",
         alpha=0.8,
-        label=r"Salt màxim en $k=$" + f"{k}",
+        label=r"Largest eigengap is at index $k=$" + f"{k}",
     )
     plt.axvline(k + 1, color="tab:red", linestyle="--", alpha=0.5)
     plt.plot([k, k + 1], [vals[k], vals[k + 1]], color="tab:red", linewidth=2.5)
     set_custom_xtick(vals, at_index=k)
     plt.annotate(
-        "Salt màxim",
+        "Largest eigengap",
         xy=(k + 0.5, 0.5 * (vals[k] + vals[k + 1])),
         xytext=(k + 4, 0.4 * (vals[k] + vals[k + 1])),
         arrowprops=dict(arrowstyle="->", color="tab:red"),
         fontsize=12,
         color="tab:red",
     )
-    plt.xlabel(r"Índex $k$")
-    plt.ylabel(r"Valor propi ($\lambda_{k}$)")
-    plt.title("Valors propis respecte al seu índex")
+    plt.xlabel(r"Index $k$")
+    plt.ylabel(r"Eigenvalue ($\lambda_{k}$)")
+    plt.title("Eigenvalues sorted by index")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.legend()
@@ -167,54 +169,54 @@ def grafica_eigenvalues_vs_index(
     plt.show()
 
 
-def grafica_eigengaps_vs_index(
+def plot_eigengaps_vs_index(
     eigenvalues: np.ndarray, subfolder: str | None = None
 ) -> None:
     """
-    Grafica els eigengaps (diferències consecutives de valors propis ordenats)
-    respecte al seu index natural i destaca el màxim eigengap.
+    Plots the eigengaps (consecutive differences of eigenvalues) with
+    respect to their natural index and highlights the largest eigengap.
     """
     vals = np.sort(np.asarray(eigenvalues).ravel())
     if vals.size < 2:
         raise ValueError(
-            "Calen com a minim 2 valors propis per calcular els eigengaps."
+            "At least 2 eigenvalues are required to calculate the eigengap."
         )
 
-    gaps = np.diff(vals)
-    indexes = np.arange(gaps.size)
-    max_gap_pos = int(np.argmax(gaps))
-    max_gap = float(gaps[max_gap_pos])
-    k = max_gap_pos
+    eigengaps = np.diff(vals)
+    indices = np.arange(eigengaps.size)
+    largest_eigengap_index = int(np.argmax(eigengaps))
+    largest_eigengap_value = float(eigengaps[largest_eigengap_index])
+    k = largest_eigengap_index
 
     plt.figure(figsize=(9, 5))
     plt.plot(
-        indexes,
-        gaps,
+        indices,
+        eigengaps,
         marker="o",
         linestyle="-",
         color="tab:blue",
-        label="Salts espectrals",
+        label="Eigengaps",
     )
     plt.axvline(
         k,
         color="tab:red",
         linestyle="--",
         alpha=0.8,
-        label=r"Salt màxim en $k=$" + f"{k}",
+        label=r"Largest eigengap is at index $k=$" + f"{k}",
     )
-    plt.scatter([k], [max_gap], color="tab:red", zorder=3)
-    set_custom_xtick(gaps, at_index=k)
+    plt.scatter([k], [largest_eigengap_value], color="tab:red", zorder=3)
+    set_custom_xtick(eigengaps, at_index=k)
     plt.annotate(
-        "Salt màxim",
-        xy=(k, max_gap),
-        xytext=(k + 3, 0.95 * max_gap),
+        "Largest eigengap",
+        xy=(k, largest_eigengap_value),
+        xytext=(k + 3, 0.95 * largest_eigengap_value),
         arrowprops=dict(arrowstyle="->", color="tab:red"),
         fontsize=12,
         color="tab:red",
     )
-    plt.xlabel(r"Índex $k$")
-    plt.ylabel(r"Salt espectral ($\lambda_{k+1} - \lambda_{k}$)")
-    plt.title("Salts espectrals respecte l'índex")
+    plt.xlabel(r"Index $k$")
+    plt.ylabel(r"Eigengap ($\lambda_{k+1} - \lambda_{k}$)")
+    plt.title("Eigengaps with respect to its index")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.legend()
