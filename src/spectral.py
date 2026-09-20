@@ -4,7 +4,7 @@ import numpy as np
 import scipy.linalg
 from sklearn.cluster import KMeans
 
-from src.datatypes import ParametresGenerals, SpectralAnalysisResult
+from src.datatypes import SpectralClusteringConfig, SpectralAnalysisResult
 from src.plotting import plot_clusters
 
 
@@ -110,7 +110,7 @@ def troba_clusters(num_clusters: int, veps: np.ndarray) -> np.ndarray:
 
 
 def calcula_indicadors_vs_radis(
-    matriu_pesos: np.ndarray, constant_diagonal: float, params: ParametresGenerals
+    matriu_pesos: np.ndarray, constant_diagonal: float, params: SpectralClusteringConfig
 ) -> SpectralAnalysisResult:
     """
     Retorna una classe SpectralAnalysisResult que,
@@ -125,12 +125,14 @@ def calcula_indicadors_vs_radis(
     """
     estadistics = calcula_estadistics(matriu_pesos)
     radis = np.linspace(
-        estadistics["pes_min"], estadistics["percentil95"], params.num_radis
+        estadistics["pes_min"], estadistics["percentil95"], params.num_radii
     )
-    result = SpectralAnalysisResult(radis=radis, estadistics=estadistics)
+    result = SpectralAnalysisResult(
+        sparsification_radii=radis, weight_statistics=estadistics
+    )
     for radi in radis:
         matriu_similaritat_W, percent = sparsify_with_tol(matriu_pesos, radi)
-        result.sparsificacions.append(percent)
+        result.sparsification_percents.append(percent)
         np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
         vaps, veps = calcula_vaps(matriu_similaritat_W, params.max_clusters)
         num_clusters, max_eigengap = calcula_num_clusters_i_max_eigengap(vaps)
@@ -162,14 +164,14 @@ def grafica_clusters_maxs_rel(
     indexs_max_rel: list[int],
     result: SpectralAnalysisResult,
     condicions_inicials: np.ndarray,
-    params: ParametresGenerals,
+    params: SpectralClusteringConfig,
     subfolder: str | None = None,
 ) -> None:
     """Dibuixa els clústers trobats per cada radi d'esparsificació que
     generi un màxim relatiu de les diferències entre VAPs consecutius."""
     for num, index in enumerate(indexs_max_rel, start=1):
-        radi = result.radis[index]
-        percent = result.sparsificacions[index]
+        radi = result.sparsification_radii[index]
+        percent = result.sparsification_percents[index]
         n_clusters = result.nums_clusters[index]
         diff_max = result.eigengaps[index]
         veps = result.veps_list[index]

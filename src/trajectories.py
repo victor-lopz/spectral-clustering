@@ -4,20 +4,20 @@ import numpy as np
 import scipy.integrate
 import scipy.spatial.distance
 
-from src.datatypes import ParametresGenerals
+from src.datatypes import SpectralClusteringConfig
 
 
-def generar_condicions_inicials(params: ParametresGenerals) -> np.ndarray:
+def generar_condicions_inicials(params: SpectralClusteringConfig) -> np.ndarray:
     """
     Genera una malla de punts a l'espai R^2 dins dels límits definits per
     params.x_min, params.x_max, params.y_min, params.y_max.
-    El pas entre punts ve donat per params.espai_entre_punts.
+    El pas entre punts ve donat per params.grid_spacing.
     Retorna una matriu de mida (num_punts, 2) on cada fila és un punt (x,y).
     num_punts es calcula de manera que cobreixi tot l'espai amb el pas indicat.
     """
 
-    num_x = int(round((params.x_max - params.x_min) / params.espai_entre_punts)) + 1
-    num_y = int(round((params.y_max - params.y_min) / params.espai_entre_punts)) + 1
+    num_x = int(round((params.x_max - params.x_min) / params.grid_spacing)) + 1
+    num_y = int(round((params.y_max - params.y_min) / params.grid_spacing)) + 1
     x = np.linspace(params.x_min, params.x_max, num_x)
     y = np.linspace(params.y_min, params.y_max, num_y)
     malla = np.empty((num_x * num_y, 2))
@@ -27,7 +27,7 @@ def generar_condicions_inicials(params: ParametresGenerals) -> np.ndarray:
 
 
 def generar_trajectories(
-    edo: Callable, condicions_inicials: np.ndarray, params: ParametresGenerals
+    edo: Callable, condicions_inicials: np.ndarray, params: SpectralClusteringConfig
 ) -> np.ndarray:
     """
     Paràmetres:
@@ -36,10 +36,10 @@ def generar_trajectories(
     - params: objecte ParametresGenerals que conté les constants de la simulació:
         - t_span: tupla (t_inici, t_final) que indica l'interval de temps a simular
         - t_valors: np.array[float], conté els instants de temps on avaluem l'EDO
-        - dimensio: dimensió dels punts a l'espai R^n (per defecte és 2 a R^2)
+        - num_dimensions: dimensió dels punts a l'espai R^n (per defecte és 2 a R^2)
 
     Retorna:
-        matriu 3D de mida (num_trajectories, t_steps, dimensio)
+        matriu 3D de mida (num_trajectories, t_steps, num_dimensions)
         on cada trajectòria és la solució de l'EDO avaluada en els
         instants de temps indicats per t_valors.
     """
@@ -48,20 +48,20 @@ def generar_trajectories(
 
     def edo_vectorial(t, y_flat):
         # Transformem vector 1D a matriu de mida (dimensio, num_trajectories)
-        z = y_flat.reshape(params.dimensio, num_trajectories)
+        z = y_flat.reshape(params.num_dimensions, num_trajectories)
         # Avaluem totes les trajectories alhora i tornem a aplanar
         return np.array(edo(t, z)).flatten()
 
     sol = scipy.integrate.solve_ivp(
-        edo_vectorial, params.t_span, y0_flat, t_eval=params.t_valors
+        edo_vectorial, params.t_span, y0_flat, t_eval=params.t_values
     )
     if sol.status != 0:
         raise RuntimeError(f"solve_ivp error: {sol.message}")
 
-    t_steps = len(params.t_valors)
+    t_steps = len(params.t_values)
     # sol.y té mida (dimensio * num_trajectories, t_steps)
     # reconstruïm les dimensions
-    y = sol.y.reshape(params.dimensio, num_trajectories, t_steps)
+    y = sol.y.reshape(params.num_dimensions, num_trajectories, t_steps)
     # permutem els eixos per pasar de (dimensio, num_trajectories, t_steps) a
     # (num_trajectories, t_steps, dimensio)
     trajectories = y.transpose(1, 2, 0)

@@ -4,10 +4,11 @@ from typing import Iterable, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
 from matplotlib.ticker import PercentFormatter
 
-from src.datatypes import ParametresGenerals, SpectralAnalysisResult
+from src.datatypes import SpectralClusteringConfig, SpectralAnalysisResult
 
 
 def get_output_path(filename: str, subfolder: str | None = None) -> str:
@@ -231,11 +232,14 @@ def plot_clusters(
     num_clusters: int,
     sparsification_radius: float,
     sparsification_percent: float,
-    params: ParametresGenerals,
+    params: SpectralClusteringConfig,
     subfolder: Optional[str] = None,
     filename_prefix: str = "",
 ) -> None:
-
+    """
+    Classifies trajectories into clusters. I.e., plots the initial
+    condition for each trajectory and colors them by their labeled cluster.
+    """
     num_trajectories = len(initial_conditions)
     for cluster_id in range(num_clusters):
         indices = np.where(labels == cluster_id)
@@ -268,8 +272,6 @@ def plot_clusters(
         va="top",
         fontsize=11,
     )
-    # plt.figtext(0.5, 0.01, clustering_metrics, ha='center', fontsize=11)
-    # plt.subplots_adjust(bottom=0.1)
     filename = (
         filename_prefix + f"clusters={num_clusters}"
         f"_traj={num_trajectories}"
@@ -290,16 +292,54 @@ def make_patch_spines_invisible(ax) -> None:
         sp.set_visible(False)
 
 
-def grafica_eigengaps_vs_radi(
+def highlight_local_maxima(
+    eigengap_local_maxima_indices: Optional[list[int]],
     result: SpectralAnalysisResult,
-    params: ParametresGenerals,
-    indexs_max_rel: list[int] | None = None,
-    subfolder: str | None = None,
+    host: Axes,
+    lines: list[Line2D],
+    labels: list[str],
 ) -> None:
     """
-    Grafica el nombre de clusters, l'eigengap i el percentatge d'esparsificació
-    en funció del radi d'esparsificació.
-    Encercla els màxims relatius de les diferències entre VAPs consecutius.
+    Helper function that plots medium-sized orange circles on the eigengap vs
+    sparsity plot to highlight local maxima of eigengaps, i.e.,
+    the relative maxima of the differences between consecutive eigenvalues.
+    """
+    if not eigengap_local_maxima_indices:
+        return
+    for index in eigengap_local_maxima_indices:
+        host.plot(
+            result.sparsification_radii[index],
+            result.normalized_eigengaps[index],
+            marker="o",
+            markersize=12,
+            markerfacecolor="none",
+            markeredgecolor="tab:orange",
+            markeredgewidth=2.1,
+        )
+    local_maxima_marker = Line2D(
+        [0],
+        [0],
+        linestyle="none",
+        marker="o",
+        markersize=12,
+        markerfacecolor="none",
+        markeredgecolor="tab:orange",
+        markeredgewidth=2.1,
+    )
+    lines.append(local_maxima_marker)
+    labels.append("Local maxima")
+
+
+def plot_eigengaps_vs_sparsity(
+    result: SpectralAnalysisResult,
+    params: SpectralClusteringConfig,
+    eigengap_local_maxima_indices: Optional[list[int]] = None,
+    subfolder: Optional[str] = None,
+) -> None:
+    """
+    Plots the eigengap, number of clusters, and sparsification percentage
+    as a function of the sparsification radius. Highlights the relative
+    maxima (local peaks) of the differences between consecutive eigenvalues.
     """
     fig, host = plt.subplots(figsize=(10, 6))
     fig.subplots_adjust(right=0.75)
@@ -313,34 +353,32 @@ def grafica_eigengaps_vs_radi(
     color_clust = "tab:red"
     color_sparse = "tab:green"
     (p1,) = host.plot(
-        result.radis,
+        result.sparsification_radii,
         result.normalized_eigengaps,
         marker=".",
         color=color_gap,
-        label="Eigengap normalitzat",
+        label="Normalized eigengap",
     )
     (p2,) = par1.plot(
-        result.radis,
+        result.sparsification_radii,
         result.nums_clusters,
         marker=".",
         color=color_clust,
-        label="Nombre de clústers",
+        label="Number of clusters",
     )
     (p3,) = par2.plot(
-        result.radis,
-        result.sparsificacions,
+        result.sparsification_radii,
+        result.sparsification_percents,
         marker=".",
         color=color_sparse,
-        label="Esparsificació (%)",
+        label="Sparsification (%)",
     )
     par2.set_ylim(0, 1.0)
     par2.yaxis.set_major_formatter(PercentFormatter(1.0))
-    host.set_xlabel("Radi d'esparsificació")
-    host.set_ylabel(
-        "Diferència màxima normalitzada entre VAPs consecutius", color=color_gap
-    )
-    par1.set_ylabel("Nombre de clústers", color=color_clust)
-    par2.set_ylabel("Esparsificació (%)", color=color_sparse)
+    host.set_xlabel("Sparsification radius")
+    host.set_ylabel("Normalized eigengap", color=color_gap)
+    par1.set_ylabel("Number of clusters", color=color_clust)
+    par2.set_ylabel("Sparsification (%)", color=color_sparse)
     host.tick_params(axis="y", labelcolor=color_gap)
     par1.tick_params(axis="y", labelcolor=color_clust)
     par2.tick_params(axis="y", labelcolor=color_sparse)
@@ -349,17 +387,17 @@ def grafica_eigengaps_vs_radi(
 
     colors_stats = iter(plt.rcParams["axes.prop_cycle"])
     next(colors_stats)
-    for nom, valor in result.estadistics.items():
-        if nom != "pes_max":
+    for metric_name, metric_value in result.weight_statistics.items():
+        if metric_name != "pes_max":
             host.axvline(
-                x=valor,
+                x=metric_value,
                 linestyle="--",
                 alpha=0.6,
                 color=next(colors_stats)["color"],
-                label=f"{nom} = {valor:.2f}",
+                label=f"{metric_name} = {metric_value:.2f}",
             )
 
-    host.set_title(r"Eigengap i nombre de clústers vs radi d'esparsificació")
+    host.set_title(r"Eigengap and cluster count vs sparsification radius")
     host.grid(True, alpha=0.3)
     lines = [p1, p2, p3]
     labels: list[str] = [str(line.get_label()) for line in lines]
@@ -368,35 +406,16 @@ def grafica_eigengaps_vs_radi(
             lines.append(line)
             labels.append(str(line.get_label()))
 
-    if indexs_max_rel:  # highlight relative maxima of eigengaps
-        for index in indexs_max_rel:
-            host.plot(
-                result.radis[index],
-                result.normalized_eigengaps[index],
-                marker="o",
-                markersize=12,
-                markerfacecolor="none",
-                markeredgecolor="tab:orange",
-                markeredgewidth=2.1,
-            )
-        proxy_circle = Line2D(
-            [0],
-            [0],
-            linestyle="none",
-            marker="o",
-            markersize=12,
-            markerfacecolor="none",
-            markeredgecolor="tab:orange",
-            markeredgewidth=2.1,
-        )
-        lines.append(proxy_circle)
-        labels.append("Màxim relatiu")
+    highlight_local_maxima(eigengap_local_maxima_indices, result, host, lines, labels)
 
     host.legend(lines, labels, loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=3)
     fig.tight_layout()
     filename = (
-        f"eigengap_vs_radi-max_clusters={params.max_clusters}_radis={len(result.radis)}"
-        f"_t_end={params.t_span[1]:.1f}.pdf"
+        "eigengap_vs_radii"
+        f"-max_clusters={params.max_clusters}"
+        f"_num_radii={len(result.sparsification_radii)}"
+        f"_t_end={params.t_span[1]:.1f}"
+        ".pdf"
     )
     plt.savefig(get_output_path(filename, subfolder), bbox_inches="tight")
     plt.show()

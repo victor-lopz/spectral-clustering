@@ -1,11 +1,11 @@
 # src/__init__.py
 
-from .datatypes import ParametresGenerals, SpectralAnalysisResult
+from .datatypes import SpectralClusteringConfig, SpectralAnalysisResult
 from .ode import edo_duffing_autonom, edo_duffing_no_autonom
 from .plotting import (
     plot_clusters,
     plot_eigengaps_vs_index,
-    grafica_eigengaps_vs_radi,
+    plot_eigengaps_vs_sparsity,
     plot_eigenvalues_vs_index,
     plot_coordinates,
     plot_trajectory_paths,
@@ -29,7 +29,7 @@ from .trajectories import (
 )
 
 __all__ = [
-    "ParametresGenerals",
+    "SpectralClusteringConfig",
     "SpectralAnalysisResult",
     "calcula_estadistics",
     "calcula_indicadors_vs_radis",
@@ -44,7 +44,7 @@ __all__ = [
     "plot_clusters",
     "grafica_clusters_maxs_rel",
     "plot_eigengaps_vs_index",
-    "grafica_eigengaps_vs_radi",
+    "plot_eigengaps_vs_sparsity",
     "plot_eigenvalues_vs_index",
     "plot_coordinates",
     "plot_trajectory_paths",
