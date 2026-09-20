@@ -3,7 +3,7 @@
 from .datatypes import ParametresGenerals, SpectralAnalysisResult
 from .ode import edo_duffing_autonom, edo_duffing_no_autonom
 from .plotting import (
-    grafica_clusters,
+    plot_clusters,
     plot_eigengaps_vs_index,
     grafica_eigengaps_vs_radi,
     plot_eigenvalues_vs_index,
@@ -41,7 +41,7 @@ __all__ = [
     "edo_duffing_no_autonom",
     "generar_condicions_inicials",
     "generar_trajectories",
-    "grafica_clusters",
+    "plot_clusters",
     "grafica_clusters_maxs_rel",
     "plot_eigengaps_vs_index",
     "grafica_eigengaps_vs_radi",

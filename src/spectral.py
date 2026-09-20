@@ -5,7 +5,7 @@ import scipy.linalg
 from sklearn.cluster import KMeans
 
 from src.datatypes import ParametresGenerals, SpectralAnalysisResult
-from src.plotting import grafica_clusters
+from src.plotting import plot_clusters
 
 
 def calcula_estadistics(matriu_pesos: np.ndarray) -> Dict[str, float]:
@@ -179,7 +179,7 @@ def grafica_clusters_maxs_rel(
             f"Clústers: {n_clusters}, Max eigengap: {diff_max:.5e}"
         )
         labels = troba_clusters(n_clusters, veps)
-        grafica_clusters(
+        plot_clusters(
             condicions_inicials,
             labels,
             n_clusters,

@@ -114,7 +114,7 @@ def set_custom_xtick(y_vals: np.ndarray, at_index: int) -> None:
 
 
 def plot_eigenvalues_vs_index(
-    eigenvalues: np.ndarray, subfolder: str | None = None
+    eigenvalues: np.ndarray, subfolder: Optional[str] = None
 ) -> None:
     """
     Plots the eigenvalues in ascending order with respect to their natural index.
@@ -170,7 +170,7 @@ def plot_eigenvalues_vs_index(
 
 
 def plot_eigengaps_vs_index(
-    eigenvalues: np.ndarray, subfolder: str | None = None
+    eigenvalues: np.ndarray, subfolder: Optional[str] = None
 ) -> None:
     """
     Plots the eigengaps (consecutive differences of eigenvalues) with
@@ -225,58 +225,58 @@ def plot_eigengaps_vs_index(
     plt.show()
 
 
-def grafica_clusters(
-    condicions_inicials: np.ndarray,
+def plot_clusters(
+    initial_conditions: np.ndarray,
     labels: np.ndarray,
     num_clusters: int,
-    radi_esparsificacio: float,
-    percent_esparsificacio: float,
+    sparsification_radius: float,
+    sparsification_percent: float,
     params: ParametresGenerals,
-    subfolder: str | None = None,
+    subfolder: Optional[str] = None,
     filename_prefix: str = "",
 ) -> None:
 
-    num_trajectories = len(condicions_inicials)
+    num_trajectories = len(initial_conditions)
     for cluster_id in range(num_clusters):
         indices = np.where(labels == cluster_id)
         if len(indices[0]) > 0:
             plt.scatter(
-                condicions_inicials[indices, 0],
-                condicions_inicials[indices, 1],
+                initial_conditions[indices, 0],
+                initial_conditions[indices, 1],
                 s=30,
                 label=cluster_id,
             )
-    plt.title("Clústers")
+    plt.title("Clusters")
     plt.xlabel("x")
     plt.ylabel("y")
     plt.grid(False)
     plt.gca().set_aspect("equal")
-    descripcio = (
-        f"{num_clusters} clústers, {num_trajectories} trajectòries, "
-        f"{params.t_steps} passes de temps,"
+    clustering_metrics = (
+        f"{num_clusters} clusters, {num_trajectories} trajectories, "
+        f"{params.t_steps} time steps,"
         "\n"
-        f"temps final = {params.t_span[-1]:.1f}s, "
-        f"esparsificació = {percent_esparsificacio * 100:.0f}%"
-        f", radi = {radi_esparsificacio:.2f}"
+        f"end time = {params.t_span[-1]:.1f}s, "
+        f"sparsification = {sparsification_percent * 100:.0f}%"
+        f", sparsification radius = {sparsification_radius:.2f}"
     )
     plt.text(
         0.5,
         -0.18,
-        descripcio,
+        clustering_metrics,
         transform=plt.gca().transAxes,
         ha="center",
         va="top",
         fontsize=11,
     )
-    # plt.figtext(0.5, 0.01, descripcio, ha='center', fontsize=11)
+    # plt.figtext(0.5, 0.01, clustering_metrics, ha='center', fontsize=11)
     # plt.subplots_adjust(bottom=0.1)
     filename = (
         filename_prefix + f"clusters={num_clusters}"
         f"_traj={num_trajectories}"
         f"_tsteps={params.t_steps}"
         f"_t_end={params.t_span[-1]:.1f}"
-        f"_tol={radi_esparsificacio:.1f}"
-        f"_sparse={percent_esparsificacio * 100:.0f}"
+        f"_tol={sparsification_radius:.1f}"
+        f"_sparse={sparsification_percent * 100:.0f}"
         ".pdf"
     )
     plt.savefig(get_output_path(filename, subfolder), bbox_inches="tight")
