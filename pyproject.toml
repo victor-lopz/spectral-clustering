@@ -1,0 +1,17 @@
+[project]
+name = "spectral-clustering"
+version = "0.0.1"
+description = "Finding patterns in dynamical systems."
+readme = "README.md"
+authors = [
+    { name = "Víctor López", email = "217356204+victor-lopz@users.noreply.github.com" }
+]
+requires-python = ">=3.14.5"
+dependencies = []
+
+[project.scripts]
+spectral-clustering = "spectral_clustering:main"
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
