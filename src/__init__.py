@@ -20,7 +20,7 @@ from .spectral import (
     sparsify,
     sparsify_with_radius,
     find_clusters,
-    troba_indexs_max_rel,
+    find_local_maxima,
 )
 from .trajectories import (
     calcula_matriu_pesos,
@@ -51,5 +51,5 @@ __all__ = [
     "sparsify",
     "sparsify_with_radius",
     "find_clusters",
-    "troba_indexs_max_rel",
+    "find_local_maxima",
 ]

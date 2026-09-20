@@ -195,19 +195,21 @@ def calculate_spectral_indicators(
     return result
 
 
-def troba_indexs_max_rel(diffs: list[float]) -> list[int]:
-    """Retorna els índexs dels màxims relatius del vector 'diffs'.
-    S'utilitza per trobar els màxims relatius de les diferències
-    entre VAPs consecutius en funció del radi d'esparsificació."""
-    maxs_rels = []
+def find_local_maxima(diffs: list[float]) -> list[int]:
+    """
+    Returns a list with the indices of the relative maxima of the vector 'diffs'.
+    It is used to find the local maxima of the differences between
+    consecutive eigenvalues as a function of the sparsification radius.
+    """
+    local_maxs = []
     i = 1
     while i < len(diffs) - 1:
         if diffs[i - 1] < diffs[i] > diffs[i + 1]:
-            maxs_rels.append(i)
+            local_maxs.append(i)
             i += 2
         else:
             i += 1
-    return maxs_rels
+    return local_maxs
 
 
 def grafica_clusters_maxs_rel(
