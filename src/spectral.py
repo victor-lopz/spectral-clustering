@@ -84,9 +84,17 @@ def sparsify(
     return sparsified_matrix, radius, sparsification_percent
 
 
-def calcula_matriu_grau(matriu_similaritat: np.ndarray) -> np.ndarray:
-    """Calcula la suma de cada fila i les col·loca en una matriu diagonal."""
-    return np.diag(matriu_similaritat.sum(axis=1))
+def calculate_degree_matrix(similarity_matrix: np.ndarray) -> np.ndarray:
+    """
+    Returns a diagonal matrix where each diagonal element is the sum of the
+    corresponding row of the similarity matrix. The non-diagonal elements are zero.
+
+    This is the degree matrix D in spectral clustering and represents how strongly
+    each trajectory is connected to the others.
+    High degree means high similarity with many other trajectories,
+    while low degree means that the trajectory is quite isolated.
+    """
+    return np.diag(similarity_matrix.sum(axis=1))
 
 
 def calcula_vaps(
@@ -101,7 +109,7 @@ def calcula_vaps(
     if max_clusters <= 0:
         raise ValueError(f"cal max_clusters > 0, rebut: {max_clusters}.")
     max_index = min(max_clusters - 1, n - 1)
-    matriu_grau_D = calcula_matriu_grau(matriu_similaritat_W)
+    matriu_grau_D = calculate_degree_matrix(matriu_similaritat_W)
     matriu_laplacia_L = matriu_grau_D - matriu_similaritat_W
     vaps, veps = scipy.linalg.eigh(
         matriu_laplacia_L, matriu_grau_D, subset_by_index=[0, max_index]

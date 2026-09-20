@@ -13,7 +13,7 @@ from .plotting import (
 from .spectral import (
     calculate_weight_statistics,
     calcula_indicadors_vs_radis,
-    calcula_matriu_grau,
+    calculate_degree_matrix,
     calcula_num_clusters_i_max_eigengap,
     calcula_vaps,
     grafica_clusters_maxs_rel,
@@ -33,7 +33,7 @@ __all__ = [
     "SpectralAnalysisResult",
     "calculate_weight_statistics",
     "calcula_indicadors_vs_radis",
-    "calcula_matriu_grau",
+    "calculate_degree_matrix",
     "calcula_matriu_pesos",
     "calcula_num_clusters_i_max_eigengap",
     "calcula_vaps",
