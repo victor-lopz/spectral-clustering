@@ -2,7 +2,7 @@ import numpy as np
 import scipy.linalg
 from sklearn.cluster import KMeans
 
-from src.datatypes import SpectralClusteringConfig, SpectralAnalysisResult
+from src.datatypes import SpectralAnalysisResult, SpectralClusteringConfig
 from src.plotting import plot_clusters
 
 

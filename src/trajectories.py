@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 import scipy.integrate
@@ -18,8 +18,8 @@ def generate_initial_conditions(params: SpectralClusteringConfig) -> np.ndarray:
 
     Examle output: [[-1.0, -1.0], [1.0, -1.0], [1.0, 1.0], [-1.0, 1.0]]
     """
-    num_x = int(round((params.x_max - params.x_min) / params.grid_spacing)) + 1
-    num_y = int(round((params.y_max - params.y_min) / params.grid_spacing)) + 1
+    num_x = 1 + round((params.x_max - params.x_min) / params.grid_spacing)
+    num_y = 1 + round((params.y_max - params.y_min) / params.grid_spacing)
     x = np.linspace(params.x_min, params.x_max, num_x)
     y = np.linspace(params.y_min, params.y_max, num_y)
     grid = np.empty((num_x * num_y, 2))
