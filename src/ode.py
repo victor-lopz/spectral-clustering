@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def edo_duffing_autonom(t, z):
+def ode_duffing_autonom(t, z):
     """Paràmetres:
         t: temps (no s'utilitza)
         z: posició al pla R^2
@@ -11,7 +11,7 @@ def edo_duffing_autonom(t, z):
     return [y, x - x**3]
 
 
-def edo_duffing_no_autonom(t, z):
+def ode_duffing_no_autonom(t, z):
     """Paràmetres:
         t: temps
         z: posició al pla R^2
