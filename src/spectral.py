@@ -122,22 +122,23 @@ def calculate_eigenvalues(
     return eigenvalues, eigenvectors
 
 
-def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> tuple[int, float]:
-    """Retorna el nombre de clusters segons l'heurística del salt espectral.
-    Aquesta regla diu que el nombre de clusters és el valor de l'índex k
-    on la diferència entre vaps[k] i vaps[k-1] és màxima. És a dir, és
-    l'argument del màxim de diferències consecutives de VAPs ordenats.
-    També retorna el valor de la diferència màxima trobada (max eigengap).
+def calculate_num_clusters_and_max_eigengap(vaps: np.ndarray) -> tuple[int, float]:
+    """
+    Returns the number of clusters according to the spectral gap heuristic.
+    This rule states that the number of clusters is the index k where the difference
+    between vaps[k] and vaps[k-1] is greatest. In other words, it is the argument of the
+    maximum of consecutive differences of ordered eigenvalues.
 
-    Es suma 1 perquè els VAPs es compten des de l'índex zero i, a la fórmula
-    de l'article, es compten des de l'índex 1. A més, es suma 1 més per
-    incloure el cluster dels estats incoherents.
+    It also returns the value of the greatest difference (maximum eigengap).
+
+    We add 1 because of zero-based indexing.
+    We add 1 again to include the cluster of incoherent states.
     """
     diffs = np.diff(vaps)
     k = int(np.argmax(diffs))
-    diff_max = diffs[k]
     num_clusters = k + 2
-    return num_clusters, diff_max
+    max_eigengap = diffs[k]
+    return num_clusters, max_eigengap
 
 
 def troba_clusters(num_clusters: int, veps: np.ndarray) -> np.ndarray:
@@ -177,7 +178,7 @@ def calcula_indicadors_vs_radis(
         result.sparsification_percents.append(percent)
         np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
         vaps, veps = calculate_eigenvalues(matriu_similaritat_W, params.max_clusters)
-        num_clusters, max_eigengap = calcula_num_clusters_i_max_eigengap(vaps)
+        num_clusters, max_eigengap = calculate_num_clusters_and_max_eigengap(vaps)
         result.nums_clusters.append(num_clusters)
         result.eigengaps.append(max_eigengap)
         rang_espectral = vaps[-1] - vaps[0]
