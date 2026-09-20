@@ -1,7 +1,7 @@
 # src/__init__.py
 
 from .datatypes import SpectralClusteringConfig, SpectralAnalysisResult
-from .ode import ode_duffing_autonom, ode_duffing_no_autonom
+from .ode import ode_autonomous_duffing, ode_non_autonomous_duffing
 from .plotting import (
     plot_clusters,
     plot_eigengaps_vs_index,
@@ -37,8 +37,8 @@ __all__ = [
     "calcula_matriu_pesos",
     "calculate_num_clusters_and_max_eigengap",
     "calculate_eigenvalues",
-    "ode_duffing_autonom",
-    "ode_duffing_no_autonom",
+    "ode_autonomous_duffing",
+    "ode_non_autonomous_duffing",
     "generate_initial_conditions",
     "simulate_trajectories",
     "plot_clusters",
