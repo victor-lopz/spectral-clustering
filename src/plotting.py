@@ -153,7 +153,7 @@ def plot_eigenvalues_vs_index(
         "Largest eigengap",
         xy=(k + 0.5, 0.5 * (vals[k] + vals[k + 1])),
         xytext=(k + 4, 0.4 * (vals[k] + vals[k + 1])),
-        arrowprops=dict(arrowstyle="->", color="tab:red"),
+        arrowprops={"arrowstyle": "->", "color": "tab:red"},
         fontsize=12,
         color="tab:red",
     )
@@ -209,7 +209,7 @@ def plot_eigengaps_vs_index(
         "Largest eigengap",
         xy=(k, largest_eigengap_value),
         xytext=(k + 3, 0.95 * largest_eigengap_value),
-        arrowprops=dict(arrowstyle="->", color="tab:red"),
+        arrowprops={"arrowstyle": "->", "color": "tab:red"},
         fontsize=12,
         color="tab:red",
     )
