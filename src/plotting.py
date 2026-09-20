@@ -70,7 +70,7 @@ def plot_trajectory_paths(
             markeredgecolor="grey",
             markersize=marker_size,
             linestyle="None",
-            label="Inici",
+            label="Start",
         ),
         Line2D(
             [0],
@@ -80,7 +80,7 @@ def plot_trajectory_paths(
             markeredgecolor="red",
             markersize=marker_size,
             linestyle="None",
-            label="Final",
+            label="End",
         ),
     ]
     plt.legend(handles=legend_entries, loc="best")

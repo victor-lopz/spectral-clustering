@@ -90,7 +90,7 @@ def calcula_matriu_pesos(trajectories: np.ndarray) -> np.ndarray:
     To avoid confusion with the already sparsified affinity matrix, we call
     this matrix the "weight matrix" instead of the "affinity matrix".
     """
-    num_trajectories, t_steps, num_dimensions = trajectories.shape
+    _num_trajectories, t_steps, _num_dimensions = trajectories.shape
     # Get pairwise Euclidean distances between all trajectories at each time instant.
     distance_vector = 0.5 * pdist(trajectories[:, 0, :])
     for t in range(1, t_steps - 1):
