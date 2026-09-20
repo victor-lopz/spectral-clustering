@@ -1,5 +1,5 @@
 import os
-from typing import Iterable, Optional
+from collections.abc import Iterable
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,7 +7,7 @@ from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
 from matplotlib.ticker import PercentFormatter
 
-from src.datatypes import SpectralClusteringConfig, SpectralAnalysisResult
+from src.datatypes import SpectralAnalysisResult, SpectralClusteringConfig
 
 
 def get_output_path(filename: str, subfolder: str | None = None) -> str:
@@ -23,8 +23,8 @@ def get_output_path(filename: str, subfolder: str | None = None) -> str:
 
 def plot_trajectory_paths(
     trajectories: np.ndarray,
-    subfolder: Optional[str] = None,
-    plot_title: Optional[str] = None,
+    subfolder: str | None = None,
+    plot_title: str | None = None,
 ) -> None:
     """
     Plots the paths of multiple trajectories in 2D space.
@@ -113,7 +113,7 @@ def set_custom_xtick(y_vals: np.ndarray, at_index: int) -> None:
 
 
 def plot_eigenvalues_vs_index(
-    eigenvalues: np.ndarray, subfolder: Optional[str] = None
+    eigenvalues: np.ndarray, subfolder: str | None = None
 ) -> None:
     """
     Plots the eigenvalues in ascending order with respect to their natural index.
@@ -169,7 +169,7 @@ def plot_eigenvalues_vs_index(
 
 
 def plot_eigengaps_vs_index(
-    eigenvalues: np.ndarray, subfolder: Optional[str] = None
+    eigenvalues: np.ndarray, subfolder: str | None = None
 ) -> None:
     """
     Plots the eigengaps (consecutive differences of eigenvalues) with
@@ -231,7 +231,7 @@ def plot_clusters(
     sparsification_radius: float,
     sparsification_percent: float,
     params: SpectralClusteringConfig,
-    subfolder: Optional[str] = None,
+    subfolder: str | None = None,
     filename_prefix: str = "",
 ) -> None:
     """
@@ -291,7 +291,7 @@ def make_patch_spines_invisible(ax) -> None:
 
 
 def highlight_local_maxima(
-    eigengap_local_maxima_indices: Optional[list[int]],
+    eigengap_local_maxima_indices: list[int] | None,
     result: SpectralAnalysisResult,
     host: Axes,
     lines: list[Line2D],
@@ -331,8 +331,8 @@ def highlight_local_maxima(
 def plot_eigengaps_vs_sparsity(
     result: SpectralAnalysisResult,
     params: SpectralClusteringConfig,
-    eigengap_local_maxima_indices: Optional[list[int]] = None,
-    subfolder: Optional[str] = None,
+    eigengap_local_maxima_indices: list[int] | None = None,
+    subfolder: str | None = None,
 ) -> None:
     """
     Plots the eigengap, number of clusters, and sparsification percentage

@@ -38,26 +38,26 @@ Prerequisites: `Python >= 3.14` and `git`.
 
 1. **Clone the repository:**
 
-   ```bash
-   git clone https://github.com/victor-lopz/spectral-clustering.git
-   cd spectral-clustering
-   ```
+    ```bash
+    git clone https://github.com/victor-lopz/spectral-clustering.git
+    cd spectral-clustering
+    ```
 
 2. **Set up a virtual environment:**
 
-   ```bash
-   python -m venv .venv
-   # On macOS / Linux
-   source .venv/bin/activate
-   # On Windows (PowerShell)
-   .venv\Scripts\Activate.ps1
-   ```
+    ```bash
+    python -m venv .venv
+    # On macOS / Linux
+    source .venv/bin/activate
+    # On Windows (PowerShell)
+    .venv\Scripts\Activate.ps1
+    ```
 
 3. **Install dependencies:**
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 4. **Run the notebooks** to reproduce experiments and figures.
 
