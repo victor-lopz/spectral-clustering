@@ -1,5 +1,3 @@
-from typing import Dict, Tuple
-
 import numpy as np
 import scipy.linalg
 from sklearn.cluster import KMeans
@@ -8,7 +6,7 @@ from src.datatypes import SpectralClusteringConfig, SpectralAnalysisResult
 from src.plotting import plot_clusters
 
 
-def calcula_estadistics(matriu_pesos: np.ndarray) -> Dict[str, float]:
+def calcula_estadistics(matriu_pesos: np.ndarray) -> dict[str, float]:
     triangular_upper = matriu_pesos[np.triu_indices(len(matriu_pesos), k=1)]
     percentils = np.percentile(triangular_upper, [0, 50, 90, 95, 100])
     pes_min, pes_mediana, p90, p95, pes_max = percentils
@@ -23,7 +21,7 @@ def calcula_estadistics(matriu_pesos: np.ndarray) -> Dict[str, float]:
     return estadistics
 
 
-def sparsify_with_tol(matriu: np.ndarray, tol: float) -> Tuple[np.ndarray, float]:
+def sparsify_with_tol(matriu: np.ndarray, tol: float) -> tuple[np.ndarray, float]:
     """Retorna una matriu on els elements més petits que la tolerància es tornen zero.
     Opcionalment, retorna també el percentatge d'esparsificació obtingut.
     Requisit: la diagonal de la matriu ha de ser zero."""
@@ -46,7 +44,7 @@ def calcula_tol_esparsificacio(matriu: np.ndarray, percent: float) -> float:
     return float(radi_esparsificacio)
 
 
-def sparsify(matriu: np.ndarray, percent: float) -> Tuple[np.ndarray, float, float]:
+def sparsify(matriu: np.ndarray, percent: float) -> tuple[np.ndarray, float, float]:
     """Retorna una matriu esparsa on el percentatge escollit dels
     elements més petits es tornen zero.
     Requisit: la matriu ha de ser simètrica amb diagonal nul·la."""
@@ -62,7 +60,7 @@ def calcula_matriu_grau(matriu_similaritat: np.ndarray) -> np.ndarray:
 
 def calcula_vaps(
     matriu_similaritat_W: np.ndarray, max_clusters: int
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Retorna els n VAPs més petits ordenats ascendentment i
     els VEPs del problema generalitzat Lu = lambda Du.
     Requisit: les matrius L i D han de ser simètriques."""
@@ -80,7 +78,7 @@ def calcula_vaps(
     return vaps, veps
 
 
-def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> Tuple[int, float]:
+def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> tuple[int, float]:
     """Retorna el nombre de clusters segons l'heurística del salt espectral.
     Aquesta regla diu que el nombre de clusters és el valor de l'índex k
     on la diferència entre vaps[k] i vaps[k-1] és màxima. És a dir, és

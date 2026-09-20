@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Tuple
 
 import numpy as np
 
@@ -7,7 +6,7 @@ import numpy as np
 @dataclass
 class SpectralClusteringConfig:
     num_dimensions: int = 2
-    t_span: Tuple[float, float] = (0, 4 * np.pi)
+    t_span: tuple[float, float] = (0, 4 * np.pi)
     t_steps: int = 300
     x_min: float = -1.6
     x_max: float = 1.6
@@ -25,9 +24,9 @@ class SpectralClusteringConfig:
 @dataclass
 class SpectralAnalysisResult:
     sparsification_radii: np.ndarray
-    eigengaps: List[float] = field(default_factory=list)
-    normalized_eigengaps: List[float] = field(default_factory=list)
-    nums_clusters: List[int] = field(default_factory=list)
-    weight_statistics: Dict[str, float] = field(default_factory=dict)
-    sparsification_percents: List[float] = field(default_factory=list)
-    veps_list: List[np.ndarray] = field(default_factory=list)
+    eigengaps: list[float] = field(default_factory=list)
+    normalized_eigengaps: list[float] = field(default_factory=list)
+    nums_clusters: list[int] = field(default_factory=list)
+    weight_statistics: dict[str, float] = field(default_factory=dict)
+    sparsification_percents: list[float] = field(default_factory=list)
+    veps_list: list[np.ndarray] = field(default_factory=list)
