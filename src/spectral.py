@@ -212,34 +212,38 @@ def find_local_maxima(diffs: list[float]) -> list[int]:
     return local_maxs
 
 
-def grafica_clusters_maxs_rel(
-    indexs_max_rel: list[int],
+def plot_clusters_local_maxs(
+    local_max_indices: list[int],
     result: SpectralAnalysisResult,
-    condicions_inicials: np.ndarray,
+    initial_conditions: np.ndarray,
     params: SpectralClusteringConfig,
     subfolder: str | None = None,
 ) -> None:
-    """Dibuixa els clústers trobats per cada radi d'esparsificació que
-    generi un màxim relatiu de les diferències entre VAPs consecutius."""
-    for num, index in enumerate(indexs_max_rel, start=1):
-        radi = result.sparsification_radii[index]
-        percent = result.sparsification_percents[index]
-        n_clusters = result.nums_clusters[index]
-        diff_max = result.eigengaps[index]
-        veps = result.eigenvectors[index]
+    """
+    Plots the clusters found for each sparsification radius that generates a
+    local maxima of the differences between consecutive eigenvalues.
+    """
+    for local_max_counter, local_max_index in enumerate(local_max_indices, start=1):
+        sparsification_radius = result.sparsification_radii[local_max_index]
+        sparsification_percent = result.sparsification_percents[local_max_index]
+        num_clusters = result.nums_clusters[local_max_index]
+        max_eigengap = result.eigengaps[local_max_index]
+        eigenvectors = result.eigenvectors[local_max_index]
         print(
-            f"Màxim_relatiu_num {num}\n"
-            f"Radi: {radi:.3f}, Esparsificació: {percent:.2%}, "
-            f"Clústers: {n_clusters}, Max eigengap: {diff_max:.5e}"
+            f"Local maximum #{local_max_counter}\n"
+            f"Sparsification radius: {sparsification_radius:.3f}, "
+            f"Sparsification percent: {sparsification_percent:.2%}, "
+            f"Clusters: {num_clusters}, "
+            f"Max eigengap: {max_eigengap:.5e}"
         )
-        labels = find_clusters(n_clusters, veps)
+        labels = find_clusters(num_clusters, eigenvectors)
         plot_clusters(
-            condicions_inicials,
+            initial_conditions,
             labels,
-            n_clusters,
-            radi,
-            percent,
+            num_clusters,
+            sparsification_radius,
+            sparsification_percent,
             params,
             subfolder,
-            filename_prefix=f"max_rel-{num}_",
+            filename_prefix=f"local_max-{local_max_counter}_",
         )
