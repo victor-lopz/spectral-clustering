@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 from typing import Iterable, Optional
 
 import matplotlib.pyplot as plt
@@ -12,13 +11,12 @@ from src.datatypes import SpectralClusteringConfig, SpectralAnalysisResult
 
 
 def get_output_path(filename: str, subfolder: str | None = None) -> str:
-    date = datetime.now().strftime("%Y-%m-%d")
     output_folder = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "..", "output"
     )
-    output_path = os.path.join(output_folder, date)
-    if subfolder is not None:
-        output_path = os.path.join(output_path, subfolder)
+    if subfolder is None:
+        subfolder = ""
+    output_path = os.path.join(output_folder, subfolder)
     os.makedirs(output_path, exist_ok=True)
     return os.path.join(output_path, filename)
 
