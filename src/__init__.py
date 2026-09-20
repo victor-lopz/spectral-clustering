@@ -11,14 +11,14 @@ from .plotting import (
     plot_trajectory_paths,
 )
 from .spectral import (
-    calcula_estadistics,
+    calculate_weight_statistics,
     calcula_indicadors_vs_radis,
     calcula_matriu_grau,
     calcula_num_clusters_i_max_eigengap,
     calcula_vaps,
     grafica_clusters_maxs_rel,
     sparsify,
-    sparsify_with_tol,
+    sparsify_with_radius,
     troba_clusters,
     troba_indexs_max_rel,
 )
@@ -31,7 +31,7 @@ from .trajectories import (
 __all__ = [
     "SpectralClusteringConfig",
     "SpectralAnalysisResult",
-    "calcula_estadistics",
+    "calculate_weight_statistics",
     "calcula_indicadors_vs_radis",
     "calcula_matriu_grau",
     "calcula_matriu_pesos",
@@ -49,7 +49,7 @@ __all__ = [
     "plot_coordinates",
     "plot_trajectory_paths",
     "sparsify",
-    "sparsify_with_tol",
+    "sparsify_with_radius",
     "troba_clusters",
     "troba_indexs_max_rel",
 ]

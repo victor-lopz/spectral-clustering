@@ -6,51 +6,82 @@ from src.datatypes import SpectralClusteringConfig, SpectralAnalysisResult
 from src.plotting import plot_clusters
 
 
-def calcula_estadistics(matriu_pesos: np.ndarray) -> dict[str, float]:
-    triangular_upper = matriu_pesos[np.triu_indices(len(matriu_pesos), k=1)]
-    percentils = np.percentile(triangular_upper, [0, 50, 90, 95, 100])
-    pes_min, pes_mediana, p90, p95, pes_max = percentils
-    estadistics = {
-        "pes_min": pes_min,
-        "pes_mediana": pes_mediana,
-        "pes_mitja": np.mean(triangular_upper),
-        "percentil90": p90,
-        "percentil95": p95,
-        "pes_max": pes_max,
-    }
-    return estadistics
-
-
-def sparsify_with_tol(matriu: np.ndarray, tol: float) -> tuple[np.ndarray, float]:
-    """Retorna una matriu on els elements més petits que la tolerància es tornen zero.
-    Opcionalment, retorna també el percentatge d'esparsificació obtingut.
-    Requisit: la diagonal de la matriu ha de ser zero."""
-    sota_tolerancia = matriu < tol
-    matriu_esparsa = np.where(sota_tolerancia, 0, matriu)
-    zeros = np.sum(sota_tolerancia) - len(matriu)  # Excloem la diagonal
-    total_elements = matriu.size - len(matriu)  # Excloem la diagonal
-    percentatge_esparsificacio = float(zeros / total_elements)
-    return matriu_esparsa, percentatge_esparsificacio
-
-
-def calcula_tol_esparsificacio(matriu: np.ndarray, percent: float) -> float:
-    """La tolerància o radi d'esparsificació és el percentil {percent}
-    dels valors no nuls de la {matriu}.
-    Com la matriu és simètrica i la diagonal només conté zeros,
-    ens quedem amb la matriu triangular superior sense la diagonal
+def calculate_weight_statistics(similarity_matrix: np.ndarray) -> dict[str, float]:
     """
-    triangular_upper = matriu[np.triu_indices(len(matriu), k=1)]
-    radi_esparsificacio = np.percentile(triangular_upper, percent)
-    return float(radi_esparsificacio)
+    Returns a dictionary with statistics of the weights in the similarity matrix.
+    The statistics include:
+    - min_weight: Minimum weight in the matrix
+    - median_weight: Median weight in the matrix
+    - avg_weight: Average weight in the matrix
+    - percentile_90: 90th percentile of the weights
+    - percentile_95: 95th percentile of the weights
+    - max_weight: Maximum weight in the matrix
+    """
+    triangular_upper = similarity_matrix[np.triu_indices(len(similarity_matrix), k=1)]
+    weight_percentiles = np.percentile(triangular_upper, [0, 50, 90, 95, 100])
+    min_weight, median_weight, p90, p95, max_weight = weight_percentiles
+    weight_statistics = {
+        "min_weight": min_weight,
+        "median_weight": median_weight,
+        "avg_weight": np.mean(triangular_upper),
+        "percentile_90": p90,
+        "percentile_95": p95,
+        "max_weight": max_weight,
+    }
+    return weight_statistics
 
 
-def sparsify(matriu: np.ndarray, percent: float) -> tuple[np.ndarray, float, float]:
-    """Retorna una matriu esparsa on el percentatge escollit dels
-    elements més petits es tornen zero.
-    Requisit: la matriu ha de ser simètrica amb diagonal nul·la."""
-    tol = calcula_tol_esparsificacio(matriu, percent)
-    matriu_esparsa, sparsification_percent = sparsify_with_tol(matriu, tol)
-    return matriu_esparsa, tol, sparsification_percent
+def sparsify_with_radius(
+    weight_matrix: np.ndarray, sparsification_radius: float
+) -> tuple[np.ndarray, float]:
+    """
+    Returns a matrix where elements smaller than the sparsification radius
+    are set to zero. Sparsification radius = tolerance.
+    It also returns the percentage of sparsification achieved.
+    Requirement: the diagonal of the matrix must be zero
+    because it represents the similarity between a trajectory and itself.
+    """
+    if np.diag(weight_matrix).any():
+        raise ValueError("The diagonal of the matrix must be zero.")
+
+    is_below_tolerance = weight_matrix < sparsification_radius
+    sparsified_matrix = np.where(is_below_tolerance, 0, weight_matrix)
+
+    # Exclude the diagonal by subtracting the length of the matrix
+    count_zeros = np.sum(is_below_tolerance) - len(weight_matrix)
+    total_elements = weight_matrix.size - len(weight_matrix)
+    sparsification_percentage = float(count_zeros / total_elements)
+    return sparsified_matrix, sparsification_percentage
+
+
+def get_sparsification_radius(
+    weight_matrix: np.ndarray, sparsification_percent: float
+) -> float:
+    """
+    The sparsification radius (or tolerance) is the {percent} percentile
+    of the non-zero values of the {weight_matrix}.
+    Since the matrix is symmetric and the diagonal is all zeros,
+    we only need the upper triangular part of the matrix without the diagonal
+    to compute the sparsification radius.
+    """
+    triangular_upper = weight_matrix[np.triu_indices(len(weight_matrix), k=1)]
+    sparsification_radius = np.percentile(triangular_upper, sparsification_percent)
+    return float(sparsification_radius)
+
+
+def sparsify(
+    weight_matrix: np.ndarray, sparsification_percent: float
+) -> tuple[np.ndarray, float, float]:
+    """
+    Returns a sparse matrix where the chosen percentage of the smallest
+    elements are set to zero.
+    Requirement: the matrix must be symmetric with all zeros in the diagonal.
+    """
+    radius = get_sparsification_radius(weight_matrix, sparsification_percent)
+    sparsified_matrix, sparsification_percent = sparsify_with_radius(
+        weight_matrix, radius
+    )
+    return sparsified_matrix, radius, sparsification_percent
 
 
 def calcula_matriu_grau(matriu_similaritat: np.ndarray) -> np.ndarray:
@@ -121,15 +152,15 @@ def calcula_indicadors_vs_radis(
         el pes mínim, màxim, mediana, mitjà, percentils 90 i 95
     - tots els VEPs associats a cada radi d'esparsificació
     """
-    estadistics = calcula_estadistics(matriu_pesos)
+    estadistics = calculate_weight_statistics(matriu_pesos)
     radis = np.linspace(
-        estadistics["pes_min"], estadistics["percentil95"], params.num_radii
+        estadistics["min_weight"], estadistics["percentile_95"], params.num_radii
     )
     result = SpectralAnalysisResult(
         sparsification_radii=radis, weight_statistics=estadistics
     )
     for radi in radis:
-        matriu_similaritat_W, percent = sparsify_with_tol(matriu_pesos, radi)
+        matriu_similaritat_W, percent = sparsify_with_radius(matriu_pesos, radi)
         result.sparsification_percents.append(percent)
         np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
         vaps, veps = calcula_vaps(matriu_similaritat_W, params.max_clusters)
