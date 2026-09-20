@@ -154,39 +154,44 @@ def find_clusters(num_clusters: int, eigenvectors: np.ndarray) -> np.ndarray:
     return labels
 
 
-def calcula_indicadors_vs_radis(
-    matriu_pesos: np.ndarray, constant_diagonal: float, params: SpectralClusteringConfig
+def calculate_spectral_indicators(
+    weight_matrix: np.ndarray,
+    default_diagonal_value: float,
+    params: SpectralClusteringConfig,
 ) -> SpectralAnalysisResult:
     """
-    Retorna una classe SpectralAnalysisResult que,
-    per a cada radi d'esparsificació, conté:
-    - la diferència màxima entre VAPs consecutius
-    - la diferència màxima normalitzada entre VAPs consecutius
-    - el nombre de clusters trobat, sempre dins del rang [1, max_clusters]
-    - el percentatge d'esparsificació
-    - els estadístics de la matriu de pesos, que són:
-        el pes mínim, màxim, mediana, mitjà, percentils 90 i 95
-    - tots els VEPs associats a cada radi d'esparsificació
+    Returns an SpectralAnalysisResult object that, for each sparsification radius,
+    contains:
+    - The maximum difference between consecutive eigenvalues
+    - The normalized maximum difference between consecutive eigenvalues
+    - The number of clusters found, always within the range [1, max_clusters]
+    - The percentage of sparsification
+    - The statistics of the weight matrix, which are:
+        - The minimum, maximum, median, and mean weights
+        - The 90th and 95th percentiles of the weights
+    - The eigenvectors associated with each sparsification radius
     """
-    estadistics = calculate_weight_statistics(matriu_pesos)
-    radis = np.linspace(
-        estadistics["min_weight"], estadistics["percentile_95"], params.num_radii
+    stats = calculate_weight_statistics(weight_matrix)
+    sparsification_radii = np.linspace(
+        stats["min_weight"], stats["percentile_95"], params.num_radii
     )
     result = SpectralAnalysisResult(
-        sparsification_radii=radis, weight_statistics=estadistics
+        sparsification_radii=sparsification_radii, weight_statistics=stats
     )
-    for radi in radis:
-        matriu_similaritat_W, percent = sparsify_with_radius(matriu_pesos, radi)
+    for radius in sparsification_radii:
+        similarity_matrix, percent = sparsify_with_radius(weight_matrix, radius)
         result.sparsification_percents.append(percent)
-        np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
-        vaps, veps = calculate_eigenvalues(matriu_similaritat_W, params.max_clusters)
-        num_clusters, max_eigengap = calculate_num_clusters_and_max_eigengap(vaps)
+        np.fill_diagonal(similarity_matrix, default_diagonal_value)
+        eigvals, eigvectors = calculate_eigenvalues(
+            similarity_matrix, params.max_clusters
+        )
+        num_clusters, max_eigengap = calculate_num_clusters_and_max_eigengap(eigvals)
         result.nums_clusters.append(num_clusters)
         result.eigengaps.append(max_eigengap)
-        rang_espectral = vaps[-1] - vaps[0]
-        gap_normalitzat = max_eigengap / rang_espectral if rang_espectral > 0 else 0
-        result.normalized_eigengaps.append(gap_normalitzat)
-        result.veps_list.append(veps)
+        spectral_range = eigvals[-1] - eigvals[0]
+        normalized_eigengap = max_eigengap / spectral_range if spectral_range > 0 else 0
+        result.normalized_eigengaps.append(normalized_eigengap)
+        result.eigenvectors.append(eigvectors)
     return result
 
 
@@ -219,7 +224,7 @@ def grafica_clusters_maxs_rel(
         percent = result.sparsification_percents[index]
         n_clusters = result.nums_clusters[index]
         diff_max = result.eigengaps[index]
-        veps = result.veps_list[index]
+        veps = result.eigenvectors[index]
         print(
             f"Màxim_relatiu_num {num}\n"
             f"Radi: {radi:.3f}, Esparsificació: {percent:.2%}, "

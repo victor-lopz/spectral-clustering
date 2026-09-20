@@ -12,7 +12,7 @@ from .plotting import (
 )
 from .spectral import (
     calculate_weight_statistics,
-    calcula_indicadors_vs_radis,
+    calculate_spectral_indicators,
     calculate_degree_matrix,
     calculate_num_clusters_and_max_eigengap,
     calculate_eigenvalues,
@@ -32,7 +32,7 @@ __all__ = [
     "SpectralClusteringConfig",
     "SpectralAnalysisResult",
     "calculate_weight_statistics",
-    "calcula_indicadors_vs_radis",
+    "calculate_spectral_indicators",
     "calculate_degree_matrix",
     "calcula_matriu_pesos",
     "calculate_num_clusters_and_max_eigengap",

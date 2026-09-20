@@ -29,4 +29,4 @@ class SpectralAnalysisResult:
     nums_clusters: list[int] = field(default_factory=list)
     weight_statistics: dict[str, float] = field(default_factory=dict)
     sparsification_percents: list[float] = field(default_factory=list)
-    veps_list: list[np.ndarray] = field(default_factory=list)
+    eigenvectors: list[np.ndarray] = field(default_factory=list)
