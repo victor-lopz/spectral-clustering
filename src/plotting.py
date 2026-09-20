@@ -272,11 +272,11 @@ def plot_clusters(
     )
     filename = (
         filename_prefix + f"clusters={num_clusters}"
+        f"_sparse={sparsification_percent * 100:.0f}"
+        f"_tol={sparsification_radius:.1f}"
         f"_traj={num_trajectories}"
         f"_tsteps={params.t_steps}"
         f"_t_end={params.t_span[-1]:.1f}"
-        f"_tol={sparsification_radius:.1f}"
-        f"_sparse={sparsification_percent * 100:.0f}"
         ".pdf"
     )
     plt.savefig(get_output_path(filename, subfolder), bbox_inches="tight")
