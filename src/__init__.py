@@ -24,7 +24,7 @@ from .spectral import (
 )
 from .trajectories import (
     calcula_matriu_pesos,
-    generar_condicions_inicials,
+    generate_initial_conditions,
     generar_trajectories,
 )
 
@@ -39,7 +39,7 @@ __all__ = [
     "calculate_eigenvalues",
     "edo_duffing_autonom",
     "edo_duffing_no_autonom",
-    "generar_condicions_inicials",
+    "generate_initial_conditions",
     "generar_trajectories",
     "plot_clusters",
     "plot_clusters_local_maxs",

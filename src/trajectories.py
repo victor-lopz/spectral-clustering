@@ -7,23 +7,25 @@ import scipy.spatial.distance
 from src.datatypes import SpectralClusteringConfig
 
 
-def generar_condicions_inicials(params: SpectralClusteringConfig) -> np.ndarray:
+def generate_initial_conditions(params: SpectralClusteringConfig) -> np.ndarray:
     """
-    Genera una malla de punts a l'espai R^2 dins dels límits definits per
+    Creates a rectangular grid of points in R^2 bounded by the limits defined by
     params.x_min, params.x_max, params.y_min, params.y_max.
-    El pas entre punts ve donat per params.grid_spacing.
-    Retorna una matriu de mida (num_punts, 2) on cada fila és un punt (x,y).
-    num_punts es calcula de manera que cobreixi tot l'espai amb el pas indicat.
-    """
+    The spacing between points is given by params.grid_spacing.
 
+    Returns a matrix of size (num_points, 2) where each row is a point (x,y).
+    num_points is calculated to cover the entire space with the indicated spacing.
+
+    Examle output: [[-1.0, -1.0], [1.0, -1.0], [1.0, 1.0], [-1.0, 1.0]]
+    """
     num_x = int(round((params.x_max - params.x_min) / params.grid_spacing)) + 1
     num_y = int(round((params.y_max - params.y_min) / params.grid_spacing)) + 1
     x = np.linspace(params.x_min, params.x_max, num_x)
     y = np.linspace(params.y_min, params.y_max, num_y)
-    malla = np.empty((num_x * num_y, 2))
-    malla[:, 0] = np.repeat(x, num_y)  # repetim cada valor de x num_y vegades
-    malla[:, 1] = np.tile(y, num_x)  # repetim tot el vector y num_x vegades
-    return malla
+    grid = np.empty((num_x * num_y, 2))
+    grid[:, 0] = np.repeat(x, num_y)  # repeat every element of x num_y times
+    grid[:, 1] = np.tile(y, num_x)  # repeat every element of y num_x times
+    return grid
 
 
 def generar_trajectories(
