@@ -23,7 +23,7 @@ from .spectral import (
     find_local_maxima,
 )
 from .trajectories import (
-    calcula_matriu_pesos,
+    compute_weight_matrix,
     generate_initial_conditions,
     simulate_trajectories,
 )
@@ -34,7 +34,7 @@ __all__ = [
     "calculate_weight_statistics",
     "calculate_spectral_indicators",
     "calculate_degree_matrix",
-    "calcula_matriu_pesos",
+    "compute_weight_matrix",
     "calculate_num_clusters_and_max_eigengap",
     "calculate_eigenvalues",
     "ode_autonomous_duffing",

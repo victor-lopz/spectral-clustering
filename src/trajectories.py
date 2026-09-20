@@ -70,7 +70,7 @@ def simulate_trajectories(
     return trajectories
 
 
-def calcula_matriu_pesos(trajectories: np.ndarray) -> np.ndarray:
+def compute_weight_matrix(trajectories: np.ndarray) -> np.ndarray:
     """
     Returns the weight matrix, where the weight between two trajectories is the
     inverse of their average distance over time.
