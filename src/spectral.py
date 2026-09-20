@@ -97,24 +97,29 @@ def calculate_degree_matrix(similarity_matrix: np.ndarray) -> np.ndarray:
     return np.diag(similarity_matrix.sum(axis=1))
 
 
-def calcula_vaps(
-    matriu_similaritat_W: np.ndarray, max_clusters: int
+def calculate_eigenvalues(
+    similarity_matrix: np.ndarray, max_clusters: int
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Retorna els n VAPs més petits ordenats ascendentment i
-    els VEPs del problema generalitzat Lu = lambda Du.
-    Requisit: les matrius L i D han de ser simètriques."""
-    n = matriu_similaritat_W.shape[0]
+    """
+    Returns the first {max_clusters} smallest eigenvalues sorted in ascending order
+    and their corresponding eigenvectors of the generalized eigenvalue problem
+    Lu = lambda Du, where D is the degree matrix and L is the Laplacian matrix, defined
+    as L = D - W, where W is the similarity matrix.
+
+    Requirement: the matrices L and D must be symmetric.
+    """
+    n = similarity_matrix.shape[0]
     if n == 0:
-        raise ValueError("La matriu de similaritat no pot ser buida.")
+        raise ValueError("The similarity matrix cannot be empty.")
     if max_clusters <= 0:
-        raise ValueError(f"cal max_clusters > 0, rebut: {max_clusters}.")
+        raise ValueError(f"max_clusters > 0 is needed, but got: {max_clusters}.")
     max_index = min(max_clusters - 1, n - 1)
-    matriu_grau_D = calculate_degree_matrix(matriu_similaritat_W)
-    matriu_laplacia_L = matriu_grau_D - matriu_similaritat_W
-    vaps, veps = scipy.linalg.eigh(
-        matriu_laplacia_L, matriu_grau_D, subset_by_index=[0, max_index]
+    degree_matrix = calculate_degree_matrix(similarity_matrix)
+    laplacian_matrix = degree_matrix - similarity_matrix
+    eigenvalues, eigenvectors = scipy.linalg.eigh(
+        laplacian_matrix, degree_matrix, subset_by_index=[0, max_index]
     )
-    return vaps, veps
+    return eigenvalues, eigenvectors
 
 
 def calcula_num_clusters_i_max_eigengap(vaps: np.ndarray) -> tuple[int, float]:
@@ -171,7 +176,7 @@ def calcula_indicadors_vs_radis(
         matriu_similaritat_W, percent = sparsify_with_radius(matriu_pesos, radi)
         result.sparsification_percents.append(percent)
         np.fill_diagonal(matriu_similaritat_W, constant_diagonal)
-        vaps, veps = calcula_vaps(matriu_similaritat_W, params.max_clusters)
+        vaps, veps = calculate_eigenvalues(matriu_similaritat_W, params.max_clusters)
         num_clusters, max_eigengap = calcula_num_clusters_i_max_eigengap(vaps)
         result.nums_clusters.append(num_clusters)
         result.eigengaps.append(max_eigengap)
