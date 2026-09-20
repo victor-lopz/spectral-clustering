@@ -1,7 +1,7 @@
-/output
 __pycache__
 .vscode
 .venv
 node_modules
 .ipynb_checkpoints
 .Trash-*
+.ruff_cache
