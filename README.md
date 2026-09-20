@@ -1,6 +1,6 @@
 # Spectral clustering for Lagrangian particle flow analysis
 
-> Exploring an algorithm to discover patterns in dynamical systems. Applications may include finding masses of air that move together in the atmosphere, detecting ocean currents, or identifying the shape of the Antarctic ozone hole.
+> Algorithm for discovering patterns in dynamical systems. Applications may include finding masses of air that move together in the atmosphere, detecting ocean currents, or identifying the boundary of the Antarctic ozone hole.
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)
@@ -33,7 +33,7 @@ A coherent set is a group of trajectories that evolve similarly through time.
 
 ## Quickstart
 
-Prerequisites: `Python >= 3.14` and `git`.
+Prerequisites: `git` and `Python >= 3.14`. Recommended: install uv (you can use `pip install uv`).
 
 1. **Clone the repository:**
 
@@ -45,17 +45,22 @@ Prerequisites: `Python >= 3.14` and `git`.
 2. **Set up a virtual environment:**
 
     ```bash
-    python -m venv .venv
-    # On macOS / Linux:
-    source .venv/bin/activate
-    # On Windows (PowerShell):
-    .venv\Scripts\Activate.ps1
+    uv venv                 # using uv
+    python -m venv .venv    # using standard Python
+    ```
+
+    Activate the virtual environment
+
+    ```bash
+    source .venv/bin/activate       # macOS / Linux
+    source .venv/Scripts/activate   # Windows (Bash)
+    .venv\Scripts\Activate.ps1      # Windows (PowerShell)
     ```
 
 3. **Install dependencies:**
 
     ```bash
-    pip install -r requirements.txt
+    uv pip install -r requirements.txt   # or: pip install -r requirements.txt
     ```
 
 4. **Run the notebooks** to reproduce experiments and figures.
@@ -68,7 +73,7 @@ Prerequisites: `Python >= 3.14` and `git`.
 
 ## Project structure
 
-```text
+```toml
 spectral-clustering/
 ├── .github/workflows/                  # GitHub Actions workflows
 │   └── ci.yaml                         # Lints and formats files
@@ -102,11 +107,16 @@ spectral-clustering/
 
 ## Development
 
-- Install and run linters with `pre-commit`:
+- Install linters with `pre-commit`:
 
 ```bash
-pip install pre-commit
+uv pip install pre-commit   # or: pip install pre-commit
 pre-commit install
+```
+
+- Run linters and formatters:
+
+```bash
 pre-commit run --all-files
 ```
 
@@ -116,7 +126,7 @@ Contributions are welcome. Feel free to open issues or pull requests. If you pla
 
 1. Open an issue to discuss the change.
 2. Create a branch for your work.
-3. Follow repository style and run `pre-commit` before submitting a PR.
+3. Run `pre-commit run --all-files` before submitting a PR.
 
 ## License
 
