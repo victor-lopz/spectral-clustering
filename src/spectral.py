@@ -122,11 +122,11 @@ def calculate_eigenvalues(
     return eigenvalues, eigenvectors
 
 
-def calculate_num_clusters_and_max_eigengap(vaps: np.ndarray) -> tuple[int, float]:
+def calculate_num_clusters_and_max_eigengap(eigvals: np.ndarray) -> tuple[int, float]:
     """
     Returns the number of clusters according to the spectral gap heuristic.
     This rule states that the number of clusters is the index k where the difference
-    between vaps[k] and vaps[k-1] is greatest. In other words, it is the argument of the
+    between eigvals[k] and eigvals[k-1] is greatest. In other words, it is the argument of the
     maximum of consecutive differences of ordered eigenvalues.
 
     It also returns the value of the greatest difference (maximum eigengap).
@@ -134,7 +134,7 @@ def calculate_num_clusters_and_max_eigengap(vaps: np.ndarray) -> tuple[int, floa
     We add 1 because of zero-based indexing.
     We add 1 again to include the cluster of incoherent states.
     """
-    diffs = np.diff(vaps)
+    diffs = np.diff(eigvals)
     k = int(np.argmax(diffs))
     num_clusters = k + 2
     max_eigengap = diffs[k]

@@ -388,7 +388,7 @@ def plot_eigengaps_vs_sparsity(
     colors_stats = iter(plt.rcParams["axes.prop_cycle"])
     next(colors_stats)
     for metric_name, metric_value in result.weight_statistics.items():
-        if metric_name != "pes_max":
+        if metric_name != "max_weight":
             host.axvline(
                 x=metric_value,
                 linestyle="--",
