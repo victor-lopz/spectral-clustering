@@ -8,9 +8,10 @@ repos:
       - id: check-added-large-files # Prevents accidentally committing massive files
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.18
+    rev: v0.16.8
     hooks:
       - id: ruff-check # lint python files
+        args: [--fix]
       - id: ruff-format # format python files
 
   - repo: https://github.com/pre-commit/mirrors-prettier
