@@ -47,9 +47,9 @@ Prerequisites: `Python >= 3.14` and `git`.
 
     ```bash
     python -m venv .venv
-    # On macOS / Linux
+    # On macOS / Linux:
     source .venv/bin/activate
-    # On Windows (PowerShell)
+    # On Windows (PowerShell):
     .venv\Scripts\Activate.ps1
     ```
 
@@ -84,6 +84,7 @@ Check the `output/` folder after running notebooks to find images, CSVs, and int
 ## Project structure
 
 ```text
+spectral-clustering/
 ├── .github/workflows/  # CI workflow that lints and formats files
 ├── notebooks/          # Jupyter notebooks for experiments and figures
 ├── output/             # Figures from notebooks saved in high-resolution format
@@ -93,8 +94,16 @@ Check the `output/` folder after running notebooks to find images, CSVs, and int
 │   ├── plotting.py     # Plotting helper functions
 │   ├── spectral.py     # Similarity, Laplacian, and spectral embedding routines
 │   └── trajectories.py # Trajectory generation and pairwise distance computation
+├── .editorconfig
+├── .gitignore
+├── .pre-commit-config.yaml
+├── .python-version
+├── compose.yaml
+├── Dockerfile
+├── pyproject.toml
+├── README.md
 ├── requirements.txt
-└── README.md
+└── uv.lock
 ```
 
 ## Development
