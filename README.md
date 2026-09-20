@@ -33,7 +33,7 @@ A coherent set is a group of trajectories that evolve similarly through time.
 
 ## Quickstart
 
-Prerequisites: `git` and `Python >= 3.14`. Recommended: install uv (you can use `pip install uv`).
+Prerequisites: `git` and `Python >= 3.14`. Recommended: [`uv`](https://docs.astral.sh/uv/). Install it with `pip install uv`.
 
 1. **Clone the repository:**
 
@@ -45,16 +45,15 @@ Prerequisites: `git` and `Python >= 3.14`. Recommended: install uv (you can use 
 2. **Set up a virtual environment:**
 
     ```bash
-    uv venv                 # using uv
-    python -m venv .venv    # using standard Python
+    uv venv                             # or: python -m venv .venv
     ```
 
     Activate the virtual environment
 
     ```bash
-    source .venv/bin/activate       # macOS / Linux
-    source .venv/Scripts/activate   # Windows (Bash)
-    .venv\Scripts\Activate.ps1      # Windows (PowerShell)
+    source .venv/bin/activate           # macOS / Linux
+    source .venv/Scripts/activate       # Windows (Bash)
+    .venv\Scripts\Activate.ps1          # Windows (PowerShell)
     ```
 
 3. **Install dependencies:**
@@ -68,7 +67,7 @@ Prerequisites: `git` and `Python >= 3.14`. Recommended: install uv (you can use 
 ## Notebooks
 
 - [notebooks/autonomous_duffing.ipynb](notebooks/autonomous_duffing.ipynb) — autonomous Duffing experiments
-- [notebooks/non_autonomous_duffing.ipynb](notebooks/non_autonomous_duffing.ipynb) — non-autonomous experiments
+- [notebooks/non_autonomous_duffing.ipynb](notebooks/non_autonomous_duffing.ipynb) — Time-dependent pertorbation added to the Duffing oscillator.
 - [notebooks/plot_trajectories.ipynb](notebooks/plot_trajectories.ipynb) — plotting examples
 
 ## Project structure
