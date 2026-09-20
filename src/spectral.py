@@ -141,14 +141,16 @@ def calculate_num_clusters_and_max_eigengap(vaps: np.ndarray) -> tuple[int, floa
     return num_clusters, max_eigengap
 
 
-def troba_clusters(num_clusters: int, veps: np.ndarray) -> np.ndarray:
+def find_clusters(num_clusters: int, eigenvectors: np.ndarray) -> np.ndarray:
     """
-    Retorna un vector d'etiquetes de clusters per a cada trajectòria.
-    Exemple: labels[i] = 0 indica que la trajectòria i pertany al cluster 0.
+    Returns a vector of cluster labels for each trajectory.
+    Examples:
+    - labels[i] = 0 indicates that trajectory i belongs to cluster 0.
+    - labels[j] = 3 indicates that trajectory j belongs to cluster 3.
     """
-    matriu_veps_U = veps[:, :num_clusters]
+    cluster_eigenvectors = eigenvectors[:, :num_clusters]
     kmeans = KMeans(n_clusters=num_clusters, n_init=10, random_state=7)
-    labels = kmeans.fit_predict(matriu_veps_U)
+    labels = kmeans.fit_predict(cluster_eigenvectors)
     return labels
 
 
@@ -223,7 +225,7 @@ def grafica_clusters_maxs_rel(
             f"Radi: {radi:.3f}, Esparsificació: {percent:.2%}, "
             f"Clústers: {n_clusters}, Max eigengap: {diff_max:.5e}"
         )
-        labels = troba_clusters(n_clusters, veps)
+        labels = find_clusters(n_clusters, veps)
         plot_clusters(
             condicions_inicials,
             labels,

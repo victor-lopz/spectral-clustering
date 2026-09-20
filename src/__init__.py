@@ -19,7 +19,7 @@ from .spectral import (
     grafica_clusters_maxs_rel,
     sparsify,
     sparsify_with_radius,
-    troba_clusters,
+    find_clusters,
     troba_indexs_max_rel,
 )
 from .trajectories import (
@@ -50,6 +50,6 @@ __all__ = [
     "plot_trajectory_paths",
     "sparsify",
     "sparsify_with_radius",
-    "troba_clusters",
+    "find_clusters",
     "troba_indexs_max_rel",
 ]
