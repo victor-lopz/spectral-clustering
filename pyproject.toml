@@ -7,11 +7,13 @@ authors = [
     { name = "Víctor López", email = "217356204+victor-lopz@users.noreply.github.com" }
 ]
 requires-python = ">=3.14.5"
-dependencies = []
+dependencies = [
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.3",
+    "pre-commit>=4.6.2",
+    "scikit-learn>=1.9.1",
+    "scipy>=1.18.0",
+]
 
-[project.scripts]
-spectral-clustering = "spectral_clustering:main"
-
-[build-system]
-requires = ["uv_build>=0.12.17,<0.13.0"]
-build-backend = "uv_build"
+[tool.uv]
+package = false
