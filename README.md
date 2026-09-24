@@ -73,7 +73,7 @@ Prerequisites: `git` and `Python >= 3.14`. Recommended: [`uv`](https://docs.astr
 
 ## Project structure
 
-```toml
+```text
 spectral-clustering/
 ├── .github/workflows/                  # GitHub Actions workflows
 │   └── ci.yaml                         # Lints and formats files
