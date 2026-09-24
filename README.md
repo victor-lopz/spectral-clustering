@@ -20,16 +20,9 @@
 
 ## Overview
 
-The code and notebooks show how to:
+For the analysis of dynamical systems, it is useful to identify coherent structures in the flow. These structures are regions where particles evolve similarly over time. Spectral clustering is a powerful technique for discovering these patterns.
 
-1. Generate multiple trajectories for dynamical systems (e.g., the Duffing oscillator).
-2. Compute pairwise distances between trajectories.
-3. Build the similarity matrix to see which pairs of trajectories are alike.
-4. Build the graph Laplacian.
-5. Compute spectral embeddings to reduce the dimensionality of the data.
-6. Apply clustering with K-means to identify coherent sets.
-
-A coherent set is a group of trajectories that evolve similarly through time.
+![Non-autonomous Duffing oscillator clustering result](output/non_autonomous/clusters=11_sparse=90_tol=1.2_traj=5151_tsteps=300_t_end=12.6.pdf)
 
 ## Quickstart
 
@@ -64,12 +57,6 @@ Prerequisites: `git` and `Python >= 3.14`. Recommended: [`uv`](https://docs.astr
 
 4. **Run the notebooks** to reproduce experiments and figures.
 
-## Notebooks
-
-- [notebooks/autonomous_duffing.ipynb](notebooks/autonomous_duffing.ipynb) — autonomous Duffing experiments
-- [notebooks/non_autonomous_duffing.ipynb](notebooks/non_autonomous_duffing.ipynb) — Time-dependent pertorbation added to the Duffing oscillator.
-- [notebooks/plot_trajectories.ipynb](notebooks/plot_trajectories.ipynb) — plotting examples
-
 ## Project structure
 
 ```toml
@@ -103,6 +90,26 @@ spectral-clustering/
 ├── requirements.txt
 └── uv.lock
 ```
+
+## Architecture and workflow
+
+The processing pipeline extracts coherent structures through modular stages across the `src` package:
+
+1. **Dynamical system formulation ([ode.py](src/ode.py)):** defines differential equations (ODE) such as the Duffing oscillator.
+2. **Trajectory integration ([trajectories.py](src/trajectories.py)):** generates trajectories using Runge-Kutta as the ODE solver.
+3. **Similarity ([trajectories.py](src/trajectories.py)):** computes pairwise distances between trajectories to see how similar they are.
+4. **Sparsification ([spectral.py](src/spectral.py)):** reduces the noise of the similarity matrix by setting small values to zero.
+5. **Spectral embedding ([spectral.py](src/spectral.py)):** computes eigenvectors to find an embedding, which reduces dimensionality.
+6. **Clustering ([spectral.py](src/spectral.py)):** applies k-means to the spectral embedding to find coherent sets of trajectories.
+7. **Visualization ([plotting.py](src/plotting.py)):** plots the coherent sets and intermediate results.
+
+## Notebooks
+
+They orchestrate the pipeline and produce figures. Each notebook is self-contained and can be run independently.
+
+- [notebooks/autonomous_duffing.ipynb](notebooks/autonomous_duffing.ipynb) — autonomous Duffing experiments
+- [notebooks/non_autonomous_duffing.ipynb](notebooks/non_autonomous_duffing.ipynb) — Time-dependent perturbation added to the Duffing oscillator.
+- [notebooks/plot_trajectories.ipynb](notebooks/plot_trajectories.ipynb) — plotting examples
 
 ## Development
 
