@@ -13,8 +13,8 @@
 For the analysis of dynamical systems, it is useful to identify coherent structures in the flow. These structures are regions where particles evolve similarly over time. Spectral clustering is a powerful technique for discovering these patterns.
 
 <p align="center">
-  <a href="output\non_autonomous\clusters=11_sparse=90_tol=1.2_traj=5151_tsteps=300_t_end=12.6.pdf">
-    <img src="output\non_autonomous\clusters-for-non-autonomous-duffing.png" alt="View high-resolution plot in PDF format" width="400">
+  <a href="output/non_autonomous/clusters=11_sparse=90_tol=1.2_traj=5151_tsteps=300_t_end=12.6.pdf">
+    <img src="output/non_autonomous/clusters-for-non-autonomous-duffing.png" alt="View high-resolution plot in PDF format" width="400">
   </a>
 </p>
 
