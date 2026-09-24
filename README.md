@@ -75,29 +75,14 @@ Prerequisites: `git` and `Python >= 3.14`. Recommended: [`uv`](https://docs.astr
 
 ```text
 spectral-clustering/
-├── .github/workflows/                  # GitHub Actions workflows
-│   └── ci.yaml                         # Lints and formats files
-├── notebooks/                          # Jupyter notebooks
-│   ├── autonomous_duffing.ipynb        # Autonomous Duffing experiments
-│   ├── non_autonomous_duffing.ipynb    # Non-autonomous Duffing experiments
-│   └── plot_trajectories.ipynb         # Plotting examples
-├── output/                             # High-resolution figures
-│   ├── autonomous/                     # Results for 90% sparsity
-│   ├── autonom_local_maxs/             # Results for adaptive sparsity method
-│   ├── non_autonomous/                 # Results for 90% sparsity
-│   └── non_autonomous_local_maxs/      # Results for adaptive sparsity method
-├── src/                                # Library code used by the notebooks
-│   ├── __init__.py                     # Package initialization
-│   ├── datatypes.py                    # Dataclass definitions
-│   ├── ode.py                          # ODE system definitions
-│   ├── plotting.py                     # Plotting helper functions
-│   ├── spectral.py                     # Similarity and spectral embedding routines
-│   └── trajectories.py                 # Path and distance computations
-├── .pre-commit-config.yaml             # Lints and formats files
+├── .github/workflows/    # CI: lints and formats files
+├── notebooks/            # Jupyter notebooks orchestrating the pipeline
+├── output/               # High-resolution figures
+├── src/                  # Library code used by the notebooks
 ├── compose.yaml
 ├── Dockerfile
 ├── README.md
-└── requirements.txt
+└── requirements.txt      # Dependencies
 ```
 
 ## Development
