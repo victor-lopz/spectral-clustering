@@ -85,6 +85,10 @@ spectral-clustering/
 └── requirements.txt      # Dependencies
 ```
 
+## References
+
+- López, Víctor. (2026). Spectral clustering techniques for Lagrangian particle flow analysis. Bachelor's Thesis, Universitat Politècnica de Catalunya (UPC). [PDF](https://hdl.handle.net/2117/473305) avaiable online.
+
 ## Development
 
 - Install linters with `pre-commit`:
