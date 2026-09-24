@@ -93,16 +93,11 @@ spectral-clustering/
 │   ├── plotting.py                     # Plotting helper functions
 │   ├── spectral.py                     # Similarity and spectral embedding routines
 │   └── trajectories.py                 # Path and distance computations
-├── .editorconfig
-├── .gitignore
 ├── .pre-commit-config.yaml             # Lints and formats files
-├── .python-version
 ├── compose.yaml
 ├── Dockerfile
-├── pyproject.toml
 ├── README.md
-├── requirements.txt
-└── uv.lock
+└── requirements.txt
 ```
 
 ## Development
