@@ -1,6 +1,6 @@
 # Spectral clustering for Lagrangian particle flow analysis
 
-> Exploring an algorithm to discover patterns in dynamical systems. Applications may include finding masses of air that move together in the atmosphere, detecting ocean currents, or identifying the shape of the Antarctic ozone hole.
+> Algorithm for discovering patterns in dynamical systems. Applications may include finding masses of air that move together in the atmosphere, detecting ocean currents, or identifying the boundary of the Antarctic ozone hole.
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)
@@ -8,33 +8,39 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![GitHub last commit](https://img.shields.io/github/last-commit/victor-lopz/spectral-clustering)](https://github.com/victor-lopz/spectral-clustering/commits/main)
 
-## Table of contents
-
-- [Overview](#overview)
-- [Quickstart](#quickstart)
-- [Notebooks](#notebooks)
-- [Output layout](#output-layout)
-- [Project structure](#project-structure)
-- [Development](#development)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Overview
 
-The code and notebooks show how to:
+For the analysis of dynamical systems, it is useful to identify coherent structures in the flow. These structures are regions where particles evolve similarly over time. Spectral clustering is a powerful technique for discovering these patterns.
 
-1. Generate multiple trajectories for dynamical systems (e.g., the Duffing oscillator).
-2. Compute pairwise distances between trajectories.
-3. Build the similarity matrix to see which pairs of trajectories are alike.
-4. Build the graph Laplacian.
-5. Compute spectral embeddings to reduce the dimensionality of the data.
-6. Apply clustering with K-means to identify coherent sets.
+<p align="center">
+  <a href="output/non_autonomous/clusters=11_sparse=90_tol=1.2_traj=5151_tsteps=300_t_end=12.6.pdf">
+    <img src="output/non_autonomous/clusters-for-non-autonomous-duffing.png" alt="View high-resolution plot in PDF format" width="400">
+  </a>
+</p>
 
-A coherent set is a group of trajectories that evolve similarly through time.
+## Architecture and workflow
+
+The processing pipeline extracts coherent structures through modular stages across the `src` package:
+
+1. **Dynamical system formulation ([ode.py](src/ode.py)):** defines differential equations (ODE) such as the Duffing oscillator.
+2. **Trajectory integration ([trajectories.py](src/trajectories.py)):** generates trajectories using Runge-Kutta as the ODE solver.
+3. **Similarity ([trajectories.py](src/trajectories.py)):** computes pairwise distances between trajectories to see how similar they are.
+4. **Sparsification ([spectral.py](src/spectral.py)):** reduces the noise of the similarity matrix by setting small values to zero.
+5. **Spectral embedding ([spectral.py](src/spectral.py)):** computes eigenvectors to find an embedding, which reduces dimensionality.
+6. **Clustering ([spectral.py](src/spectral.py)):** applies k-means to the spectral embedding to find coherent sets of trajectories.
+7. **Visualization ([plotting.py](src/plotting.py)):** plots the coherent sets and intermediate results.
+
+## Notebooks
+
+They orchestrate the pipeline and produce figures. Each notebook is self-contained and can be run independently.
+
+- [notebooks/autonomous_duffing.ipynb](notebooks/autonomous_duffing.ipynb) — autonomous Duffing experiments
+- [notebooks/non_autonomous_duffing.ipynb](notebooks/non_autonomous_duffing.ipynb) — Time-dependent perturbation added to the Duffing oscillator.
+- [notebooks/plot_trajectories.ipynb](notebooks/plot_trajectories.ipynb) — plotting examples
 
 ## Quickstart
 
-Prerequisites: `Python >= 3.14` and `git`.
+Prerequisites: `git` and `Python >= 3.14`. Recommended: [`uv`](https://docs.astral.sh/uv/). Install it with `pip install uv`.
 
 1. **Clone the repository:**
 
@@ -46,64 +52,55 @@ Prerequisites: `Python >= 3.14` and `git`.
 2. **Set up a virtual environment:**
 
     ```bash
-    python -m venv .venv
-    # On macOS / Linux
-    source .venv/bin/activate
-    # On Windows (PowerShell)
-    .venv\Scripts\Activate.ps1
+    uv venv                             # or: python -m venv .venv
+    ```
+
+    Activate the virtual environment
+
+    ```bash
+    source .venv/bin/activate           # macOS / Linux
+    source .venv/Scripts/activate       # Windows (Bash)
+    .venv\Scripts\Activate.ps1          # Windows (PowerShell)
     ```
 
 3. **Install dependencies:**
 
     ```bash
-    pip install -r requirements.txt
+    uv pip install -r requirements.txt   # or: pip install -r requirements.txt
     ```
 
 4. **Run the notebooks** to reproduce experiments and figures.
 
-## Notebooks
-
-- [notebooks/autonomous_duffing.ipynb](notebooks/autonomous_duffing.ipynb) — autonomous Duffing experiments
-- [notebooks/non_autonomous_duffing.ipynb](notebooks/non_autonomous_duffing.ipynb) — non-autonomous experiments
-- [notebooks/plot_trajectories.ipynb](notebooks/plot_trajectories.ipynb) — plotting examples
-
-## Output layout
-
-Results generated by the notebooks are written to the `output/` folder. Current runs are organized by experiment type, for example:
-
-```text
-output/
-   autonomous/
-   autonom_local_maxs/
-   non_autonomous/
-   non_autonomous_local_maxs/
-```
-
-Check the `output/` folder after running notebooks to find images, CSVs, and intermediate data.
-
 ## Project structure
 
 ```text
-├── .github/workflows/  # CI workflow that lints and formats files
-├── notebooks/          # Jupyter notebooks for experiments and figures
-├── output/             # Figures from notebooks saved in high-resolution format
-├── src/                # Library code used by the notebooks
-│   ├── datatypes.py    # Dataclass definitions
-│   ├── ode.py          # ODE system definitions (e.g., Duffing oscillator)
-│   ├── plotting.py     # Plotting helper functions
-│   ├── spectral.py     # Similarity, Laplacian, and spectral embedding routines
-│   └── trajectories.py # Trajectory generation and pairwise distance computation
-├── requirements.txt
-└── README.md
+spectral-clustering/
+├── .github/workflows/    # CI: lints and formats files
+├── notebooks/            # Jupyter notebooks orchestrating the pipeline
+├── output/               # High-resolution figures
+├── src/                  # Library code used by the notebooks
+├── compose.yaml
+├── Dockerfile
+├── README.md
+└── requirements.txt      # Dependencies
 ```
+
+## References
+
+- López, Víctor. (2026). Spectral clustering techniques for Lagrangian particle flow analysis. Bachelor's Thesis, Universitat Politècnica de Catalunya (UPC). [PDF](https://hdl.handle.net/2117/473305) avaiable online.
 
 ## Development
 
-- Install and run linters with `pre-commit`:
+- Install linters with `pre-commit`:
 
 ```bash
-pip install pre-commit
+uv pip install pre-commit   # or: pip install pre-commit
 pre-commit install
+```
+
+- Run linters and formatters:
+
+```bash
 pre-commit run --all-files
 ```
 
@@ -113,7 +110,7 @@ Contributions are welcome. Feel free to open issues or pull requests. If you pla
 
 1. Open an issue to discuss the change.
 2. Create a branch for your work.
-3. Follow repository style and run `pre-commit` before submitting a PR.
+3. Run `pre-commit run --all-files` before submitting a PR.
 
 ## License
 
