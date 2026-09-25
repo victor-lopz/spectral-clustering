@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.linalg
 from sklearn.cluster import KMeans
@@ -251,3 +252,4 @@ def plot_clusters_local_maxs(
             subfolder=subfolder,
             filename_prefix=f"local_max-{local_max_counter}_",
         )
+        plt.show()
