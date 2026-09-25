@@ -1,3 +1,6 @@
+from pathlib import Path
+
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.linalg
 from sklearn.cluster import KMeans
@@ -217,6 +220,7 @@ def plot_clusters_local_maxs(
     result: SpectralAnalysisResult,
     initial_conditions: np.ndarray,
     params: SpectralClusteringConfig,
+    output_dir: str | Path | None = None,
     subfolder: str | None = None,
 ) -> None:
     """
@@ -244,6 +248,8 @@ def plot_clusters_local_maxs(
             sparsification_radius,
             sparsification_percent,
             params,
-            subfolder,
+            output_dir=output_dir,
+            subfolder=subfolder,
             filename_prefix=f"local_max-{local_max_counter}_",
         )
+        plt.show()

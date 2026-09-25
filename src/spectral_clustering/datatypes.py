@@ -1,10 +1,13 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 
 
 @dataclass
 class SpectralClusteringConfig:
+    output_dir: Path = Path("../output")
+
     num_dimensions: int = 2
     t_span: tuple[float, float] = (0, 4 * np.pi)
     t_steps: int = 300
