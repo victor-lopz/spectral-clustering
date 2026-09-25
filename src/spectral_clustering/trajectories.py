@@ -4,7 +4,7 @@ import numpy as np
 import scipy.integrate
 from scipy.spatial.distance import pdist, squareform
 
-from src.datatypes import SpectralClusteringConfig
+from .datatypes import SpectralClusteringConfig
 
 
 def generate_initial_conditions(params: SpectralClusteringConfig) -> np.ndarray:

@@ -7,7 +7,7 @@ from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
 from matplotlib.ticker import PercentFormatter
 
-from src.datatypes import SpectralAnalysisResult, SpectralClusteringConfig
+from .datatypes import SpectralAnalysisResult, SpectralClusteringConfig
 
 
 def get_output_path(filename: str, subfolder: str | None = None) -> str:

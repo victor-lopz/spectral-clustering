@@ -2,8 +2,8 @@ import numpy as np
 import scipy.linalg
 from sklearn.cluster import KMeans
 
-from src.datatypes import SpectralAnalysisResult, SpectralClusteringConfig
-from src.plotting import plot_clusters
+from .datatypes import SpectralAnalysisResult, SpectralClusteringConfig
+from .plotting import plot_clusters
 
 
 def calculate_weight_statistics(similarity_matrix: np.ndarray) -> dict[str, float]:

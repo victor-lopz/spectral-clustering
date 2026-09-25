@@ -1,4 +1,4 @@
-# src/__init__.py
+# src/spectral_clustering/__init__.py
 
 from .datatypes import SpectralAnalysisResult, SpectralClusteringConfig
 from .ode import ode_autonomous_duffing, ode_non_autonomous_duffing
