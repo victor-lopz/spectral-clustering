@@ -1,5 +1,5 @@
-import os
 from collections.abc import Iterable
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,23 +9,60 @@ from matplotlib.ticker import PercentFormatter
 
 from .datatypes import SpectralAnalysisResult, SpectralClusteringConfig
 
+ALLOWED_EXTENSIONS = frozenset((".pdf", ".png", ".jpg", ".jpeg", ".svg"))
+ALLOWED_LIST = ", ".join(ext.strip(".") for ext in ALLOWED_EXTENSIONS)
 
-def get_output_path(filename: str, subfolder: str | None = None) -> str:
-    output_folder = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "..", "output"
-    )
-    if subfolder is None:
-        subfolder = ""
-    output_path = os.path.join(output_folder, subfolder)
-    os.makedirs(output_path, exist_ok=True)
-    return os.path.join(output_path, filename)
+
+def validate_filename(filename: str | Path) -> None:
+    """Checks if a filename has a proper base name and an allowed extension."""
+    file_path = Path(filename)
+    provided = f"Filename provided: '{filename}'"
+    if file_path.parent != Path("."):
+        raise ValueError(f"Filename must be a name, not a path. {provided}")
+    extension = file_path.suffix.lower()  # .suffix includes the dot (e.g., '.pdf')
+    if not extension:
+        raise ValueError(
+            f"Filename must have an extension (e.g., .pdf, .png). {provided}"
+        )
+    if extension not in ALLOWED_EXTENSIONS:
+        raise ValueError(
+            f"Filename must have a valid extension ({ALLOWED_LIST}). {provided}"
+        )
+    if not file_path.stem:  # .stem isolates the name before the final extension
+        raise ValueError(f"Filename must have a name before the extension. {provided}")
+
+
+def get_output_path(
+    output_dir: str | Path,
+    filename: str,
+    subfolder: str | None = None,
+) -> Path:
+    """
+    Constructs the absolute output path for saving plots, creating directories if needed.
+
+    Args:
+        output_dir: The root directory for outputs.
+        filename: The name of the file to save.
+        subfolder: An optional subdirectory name.
+
+    Returns:
+        A resolved Path object pointing to the file destination.
+    """
+    validate_filename(filename)
+    base_path = Path(output_dir)
+    if subfolder:
+        base_path = base_path / subfolder
+    base_path.mkdir(parents=True, exist_ok=True)
+    return base_path / filename
 
 
 def plot_trajectory_paths(
     trajectories: np.ndarray,
+    output_dir: str | Path | None = None,
+    filename: str | None = None,
     subfolder: str | None = None,
     plot_title: str | None = None,
-) -> None:
+) -> Axes:
     """
     Plots the paths of multiple trajectories in 2D space.
     """
@@ -82,12 +119,15 @@ def plot_trajectory_paths(
         ),
     ]
     plt.legend(handles=legend_entries, loc="best")
-    filename = "trajectories.pdf"
-    plt.savefig(get_output_path(filename, subfolder), bbox_inches="tight")
-    plt.show()
+    if output_dir is not None:
+        if filename is None:
+            filename = "trajectories.pdf"
+        file_path = get_output_path(output_dir, filename, subfolder=subfolder)
+        plt.savefig(file_path, bbox_inches="tight")
+    return plt.gca()
 
 
-def plot_coordinates(coordinates: Iterable) -> None:
+def plot_coordinates(coordinates: Iterable) -> Axes:
     """coordinates: array of points in R^2. Example: [[0,1], [0.5,1], [1,1]]"""
     for point in coordinates:
         plt.plot(point[0], point[1], "o", markersize=5, color="grey")
@@ -96,7 +136,7 @@ def plot_coordinates(coordinates: Iterable) -> None:
     plt.title("Initial conditions")
     plt.grid()
     plt.gca().set_aspect("equal", adjustable="box")
-    plt.show()
+    return plt.gca()
 
 
 def set_custom_xtick(y_vals: np.ndarray, at_index: int) -> None:
@@ -113,8 +153,12 @@ def set_custom_xtick(y_vals: np.ndarray, at_index: int) -> None:
 
 
 def plot_eigenvalues_vs_index(
-    eigenvalues: np.ndarray, subfolder: str | None = None
-) -> None:
+    eigenvalues: np.ndarray,
+    output_dir: str | Path | None = None,
+    filename: str | None = None,
+    subfolder: str | None = None,
+    plot_title: str | None = None,
+) -> Axes:
     """
     Plots the eigenvalues in ascending order with respect to their natural index.
     Also highlights the largest eigengap to identify its index.
@@ -159,18 +203,27 @@ def plot_eigenvalues_vs_index(
     )
     plt.xlabel(r"Index $k$")
     plt.ylabel(r"Eigenvalue ($\lambda_{k}$)")
-    plt.title("Eigenvalues sorted by index")
+    if plot_title is None:
+        plot_title = "Eigenvalues with respect to their index"
+    plt.title(plot_title)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.legend()
-    filename = "eigenvalues_vs_index.pdf"
-    plt.savefig(get_output_path(filename, subfolder), bbox_inches="tight")
-    plt.show()
+    if output_dir is not None:
+        if filename is None:
+            filename = "eigenvalues_vs_index.pdf"
+        file_path = get_output_path(output_dir, filename, subfolder=subfolder)
+        plt.savefig(file_path, bbox_inches="tight")
+    return plt.gca()
 
 
 def plot_eigengaps_vs_index(
-    eigenvalues: np.ndarray, subfolder: str | None = None
-) -> None:
+    eigenvalues: np.ndarray,
+    output_dir: str | Path | None = None,
+    filename: str | None = None,
+    subfolder: str | None = None,
+    plot_title: str | None = None,
+) -> Axes:
     """
     Plots the eigengaps (consecutive differences of eigenvalues) with
     respect to their natural index and highlights the largest eigengap.
@@ -215,13 +268,18 @@ def plot_eigengaps_vs_index(
     )
     plt.xlabel(r"Index $k$")
     plt.ylabel(r"Eigengap ($\lambda_{k+1} - \lambda_{k}$)")
-    plt.title("Eigengaps with respect to its index")
+    if plot_title is None:
+        plot_title = "Eigengaps with respect to its index"
+    plt.title(plot_title)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.legend()
-    filename = "eigengaps_vs_index.pdf"
-    plt.savefig(get_output_path(filename, subfolder), bbox_inches="tight")
-    plt.show()
+    if output_dir is not None:
+        if filename is None:
+            filename = "eigengaps_vs_index.pdf"
+        file_path = get_output_path(output_dir, filename, subfolder=subfolder)
+        plt.savefig(file_path, bbox_inches="tight")
+    return plt.gca()
 
 
 def plot_clusters(
@@ -231,9 +289,12 @@ def plot_clusters(
     sparsification_radius: float,
     sparsification_percent: float,
     params: SpectralClusteringConfig,
+    output_dir: str | Path | None = None,
     subfolder: str | None = None,
+    filename: str | None = None,
     filename_prefix: str = "",
-) -> None:
+    plot_title: str | None = None,
+) -> Axes:
     """
     Classifies trajectories into clusters. I.e., plots the initial
     condition for each trajectory and colors them by their labeled cluster.
@@ -248,7 +309,9 @@ def plot_clusters(
                 s=30,
                 label=cluster_id,
             )
-    plt.title("Clusters")
+    if plot_title is None:
+        plot_title = "Clusters"
+    plt.title(plot_title)
     plt.xlabel("x")
     plt.ylabel("y")
     plt.grid(False)
@@ -270,17 +333,21 @@ def plot_clusters(
         va="top",
         fontsize=11,
     )
-    filename = (
-        filename_prefix + f"clusters={num_clusters}"
-        f"_sparse={sparsification_percent * 100:.0f}"
-        f"_tol={sparsification_radius:.1f}"
-        f"_traj={num_trajectories}"
-        f"_tsteps={params.t_steps}"
-        f"_t_end={params.t_span[-1]:.1f}"
-        ".pdf"
-    )
-    plt.savefig(get_output_path(filename, subfolder), bbox_inches="tight")
-    plt.show()
+
+    if output_dir is not None:
+        if filename is None:
+            filename = (
+                f"clusters={num_clusters}"
+                f"_sparse={sparsification_percent * 100:.0f}"
+                f"_tol={sparsification_radius:.1f}"
+                f"_traj={num_trajectories}"
+                f"_tsteps={params.t_steps}"
+                f"_t_end={params.t_span[-1]:.1f}.pdf"
+            )
+        filename = filename_prefix + filename
+        file_path = get_output_path(output_dir, filename, subfolder=subfolder)
+        plt.savefig(file_path, bbox_inches="tight")
+    return plt.gca()
 
 
 def make_patch_spines_invisible(ax) -> None:
@@ -332,8 +399,11 @@ def plot_eigengaps_vs_sparsity(
     result: SpectralAnalysisResult,
     params: SpectralClusteringConfig,
     eigengap_local_maxima_indices: list[int] | None = None,
+    output_dir: str | Path | None = None,
     subfolder: str | None = None,
-) -> None:
+    filename: str | None = None,
+    plot_title: str | None = None,
+) -> Axes:
     """
     Plots the eigengap, number of clusters, and sparsification percentage
     as a function of the sparsification radius. Highlights the relative
@@ -394,8 +464,9 @@ def plot_eigengaps_vs_sparsity(
                 color=next(colors_stats)["color"],
                 label=f"{metric_name} = {metric_value:.2f}",
             )
-
-    host.set_title(r"Eigengap and cluster count vs sparsification radius")
+    if plot_title is None:
+        plot_title = "Eigengap and cluster count vs sparsification radius"
+    host.set_title(plot_title)
     host.grid(True, alpha=0.3)
     lines = [p1, p2, p3]
     labels: list[str] = [str(line.get_label()) for line in lines]
@@ -408,12 +479,14 @@ def plot_eigengaps_vs_sparsity(
 
     host.legend(lines, labels, loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=3)
     fig.tight_layout()
-    filename = (
-        "eigengap_vs_radii"
-        f"-max_clusters={params.max_clusters}"
-        f"_num_radii={len(result.sparsification_radii)}"
-        f"_t_end={params.t_span[1]:.1f}"
-        ".pdf"
-    )
-    plt.savefig(get_output_path(filename, subfolder), bbox_inches="tight")
-    plt.show()
+    if output_dir is not None:
+        if filename is None:
+            filename = (
+                "eigengap_vs_radii"
+                f"-max_clusters={params.max_clusters}"
+                f"_num_radii={len(result.sparsification_radii)}"
+                f"_t_end={params.t_span[1]:.1f}.pdf"
+            )
+        file_path = get_output_path(output_dir, filename, subfolder=subfolder)
+        plt.savefig(file_path, bbox_inches="tight")
+    return plt.gca()
