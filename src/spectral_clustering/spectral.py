@@ -250,6 +250,6 @@ def plot_clusters_local_maxs(
             params,
             output_dir=output_dir,
             subfolder=subfolder,
-            filename=f"local_max-{local_max_counter}_sparse={sparsification_percent:.2%}.pdf",
+            filename=f"local_max-{local_max_counter}_sparse={sparsification_percent:.1}.pdf",
         )
         plt.show()
