@@ -1,20 +1,14 @@
-FROM python:3.14-slim
+FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-RUN useradd --create-home dsuser
-WORKDIR /workspace
+# Copy the project into the image
+COPY . /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Disable development dependencies
+ENV UV_NO_DEV=1
 
-COPY requirements.txt .
+# Sync the project into a new environment, asserting the lockfile is up to date
+WORKDIR /app
+RUN uv sync --locked
 
-RUN pip install --no-cache-dir -r requirements.txt notebook
-
-RUN chown -R dsuser:dsuser /workspace
-USER dsuser
-
-EXPOSE 8888
-
-CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser"]
+CMD ["uv" "run" "--with" "jupyter" "jupyter" "lab"]
